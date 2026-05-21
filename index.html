@@ -83,9 +83,7 @@
       gap: 8px;
     }
 
-    .tab-btn i {
-      font-size: 0.9rem;
-    }
+    .tab-btn i { font-size: 0.9rem; }
 
     .tab-btn.active {
       background: white;
@@ -99,9 +97,7 @@
       flex-wrap: wrap;
     }
 
-    .region-panel.active {
-      display: flex;
-    }
+    .region-panel.active { display: flex; }
 
     .intern-sidebar {
       flex: 0 0 300px;
@@ -133,18 +129,9 @@
       border: 1px solid transparent;
     }
 
-    .intern-item:hover {
-      background: #f8fafc;
-    }
-
-    .intern-item.selected {
-      background: #eef2ff;
-      border-color: #4f46e5;
-    }
-
-    .intern-name {
-      font-weight: 700;
-    }
+    .intern-item:hover { background: #f8fafc; }
+    .intern-item.selected { background: #eef2ff; border-color: #4f46e5; }
+    .intern-name { font-weight: 700; }
 
     .add-intern-btn {
       background: #10b981;
@@ -198,11 +185,6 @@
       text-align: left;
       font-weight: 600;
       color: #334155;
-      position: relative;
-    }
-
-    th .select-all-checkbox {
-      margin-right: 4px;
     }
 
     td {
@@ -210,9 +192,7 @@
       border-bottom: 1px solid #f1f5f9;
     }
 
-    .batch-input-row {
-      background: #fdf4ff;
-    }
+    .batch-input-row { background: #fdf4ff; }
 
     input, select {
       padding: 8px 12px;
@@ -222,9 +202,7 @@
       width: 100px;
     }
 
-    .small-input {
-      width: 80px;
-    }
+    .small-input { width: 80px; }
 
     .analysis-card {
       background: #f9fafb;
@@ -284,43 +262,23 @@
       gap: 6px;
     }
 
-    button.secondary {
-      background: #f1f5f9;
-      color: #1e293b;
-    }
+    button.secondary { background: #f1f5f9; color: #1e293b; }
+    button.danger { background: #ef4444; color: white; }
 
-    button.danger {
-      background: #ef4444;
-      color: white;
-    }
-
-    .edit-name-btn {
+    .edit-name-btn, .delete-intern-btn {
       background: none;
       border: none;
-      color: #64748b;
       cursor: pointer;
       padding: 4px 6px;
       font-size: 0.85rem;
     }
 
-    .edit-name-btn:hover {
-      color: #4f46e5;
-    }
+    .edit-name-btn { color: #64748b; }
+    .edit-name-btn:hover { color: #4f46e5; }
+    .delete-intern-btn { color: #ef4444; }
+    .delete-intern-btn:hover { color: #dc2626; }
 
-    .delete-intern-btn {
-      background: none;
-      border: none;
-      color: #ef4444;
-      cursor: pointer;
-      padding: 4px 6px;
-      font-size: 0.85rem;
-    }
-
-    .delete-intern-btn:hover {
-      color: #dc2626;
-    }
-
-    /* 分页样式 */
+    /* 分页 */
     .pagination {
       display: flex;
       align-items: center;
@@ -338,23 +296,10 @@
       border-radius: 8px;
     }
 
-    .pagination button.active {
-      background: #4f46e5;
-      color: white;
-    }
+    .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pagination .page-info { font-size: 0.85rem; color: #64748b; padding: 0 8px; }
 
-    .pagination button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .pagination .page-info {
-      font-size: 0.85rem;
-      color: #64748b;
-      padding: 0 8px;
-    }
-
-    /* 文件上传区域 */
+    /* 上传区域 */
     .upload-area {
       border: 2px dashed #cbd5e1;
       border-radius: 16px;
@@ -366,26 +311,10 @@
       margin-top: 16px;
     }
 
-    .upload-area:hover {
-      border-color: #4f46e5;
-      background: #f5f3ff;
-    }
-
-    .upload-area i {
-      font-size: 2.5rem;
-      color: #4f46e5;
-      margin-bottom: 10px;
-    }
-
-    .upload-area p {
-      color: #64748b;
-      margin: 5px 0;
-    }
-
-    .upload-area .file-types {
-      font-size: 0.8rem;
-      color: #94a3b8;
-    }
+    .upload-area:hover { border-color: #4f46e5; background: #f5f3ff; }
+    .upload-area i { font-size: 2.5rem; color: #4f46e5; margin-bottom: 10px; }
+    .upload-area p { color: #64748b; margin: 5px 0; }
+    .upload-area .file-types { font-size: 0.8rem; color: #94a3b8; }
 
     .mapping-table {
       width: 100%;
@@ -400,18 +329,7 @@
       text-align: left;
     }
 
-    .mapping-table th {
-      background: #f8fafc;
-      font-weight: 600;
-    }
-
-    .mapping-table select {
-      width: 100%;
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-    }
-
+    .mapping-table th { background: #f8fafc; font-weight: 600; }
     .preview-scroll {
       max-height: 250px;
       overflow-y: auto;
@@ -431,7 +349,6 @@
 
     .tag-success { background: #d1fae5; color: #065f46; }
     .tag-warning { background: #fef3c7; color: #92400e; }
-    .tag-info { background: #dbeafe; color: #1e40af; }
 
     /* 弹窗 */
     .modal-overlay {
@@ -455,7 +372,6 @@
       width: 450px;
       max-width: 90vw;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-      position: relative;
       animation: modalFadeIn 0.2s ease;
       max-height: 85vh;
       overflow-y: auto;
@@ -475,14 +391,7 @@
       gap: 8px;
     }
 
-    .modal-box label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #475569;
-      font-size: 0.9rem;
-    }
-
+    .modal-box label { display: block; font-weight: 600; margin-bottom: 6px; color: #475569; font-size: 0.9rem; }
     .modal-box input, .modal-box select {
       width: 100%;
       padding: 10px 14px;
@@ -494,9 +403,7 @@
       box-sizing: border-box;
     }
 
-    .modal-box input:focus, .modal-box select:focus {
-      border-color: #4f46e5;
-    }
+    .modal-box input:focus, .modal-box select:focus { border-color: #4f46e5; }
 
     .modal-actions {
       display: flex;
@@ -505,24 +412,9 @@
       margin-top: 8px;
     }
 
-    .modal-actions button {
-      padding: 10px 24px;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      font-size: 0.9rem;
-    }
-
-    .modal-actions .cancel-btn {
-      background: #f1f5f9;
-      color: #475569;
-    }
-
-    .modal-actions .confirm-btn {
-      background: #4f46e5;
-      color: white;
-    }
+    .modal-actions button { padding: 10px 24px; border-radius: 25px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; }
+    .modal-actions .cancel-btn { background: #f1f5f9; color: #475569; }
+    .modal-actions .confirm-btn { background: #4f46e5; color: white; }
 
     .standard-row {
       display: flex;
@@ -531,15 +423,8 @@
       margin-bottom: 10px;
     }
 
-    .standard-row label {
-      min-width: 100px;
-      margin-bottom: 0;
-    }
-
-    .standard-row input {
-      width: 100px;
-      margin-bottom: 0;
-    }
+    .standard-row label { min-width: 100px; margin-bottom: 0; }
+    .standard-row input { width: 100px; margin-bottom: 0; }
 
     .toolbar {
       display: flex;
@@ -549,7 +434,7 @@
       margin-bottom: 12px;
     }
 
-    /* 数据展示视图切换 */
+    /* 视图切换 */
     .view-tabs {
       display: flex;
       gap: 4px;
@@ -571,17 +456,10 @@
       transition: 0.2s;
     }
 
-    .view-tab.active {
-      background: white;
-      color: #4f46e5;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
+    .view-tab.active { background: white; color: #4f46e5; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
-    /* 周/月汇总卡片 */
-    .summary-cards {
-      display: block;
-      margin-bottom: 20px;
-    }
+    /* 汇总卡片 */
+    .summary-cards { display: block; margin-bottom: 20px; }
 
     .summary-card {
       background: white;
@@ -593,28 +471,13 @@
       min-width: 100px;
     }
 
-    .summary-card .value {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #1e293b;
-    }
-
-    .summary-card .label {
-      font-size: 0.75rem;
-      color: #64748b;
-      margin-top: 4px;
-    }
-
-    .summary-card .trend {
-      font-size: 0.7rem;
-      margin-top: 4px;
-    }
-
+    .summary-card .value { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+    .summary-card .label { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+    .summary-card .trend { font-size: 0.7rem; margin-top: 4px; }
     .trend-up { color: #10b981; }
     .trend-down { color: #ef4444; }
     .trend-flat { color: #94a3b8; }
 
-    /* 维度开关 */
     .dimension-tags {
       display: flex;
       flex-wrap: wrap;
@@ -634,24 +497,9 @@
       transition: 0.2s;
     }
 
-    .dim-tag.active {
-      background: #4f46e5;
-      color: white;
-      border-color: #4f46e5;
-    }
+    .dim-tag.active { background: #4f46e5; color: white; border-color: #4f46e5; }
 
-    @media (max-width: 850px) {
-      .region-panel {
-        flex-direction: column;
-      }
-      .intern-sidebar {
-        flex: auto;
-      }
-      .summary-cards {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-        /* 奖金计算模块 */
+    /* 奖金模块 */
     .bonus-card {
       background: linear-gradient(135deg, #fef3c7, #fde68a);
       border-radius: 20px;
@@ -660,11 +508,7 @@
       border: 1px solid #fcd34d;
     }
 
-    .bonus-card h4 {
-      color: #92400e;
-      margin-bottom: 12px;
-    }
-
+    .bonus-card h4 { color: #92400e; margin-bottom: 12px; }
     .bonus-table {
       width: 100%;
       border-collapse: collapse;
@@ -690,37 +534,10 @@
       font-weight: 600;
     }
 
-    .bonus-highlight {
-      background: #fef3c7;
-      font-weight: 700;
-      color: #92400e;
-    }
-
-    .bonus-total {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #92400e;
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    .period-selector {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .period-selector input {
-      width: 140px;
-    }
-
-    .period-selector label {
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: #475569;
-    }
+    .bonus-highlight { background: #fef3c7; font-weight: 700; color: #92400e; }
+    .period-selector { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    .period-selector input { width: 140px; }
+    .period-selector label { font-weight: 600; font-size: 0.85rem; color: #475569; }
 
     .rule-table {
       width: 100%;
@@ -732,15 +549,49 @@
       overflow: hidden;
     }
 
-    .rule-table th, .rule-table td {
-      padding: 4px 8px;
-      text-align: center;
-      border: 1px solid #e9eef3;
+    .rule-table th, .rule-table td { padding: 4px 8px; text-align: center; border: 1px solid #e9eef3; }
+    .rule-table th { background: #f8fafc; font-size: 0.65rem; }
+
+    /* 筛选面板 */
+    .filter-panel {
+      background: white;
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
     }
 
-    .rule-table th {
-      background: #f8fafc;
-      font-size: 0.65rem;
+    .filter-panel label { font-weight: 600; font-size: 0.85rem; color: #475569; white-space: nowrap; }
+    .filter-panel input[type="date"] { width: 140px; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem; }
+    .quick-btns { display: flex; gap: 4px; }
+
+    .quick-btn {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #475569;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .quick-btn:hover { background: #eef2ff; border-color: #4f46e5; }
+    .quick-btn.active-filter { background: #4f46e5; color: white; border-color: #4f46e5; }
+    .filter-actions { display: flex; gap: 6px; }
+    .filter-actions button { padding: 8px 16px; font-size: 0.8rem; border-radius: 20px; }
+    .filter-info { font-size: 0.75rem; color: #64748b; margin-left: auto; }
+
+    @media (max-width: 850px) {
+      .region-panel { flex-direction: column; }
+      .intern-sidebar { flex: auto; }
+      .filter-panel { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -771,7 +622,6 @@
       { id: 'brazil', name: '巴西', icon: 'fa-flag' }
     ];
 
-    // 默认维度列表
     const ALL_DIMENSIONS = [
       { key: 'approach', label: '搭讪人数', icon: '💬' },
       { key: 'reply', label: '回复人数', icon: '↩️' },
@@ -783,33 +633,33 @@
     ];
 
     let interns = [];
+    let dailyRecords = {};
+    let weeklyStandards = {};
+    let currentRegion = 'taiwan';
+    let selectedInternId = null;
+    let selectedRows = {};
+    let dataViewMode = {};
+    let filterState = {};
+    let currentPage = {};
+    const PAGE_SIZE = 10;
 
+    // ========== 数据存储 ==========
     function loadInternsFromStorage() {
       const saved = localStorage.getItem('kolInterns');
-      if (saved) {
-        try { interns = JSON.parse(saved); } catch (e) { initDefaultInterns(); }
-      } else {
-        initDefaultInterns();
-        saveInternsToStorage();
-      }
+      if (saved) { try { interns = JSON.parse(saved); } catch (e) { initDefaultInterns(); } }
+      else { initDefaultInterns(); saveInternsToStorage(); }
     }
 
     function initDefaultInterns() {
       interns = [
-        { id: 'tw1', name: '陈雅婷', region: 'taiwan' },
-        { id: 'tw2', name: '林俊杰', region: 'taiwan' },
-        { id: 'tr1', name: 'Elif Demir', region: 'turkey' },
-        { id: 'tr2', name: 'Mehmet Yılmaz', region: 'turkey' },
-        { id: 'es1', name: 'Sofía García', region: 'spanish' },
-        { id: 'es2', name: 'Carlos Ruiz', region: 'spanish' },
-        { id: 'br1', name: 'Ana Silva', region: 'brazil' },
-        { id: 'br2', name: 'João Costa', region: 'brazil' }
+        { id: 'tw1', name: '陈雅婷', region: 'taiwan' }, { id: 'tw2', name: '林俊杰', region: 'taiwan' },
+        { id: 'tr1', name: 'Elif Demir', region: 'turkey' }, { id: 'tr2', name: 'Mehmet Yılmaz', region: 'turkey' },
+        { id: 'es1', name: 'Sofía García', region: 'spanish' }, { id: 'es2', name: 'Carlos Ruiz', region: 'spanish' },
+        { id: 'br1', name: 'Ana Silva', region: 'brazil' }, { id: 'br2', name: 'João Costa', region: 'brazil' }
       ];
     }
 
-    function saveInternsToStorage() {
-      localStorage.setItem('kolInterns', JSON.stringify(interns));
-    }
+    function saveInternsToStorage() { localStorage.setItem('kolInterns', JSON.stringify(interns)); }
 
     function generateInternId(regionId) {
       const regionInterns = interns.filter(i => i.region === regionId);
@@ -822,29 +672,14 @@
       return `${prefix}${maxNum + 1}`;
     }
 
-    let dailyRecords = {};
-    let currentPage = {};
-    const PAGE_SIZE = 10;
-
     function loadDataFromStorage() {
       const saved = localStorage.getItem('kolDailyRecords');
-      if (saved) {
-        try { dailyRecords = JSON.parse(saved); } catch (e) { initEmptyRecords(); }
-      } else {
-        initEmptyRecords();
-        seedSampleData();
-        saveDataToStorage();
-      }
+      if (saved) { try { dailyRecords = JSON.parse(saved); } catch (e) { initEmptyRecords(); } }
+      else { initEmptyRecords(); seedSampleData(); saveDataToStorage(); }
     }
 
-    function initEmptyRecords() {
-      dailyRecords = {};
-      interns.forEach(intern => { dailyRecords[intern.id] = []; });
-    }
-
-    function saveDataToStorage() {
-      localStorage.setItem('kolDailyRecords', JSON.stringify(dailyRecords));
-    }
+    function initEmptyRecords() { dailyRecords = {}; interns.forEach(intern => { dailyRecords[intern.id] = []; }); }
+    function saveDataToStorage() { localStorage.setItem('kolDailyRecords', JSON.stringify(dailyRecords)); }
 
     function seedSampleData() {
       const today = new Date().toISOString().split('T')[0];
@@ -856,58 +691,32 @@
       if (dailyRecords['br1']) dailyRecords['br1'].push({ date: y, approach: 22, reply: 16, newHost: 6, comments: 62, storyPost: 10, video: 5, cost: 400 });
     }
 
-    // 周标准存储 - 现在每个地区可以自定义维度和标准
-    let weeklyStandards = {};
-
     function loadStandardsFromStorage() {
       const saved = localStorage.getItem('kolWeeklyStandards');
-      if (saved) {
-        try { weeklyStandards = JSON.parse(saved); } catch (e) { initDefaultStandards(); }
-      } else {
-        initDefaultStandards();
-        saveStandardsToStorage();
-      }
+      if (saved) { try { weeklyStandards = JSON.parse(saved); } catch (e) { initDefaultStandards(); } }
+      else { initDefaultStandards(); saveStandardsToStorage(); }
     }
 
     function initDefaultStandards() {
       weeklyStandards = {};
       REGIONS.forEach(region => {
         weeklyStandards[region.id] = {
-          enabledDimensions: ['approach', 'reply', 'newHost', 'comments', 'storyPost', 'video', 'cost'],
-          targets: {
-            approach: region.id === 'taiwan' ? 50 : region.id === 'turkey' ? 60 : region.id === 'spanish' ? 55 : 65,
-            reply: region.id === 'taiwan' ? 30 : region.id === 'turkey' ? 35 : region.id === 'spanish' ? 32 : 40,
-            newHost: region.id === 'taiwan' ? 8 : region.id === 'turkey' ? 10 : region.id === 'spanish' ? 9 : 12,
-            comments: region.id === 'taiwan' ? 100 : region.id === 'turkey' ? 120 : region.id === 'spanish' ? 110 : 140,
-            storyPost: region.id === 'taiwan' ? 20 : region.id === 'turkey' ? 25 : region.id === 'spanish' ? 22 : 28,
-            video: region.id === 'taiwan' ? 8 : region.id === 'turkey' ? 10 : region.id === 'spanish' ? 9 : 12,
-            cost: region.id === 'taiwan' ? 500 : region.id === 'turkey' ? 600 : region.id === 'spanish' ? 550 : 700
-          }
+          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
+          targets: { approach: 50, reply: 30, newHost: 8, comments: 100, storyPost: 20, video: 8, cost: 500 }
         };
       });
     }
 
-    function saveStandardsToStorage() {
-      localStorage.setItem('kolWeeklyStandards', JSON.stringify(weeklyStandards));
-    }
+    function saveStandardsToStorage() { localStorage.setItem('kolWeeklyStandards', JSON.stringify(weeklyStandards)); }
 
+    // ========== 初始化 ==========
     loadInternsFromStorage();
     loadDataFromStorage();
     loadStandardsFromStorage();
 
-    let currentRegion = 'taiwan';
-    let selectedInternId = null;
-    let selectedRows = {};
-    let dataViewMode = {}; // 'week' | 'month' | 'all'
-
-    function getInternsByRegion(regionId) {
-      return interns.filter(i => i.region === regionId);
-    }
-
-    function getRegionName(regionId) {
-      const region = REGIONS.find(r => r.id === regionId);
-      return region ? region.name : regionId;
-    }
+    // ========== 工具函数 ==========
+    function getInternsByRegion(regionId) { return interns.filter(i => i.region === regionId); }
+    function getRegionName(regionId) { const r = REGIONS.find(r => r.id === regionId); return r ? r.name : regionId; }
 
     function getWeekStart() {
       const now = new Date();
@@ -923,35 +732,109 @@
 
     function getWeekRecords(internId) {
       const weekStart = getWeekStart().toISOString().split('T')[0];
-      const records = dailyRecords[internId] || [];
-      return records.filter(r => r.date >= weekStart);
+      return (dailyRecords[internId] || []).filter(r => r.date >= weekStart);
     }
 
     function getMonthRecords(internId) {
       const monthStart = getMonthStart();
-      const records = dailyRecords[internId] || [];
-      return records.filter(r => r.date >= monthStart);
+      return (dailyRecords[internId] || []).filter(r => r.date >= monthStart);
     }
 
     function calculateScore(records) {
-      return records.reduce((s, r) => {
-        return s + r.approach + r.reply + r.newHost * 3 + r.comments + r.storyPost * 2 + r.video * 3;
-      }, 0);
+      return records.reduce((s, r) => s + r.approach + r.reply + r.newHost * 3 + r.comments + r.storyPost * 2 + r.video * 3, 0);
     }
 
-    function getPagedRecords(internId, page) {
-      const records = dailyRecords[internId] || [];
-      const totalPages = Math.ceil(records.length / PAGE_SIZE) || 1;
-      const p = Math.min(Math.max(page || 1, 1), totalPages);
-      const start = (p - 1) * PAGE_SIZE;
-      return {
-        records: records.slice(start, start + PAGE_SIZE),
-        page: p,
-        totalPages: totalPages,
-        total: records.length
-      };
+    // ========== 筛选功能 ==========
+    function initFilterState(regionId) {
+      if (!filterState[regionId]) {
+        const now = new Date();
+        const day = now.getDay();
+        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(now.setDate(diff));
+        const sunday = new Date(monday);
+        sunday.setDate(sunday.getDate() + 6);
+        filterState[regionId] = {
+          startDate: monday.toISOString().split('T')[0],
+          endDate: sunday.toISOString().split('T')[0],
+          period: 'week'
+        };
+      }
     }
 
+    function setFilterPeriod(regionId, period) {
+      const now = new Date();
+      let startDate, endDate;
+      switch (period) {
+        case 'today':
+          startDate = new Date().toISOString().split('T')[0];
+          endDate = startDate;
+          break;
+        case 'week':
+          const day = now.getDay();
+          const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+          const monday = new Date(now.setDate(diff));
+          const sunday = new Date(monday);
+          sunday.setDate(sunday.getDate() + 6);
+          startDate = monday.toISOString().split('T')[0];
+          endDate = sunday.toISOString().split('T')[0];
+          break;
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+          break;
+        case 'lastMonth':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split('T')[0];
+          endDate = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0];
+          break;
+        case 'all':
+          startDate = ''; endDate = '';
+          break;
+        default: return;
+      }
+      filterState[regionId] = { startDate, endDate, period };
+      const startInput = document.getElementById(`filterStart-${regionId}`);
+      const endInput = document.getElementById(`filterEnd-${regionId}`);
+      if (startInput) startInput.value = startDate;
+      if (endInput) endInput.value = endDate;
+      updateQuickBtnStyles(regionId, period);
+      updateFilterInfo(regionId);
+    }
+
+    function updateQuickBtnStyles(regionId, activePeriod) {
+      const btns = document.querySelectorAll(`#quickBtns-${regionId} .quick-btn`);
+      btns.forEach(btn => {
+        btn.classList.remove('active-filter');
+        if (btn.dataset.period === activePeriod) btn.classList.add('active-filter');
+      });
+    }
+
+    function updateFilterInfo(regionId) {
+      const infoEl = document.getElementById(`filterInfo-${regionId}`);
+      if (!infoEl) return;
+      const state = filterState[regionId];
+      if (!state || (!state.startDate && !state.endDate)) { infoEl.textContent = '显示：全部数据'; }
+      else if (state.startDate && state.endDate && state.startDate === state.endDate) { infoEl.textContent = '显示：' + state.startDate; }
+      else { infoEl.textContent = '显示：' + (state.startDate || '最早') + ' 至 ' + (state.endDate || '最晚'); }
+    }
+
+    function getFilterDates(regionId) {
+      if (!filterState[regionId]) initFilterState(regionId);
+      return filterState[regionId];
+    }
+
+    function applyCustomFilter(regionId) {
+      const startInput = document.getElementById(`filterStart-${regionId}`);
+      const endInput = document.getElementById(`filterEnd-${regionId}`);
+      const startDate = startInput ? startInput.value : '';
+      const endDate = endInput ? endInput.value : '';
+      if (!startDate && !endDate) { setFilterPeriod(regionId, 'all'); return; }
+      if (startDate && endDate && startDate > endDate) { alert('开始日期不能晚于结束日期'); return; }
+      filterState[regionId] = { startDate, endDate, period: 'custom' };
+      updateQuickBtnStyles(regionId, 'custom');
+      updateFilterInfo(regionId);
+    }
+
+    // ========== 渲染面板 ==========
     function renderAllPanels() {
       const container = document.getElementById('regionPanelsContainer');
       container.innerHTML = '';
@@ -965,7 +848,7 @@
             <div id="internList-${region.id}"></div>
             <button class="add-intern-btn" id="addInternBtn-${region.id}"><i class="fas fa-user-plus"></i> 新增实习生</button>
             <button class="standard-btn" id="standardBtn-${region.id}"><i class="fas fa-sliders-h"></i> 自定义周标准维度</button>
-          <div class="ranking-card" id="rankingCard-${region.id}" style="margin-top:16px;">
+            <div class="ranking-card" id="rankingCard-${region.id}" style="margin-top:16px;">
               <h4 style="margin-bottom:10px;"><i class="fas fa-trophy"></i> 本周排名</h4>
               <div id="rankingList-${region.id}"></div>
             </div>
@@ -1010,15 +893,36 @@
                 </button>
               </div>
             </div>
-            <!-- 视图切换 -->
+            
+            <div class="filter-panel" id="filterPanel-${region.id}">
+              <label><i class="fas fa-calendar"></i> 日期筛选：</label>
+              <input type="date" id="filterStart-${region.id}" title="开始日期">
+              <span style="color:#94a3b8;">至</span>
+              <input type="date" id="filterEnd-${region.id}" title="结束日期">
+              <div class="quick-btns" id="quickBtns-${region.id}">
+                <button class="quick-btn" data-period="today">今天</button>
+                <button class="quick-btn active-filter" data-period="week">本周</button>
+                <button class="quick-btn" data-period="month">本月</button>
+                <button class="quick-btn" data-period="lastMonth">上月</button>
+                <button class="quick-btn" data-period="all">全部</button>
+              </div>
+              <div class="filter-actions">
+                <button id="applyFilterBtn-${region.id}" style="background:#0ea5e9; padding:6px 14px; font-size:0.8rem;">
+                  <i class="fas fa-search"></i> 应用
+                </button>
+                <button id="clearFilterBtn-${region.id}" style="background:#94a3b8; padding:6px 14px; font-size:0.8rem;">
+                  <i class="fas fa-times"></i> 清除
+                </button>
+              </div>
+              <span class="filter-info" id="filterInfo-${region.id}">显示：本周数据</span>
+            </div>
+            
             <div class="view-tabs" id="viewTabs-${region.id}">
               <button class="view-tab active" data-view="week">📅 本周汇总</button>
               <button class="view-tab" data-view="month">📆 本月汇总</button>
               <button class="view-tab" data-view="all">📋 全部记录</button>
             </div>
-            <!-- 汇总卡片 -->
             <div class="summary-cards" id="summaryCards-${region.id}"></div>
-            <!-- 全部记录表格 -->
             <div id="tableContainer-${region.id}"></div>
             <div class="analysis-card" id="analysisCard-${region.id}">
               <p style="color:#64748b;">👈 请选择左侧实习生查看数据与产出分析</p>
@@ -1043,296 +947,55 @@
           const view = this.dataset.view;
           if (selectedInternId) {
             dataViewMode[selectedInternId] = view;
-            refreshDataDisplay(regionId, selectedInternId);
+            refreshAllViews(regionId, selectedInternId);
           }
         });
       });
     }
-        // 渲染周标准展示板块
-    function renderStandardDisplay(regionId) {
-      const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
-      if (!cardsDiv) return '';
-      
-      // 确保配置存在
-      if (!weeklyStandards[regionId]) {
-        weeklyStandards[regionId] = {
-          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
-          targets: {}
-        };
-      }
-      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
-        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
-      }
-      if (!weeklyStandards[regionId].targets) {
-        weeklyStandards[regionId].targets = {};
-      }
 
-      const config = weeklyStandards[regionId];
-      const enabledDims = config.enabledDimensions;
-      const targets = config.targets;
-      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDims.includes(d.key));
-
-      if (visibleDims.length === 0) {
-        return '';
-      }
-
-      let html = `
-        <div style="grid-column:1/-1; background:#f0f9ff; border-radius:14px; padding:14px 18px; margin-bottom:8px; border:1px solid #bae6fd;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h4 style="font-size:0.9rem; color:#0369a1; margin:0;"><i class="fas fa-bullseye"></i> 本周标准目标</h4>
-            <button onclick="document.getElementById('standardBtn-${regionId}').click()" style="background:#0ea5e9; padding:5px 12px; font-size:0.7rem; border-radius:20px;">
-              <i class="fas fa-edit"></i> 修改
-            </button>
-          </div>
-          <div style="display:flex; flex-wrap:wrap; gap:8px;">
-            ${visibleDims.map(dim => `
-              <div style="background:white; border-radius:10px; padding:8px 14px; text-align:center; min-width:70px; flex:0 0 auto;">
-                <div style="font-size:0.65rem; color:#64748b; white-space:nowrap;">${dim.icon} ${dim.label}</div>
-                <div style="font-weight:700; font-size:1rem; color:#0c4a6e;">${(targets[dim.key] || 0).toLocaleString()}</div>
-                <div style="font-size:0.55rem; color:#94a3b8;">/周</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-      
-      return html;
-    }
-          function refreshDataDisplay(regionId, internId) {
-      const view = dataViewMode[internId] || 'week';
-      
-      // 先渲染周标准展示
-      const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
-      if (cardsDiv) {
-        const standardHTML = renderStandardDisplay(regionId);
-        cardsDiv.innerHTML = standardHTML;
-      }
-      
-      // 再渲染汇总卡片
-      renderSummaryCards(regionId, internId, view);
-      
-      if (view === 'all') {
-        document.getElementById(`tableContainer-${regionId}`).style.display = 'block';
-        
-        // ★ 第5步修改：获取当前筛选日期输入框的值，传递给renderDataTable
-        const fsEl = document.getElementById(`filterStart-${regionId}`);
-        const feEl = document.getElementById(`filterEnd-${regionId}`);
-        const fs = fsEl ? fsEl.value : '';
-        const fe = feEl ? feEl.value : '';
-        renderDataTable(regionId, internId, fs, fe);
-        
-      } else {
-        document.getElementById(`tableContainer-${regionId}`).style.display = 'none';
-      }
-      renderAnalysis(regionId, internId);
-    }
-
-      function renderSummaryCards(regionId, internId, view) {
-      const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
-      if (!cardsDiv) return;
-
-      // 确保配置存在
-      if (!weeklyStandards[regionId]) {
-        weeklyStandards[regionId] = {
-          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
-          targets: {}
-        };
-      }
-      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
-        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
-      }
-
-      const standardConfig = weeklyStandards[regionId];
-      const targets = standardConfig.targets || {};
-
-      let records;
-      if (view === 'week') {
-        records = getWeekRecords(internId);
-      } else if (view === 'month') {
-        records = getMonthRecords(internId);
-      } else {
-        records = dailyRecords[internId] || [];
-      }
-
-      if (records.length === 0) {
-        cardsDiv.innerHTML += '<p style="color:#94a3b8; padding:10px; text-align:center;">暂无数据记录</p>';
-        return;
-      }
-
-      const totals = {};
-      ALL_DIMENSIONS.forEach(dim => {
-        totals[dim.key] = records.reduce((s, r) => s + (r[dim.key] || 0), 0);
-      });
-
-      // 标题行
-      cardsDiv.innerHTML += '<div style="margin-top:8px; margin-bottom:10px;"><h4 style="font-size:0.9rem; color:#475569; margin:0;"><i class="fas fa-chart-bar"></i> ' + (view === 'week' ? '本周' : view === 'month' ? '本月' : '全部') + '数据汇总</h4></div>';
-
-      // flex容器包裹汇总卡片 - 始终显示全部7个维度
-      var cardsHTML = '<div style="display:flex; flex-wrap:wrap; gap:10px;">';
-      
-      // ★ 关键修改：遍历ALL_DIMENSIONS全部维度，不用filter
-      ALL_DIMENSIONS.forEach(function(dim) {
-        var target = targets[dim.key] || 0;
-        var value = totals[dim.key];
-        var pct = target > 0 ? Math.round(value / target * 100) : 0;
-        var trendClass = 'trend-flat';
-        var trendIcon = '➡️';
-        if (pct >= 100) {
-          trendClass = 'trend-up';
-          trendIcon = '✅';
-        } else if (pct >= 70) {
-          trendClass = 'trend-up';
-          trendIcon = '📈';
-        } else if (pct < 50) {
-          trendClass = 'trend-down';
-          trendIcon = '⚠️';
-        }
-
-        cardsHTML += '<div class="summary-card" style="flex:0 0 auto; min-width:100px;">';
-        cardsHTML += '<div class="value">' + dim.icon + ' ' + value.toLocaleString() + '</div>';
-        cardsHTML += '<div class="label">' + dim.label + '</div>';
-        if (target > 0) {
-          cardsHTML += '<div class="trend ' + trendClass + '">' + trendIcon + ' 目标' + target + ' (' + pct + '%)</div>';
-        }
-        cardsHTML += '</div>';
-      });
-      
-      cardsHTML += '</div>';
-      cardsDiv.innerHTML += cardsHTML;
-    }
-
-      function bindRegionButtons(regionId) {
+    function bindRegionButtons(regionId) {
       const addBtn = document.getElementById(`addInternBtn-${regionId}`);
       const standardBtn = document.getElementById(`standardBtn-${regionId}`);
       const uploadBtn = document.getElementById(`batchUploadBtn-${regionId}`);
       const calcBonusBtn = document.getElementById(`calcBonusBtn-${regionId}`);
+      const applyFilterBtn = document.getElementById(`applyFilterBtn-${regionId}`);
+      const clearFilterBtn = document.getElementById(`clearFilterBtn-${regionId}`);
 
       if (addBtn) addBtn.addEventListener('click', () => showAddInternModal(regionId));
       if (standardBtn) standardBtn.addEventListener('click', () => showStandardModal(regionId));
       if (uploadBtn) uploadBtn.addEventListener('click', () => showUploadModal(regionId));
       if (calcBonusBtn) calcBonusBtn.addEventListener('click', () => calculateBonus(regionId));
-    }
-
-        // 自定义周标准弹窗（支持选择维度和设置目标）
-    function showStandardModal(regionId) {
-      const existing = document.querySelector('.modal-overlay');
-      if (existing) existing.remove();
-
-      // 确保该地区的标准配置存在
-      if (!weeklyStandards[regionId]) {
-        weeklyStandards[regionId] = {
-          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
-          targets: {}
-        };
-        ALL_DIMENSIONS.forEach(dim => {
-          weeklyStandards[regionId].targets[dim.key] = 0;
+      
+      if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', () => {
+          applyCustomFilter(regionId);
+          if (selectedInternId) refreshAllViews(regionId, selectedInternId);
         });
       }
       
-      // 再次确保 enabledDimensions 存在
-      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
-        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
-      }
-      if (!weeklyStandards[regionId].targets) {
-        weeklyStandards[regionId].targets = {};
-        ALL_DIMENSIONS.forEach(dim => {
-          weeklyStandards[regionId].targets[dim.key] = 0;
+      if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', () => {
+          setFilterPeriod(regionId, 'all');
+          if (selectedInternId) refreshAllViews(regionId, selectedInternId);
         });
       }
 
-      const config = weeklyStandards[regionId];
-      const regionName = getRegionName(regionId);
-      const enabledDims = config.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
-      const targets = config.targets || {};
-
-      const overlay = document.createElement('div');
-      overlay.className = 'modal-overlay';
-      overlay.innerHTML = `
-        <div class="modal-box" style="width:600px; max-width:95vw;">
-          <h3><i class="fas fa-sliders-h"></i> ${regionName} - 自定义周标准</h3>
-          <p style="color:#64748b; font-size:0.85rem; margin-bottom:14px;">
-            选择需要考核的维度，并为每个维度设置周目标值。未选中的维度将不参与达标分析。
-          </p>
-          
-          <div style="margin-bottom:16px;">
-            <label style="font-weight:600; margin-bottom:8px; display:block;">📌 启用维度（可多选）</label>
-            <div class="dimension-tags" id="dimTags-${regionId}">
-              ${ALL_DIMENSIONS.map(dim => `
-                <span class="dim-tag ${enabledDims.includes(dim.key) ? 'active' : ''}" data-dim="${dim.key}">
-                  ${dim.icon} ${dim.label}
-                </span>
-              `).join('')}
-            </div>
-          </div>
-
-          <div id="dimTargets-${regionId}">
-            ${ALL_DIMENSIONS.map(dim => `
-              <div class="standard-row" id="targetRow-${dim.key}-${regionId}" style="display:${enabledDims.includes(dim.key) ? 'flex' : 'none'};">
-                <label>${dim.icon} ${dim.label}：</label>
-                <input type="number" id="std-${dim.key}-${regionId}" value="${targets[dim.key] || 0}" min="0" style="width:120px;">
-                <span style="font-size:0.8rem; color:#94a3b8;">/周</span>
-              </div>
-            `).join('')}
-          </div>
-
-          <div class="modal-actions">
-            <button class="cancel-btn" id="cancelStdBtn">取消</button>
-            <button class="confirm-btn" id="confirmStdBtn">保存标准</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-
-      // 维度标签点击切换
-      const dimTags = document.getElementById(`dimTags-${regionId}`);
-      let currentEnabledDims = [...enabledDims];
-
-      dimTags.querySelectorAll('.dim-tag').forEach(tag => {
-        tag.addEventListener('click', function() {
-          const dimKey = this.dataset.dim;
-          this.classList.toggle('active');
-          if (this.classList.contains('active')) {
-            if (!currentEnabledDims.includes(dimKey)) currentEnabledDims.push(dimKey);
-          } else {
-            currentEnabledDims = currentEnabledDims.filter(d => d !== dimKey);
-          }
-          // 显示/隐藏目标输入行
-          const targetRow = document.getElementById(`targetRow-${dimKey}-${regionId}`);
-          if (targetRow) {
-            targetRow.style.display = this.classList.contains('active') ? 'flex' : 'none';
-          }
+      const quickBtns = document.getElementById(`quickBtns-${regionId}`);
+      if (quickBtns) {
+        quickBtns.querySelectorAll('.quick-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const period = this.dataset.period;
+            setFilterPeriod(regionId, period);
+            if (selectedInternId) refreshAllViews(regionId, selectedInternId);
+          });
         });
-      });
-
-      document.getElementById('cancelStdBtn').addEventListener('click', () => overlay.remove());
-      document.getElementById('confirmStdBtn').addEventListener('click', () => {
-        const newTargets = {};
-        ALL_DIMENSIONS.forEach(dim => {
-          const input = document.getElementById(`std-${dim.key}-${regionId}`);
-          if (input && currentEnabledDims.includes(dim.key)) {
-            newTargets[dim.key] = parseInt(input.value) || 0;
-          }
-        });
-
-        weeklyStandards[regionId] = {
-          enabledDimensions: currentEnabledDims,
-          targets: newTargets
-        };
-        saveStandardsToStorage();
-        overlay.remove();
-        if (selectedInternId) {
-          refreshDataDisplay(regionId, selectedInternId);
-        }
-        renderRanking(regionId);
-      });
-
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+      }
     }
 
+    // ========== 弹窗函数 ==========
     function showAddInternModal(regionId) {
       const existing = document.querySelector('.modal-overlay');
       if (existing) existing.remove();
-
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
       overlay.innerHTML = `
@@ -1351,7 +1014,6 @@
         </div>
       `;
       document.body.appendChild(overlay);
-
       document.getElementById('cancelAddBtn').addEventListener('click', () => overlay.remove());
       document.getElementById('confirmAddBtn').addEventListener('click', () => {
         const name = document.getElementById('newInternName').value.trim();
@@ -1367,57 +1029,113 @@
         renderAllPanels();
         switchRegion(region);
       });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    }
 
+    function showStandardModal(regionId) {
+      const existing = document.querySelector('.modal-overlay');
+      if (existing) existing.remove();
+      if (!weeklyStandards[regionId]) {
+        weeklyStandards[regionId] = { enabledDimensions: ALL_DIMENSIONS.map(d => d.key), targets: {} };
+        ALL_DIMENSIONS.forEach(dim => { weeklyStandards[regionId].targets[dim.key] = 0; });
+      }
+      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
+        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
+      }
+      if (!weeklyStandards[regionId].targets) {
+        weeklyStandards[regionId].targets = {};
+        ALL_DIMENSIONS.forEach(dim => { weeklyStandards[regionId].targets[dim.key] = 0; });
+      }
+
+      const config = weeklyStandards[regionId];
+      const regionName = getRegionName(regionId);
+      const enabledDims = config.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
+      const targets = config.targets || {};
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal-box" style="width:600px; max-width:95vw;">
+          <h3><i class="fas fa-sliders-h"></i> ${regionName} - 自定义周标准</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-bottom:14px;">选择需要考核的维度，并为每个维度设置周目标值。</p>
+          <div style="margin-bottom:16px;">
+            <label style="font-weight:600; margin-bottom:8px; display:block;">📌 启用维度（可多选）</label>
+            <div class="dimension-tags" id="dimTags-${regionId}">
+              ${ALL_DIMENSIONS.map(dim => `<span class="dim-tag ${enabledDims.includes(dim.key) ? 'active' : ''}" data-dim="${dim.key}">${dim.icon} ${dim.label}</span>`).join('')}
+            </div>
+          </div>
+          <div id="dimTargets-${regionId}">
+            ${ALL_DIMENSIONS.map(dim => `
+              <div class="standard-row" id="targetRow-${dim.key}-${regionId}" style="display:${enabledDims.includes(dim.key) ? 'flex' : 'none'};">
+                <label>${dim.icon} ${dim.label}：</label>
+                <input type="number" id="std-${dim.key}-${regionId}" value="${targets[dim.key] || 0}" min="0" style="width:120px;">
+                <span style="font-size:0.8rem; color:#94a3b8;">/周</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="modal-actions">
+            <button class="cancel-btn" id="cancelStdBtn">取消</button>
+            <button class="confirm-btn" id="confirmStdBtn">保存标准</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const dimTags = document.getElementById(`dimTags-${regionId}`);
+      let currentEnabledDims = [...enabledDims];
+      dimTags.querySelectorAll('.dim-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+          const dimKey = this.dataset.dim;
+          this.classList.toggle('active');
+          if (this.classList.contains('active')) { if (!currentEnabledDims.includes(dimKey)) currentEnabledDims.push(dimKey); }
+          else { currentEnabledDims = currentEnabledDims.filter(d => d !== dimKey); }
+          const targetRow = document.getElementById(`targetRow-${dimKey}-${regionId}`);
+          if (targetRow) targetRow.style.display = this.classList.contains('active') ? 'flex' : 'none';
+        });
+      });
+
+      document.getElementById('cancelStdBtn').addEventListener('click', () => overlay.remove());
+      document.getElementById('confirmStdBtn').addEventListener('click', () => {
+        const newTargets = {};
+        ALL_DIMENSIONS.forEach(dim => {
+          const input = document.getElementById(`std-${dim.key}-${regionId}`);
+          if (input && currentEnabledDims.includes(dim.key)) newTargets[dim.key] = parseInt(input.value) || 0;
+        });
+        weeklyStandards[regionId] = { enabledDimensions: currentEnabledDims, targets: newTargets };
+        saveStandardsToStorage();
+        overlay.remove();
+        if (selectedInternId) refreshAllViews(regionId, selectedInternId);
+        renderRanking(regionId);
+      });
       overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
     function showUploadModal(regionId) {
       const regionInterns = getInternsByRegion(regionId);
-      if (regionInterns.length === 0) {
-        alert('该地区暂无实习生，请先添加实习生');
-        return;
-      }
-
+      if (regionInterns.length === 0) { alert('该地区暂无实习生'); return; }
       const existing = document.querySelector('.modal-overlay');
       if (existing) existing.remove();
-
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
       overlay.innerHTML = `
         <div class="modal-box" style="width:700px; max-width:95vw;">
           <h3><i class="fas fa-file-upload"></i> 智能批量上传日报</h3>
-          <p style="color:#64748b; font-size:0.9rem; margin-bottom:12px;">
-            支持CSV和Excel文件上传。系统只识别表格中存在的列数据。
-          </p>
-          
+          <p style="color:#64748b; font-size:0.9rem; margin-bottom:12px;">支持CSV和Excel文件上传。</p>
           <div class="upload-area" id="uploadDropZone-${regionId}">
             <i class="fas fa-cloud-upload-alt"></i>
             <p><strong>点击选择文件</strong> 或拖拽文件到此处</p>
             <p class="file-types">支持 .csv, .xlsx 格式</p>
             <input type="file" id="fileInput-${regionId}" accept=".csv,.xlsx,.xls" style="display:none;">
           </div>
-
           <div id="uploadPreview-${regionId}" style="display:none;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-              <h4 style="font-size:1rem;">📋 数据预览（分页显示）</h4>
+              <h4 style="font-size:1rem;">📋 数据预览</h4>
               <span id="rowCount-${regionId}" style="font-size:0.85rem; color:#64748b;"></span>
             </div>
             <div class="preview-scroll" id="previewTable-${regionId}"></div>
             <div class="pagination" id="previewPagination-${regionId}"></div>
-            
-            <div style="margin-top:16px;">
-              <h4 style="font-size:1rem; margin-bottom:8px;">🔗 列映射设置（仅显示表格中有的列）</h4>
-              <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">
-                系统只识别文件中实际存在的列。请确认映射关系。
-              </p>
-              <div id="mappingConfig-${regionId}"></div>
-            </div>
-
-            <div style="margin-top:16px;">
-              <label style="font-weight:600; display:block; margin-bottom:6px;">📅 默认日期（如文件中无日期列）</label>
-              <input type="date" id="defaultDate-${regionId}" style="width:200px;" value="${new Date().toISOString().split('T')[0]}">
-            </div>
-
+            <div style="margin-top:16px;"><h4 style="font-size:1rem; margin-bottom:8px;">🔗 列映射设置</h4><div id="mappingConfig-${regionId}"></div></div>
+            <div style="margin-top:16px;"><label>📅 默认日期</label><input type="date" id="defaultDate-${regionId}" style="width:200px;" value="${new Date().toISOString().split('T')[0]}"></div>
             <div class="modal-actions" style="margin-top:16px;">
               <button class="cancel-btn" id="cancelUploadBtn">取消</button>
               <button class="confirm-btn" id="confirmUploadBtn"><i class="fas fa-check"></i> 确认导入</button>
@@ -1427,33 +1145,19 @@
       `;
       document.body.appendChild(overlay);
 
-      let parsedData = [];
-      let fileHeaders = [];
-      let columnMapping = {};
-      let previewPage = 1;
+      let parsedData = [], fileHeaders = [], columnMapping = {}, previewPage = 1;
       const PREVIEW_PAGE_SIZE = 8;
-
       const dropZone = document.getElementById(`uploadDropZone-${regionId}`);
       const fileInput = document.getElementById(`fileInput-${regionId}`);
 
       dropZone.addEventListener('click', () => fileInput.click());
-      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#4f46e5'; dropZone.style.background = '#f5f3ff'; });
-      dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#cbd5e1'; dropZone.style.background = '#fafbfc'; });
-      dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.style.borderColor = '#cbd5e1';
-        dropZone.style.background = '#fafbfc';
-        const file = e.dataTransfer.files[0];
-        if (file) processFile(file);
-      });
-      fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) processFile(file);
-      });
+      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#4f46e5'; });
+      dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#cbd5e1'; });
+      dropZone.addEventListener('drop', (e) => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) processFile(file); });
+      fileInput.addEventListener('change', (e) => { if (e.target.files[0]) processFile(e.target.files[0]); });
 
       function processFile(file) {
         const fileName = file.name.toLowerCase();
-        
         if (fileName.endsWith('.csv')) {
           const reader = new FileReader();
           reader.onload = function(e) { parseCSV(e.target.result); };
@@ -1467,20 +1171,15 @@
               const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
               const csvText = XLSX.utils.sheet_to_csv(firstSheet);
               parseCSV(csvText);
-            } catch (err) {
-              alert('Excel文件解析失败，请确保文件格式正确。\n错误信息：' + err.message);
-            }
+            } catch (err) { alert('Excel解析失败：' + err.message); }
           };
           reader.readAsArrayBuffer(file);
-        } else {
-          alert('不支持的文件格式，请上传 .csv 或 .xlsx 文件');
-        }
+        } else { alert('请上传 .csv 或 .xlsx 文件'); }
       }
 
       function parseCSV(text) {
         const lines = text.split('\n').filter(line => line.trim() !== '');
         if (lines.length < 2) { alert('文件内容不足'); return; }
-
         fileHeaders = parseCSVLine(lines[0]);
         parsedData = [];
         for (let i = 1; i < lines.length; i++) {
@@ -1491,46 +1190,33 @@
             parsedData.push(row);
           }
         }
-
-        if (parsedData.length === 0) { alert('未解析到有效数据行'); return; }
-
+        if (parsedData.length === 0) { alert('未解析到有效数据'); return; }
         autoMapColumns();
         previewPage = 1;
         showPreview();
       }
 
       function parseCSVLine(line) {
-        const result = [];
-        let current = '';
-        let inQuotes = false;
+        const result = []; let current = '', inQuotes = false;
         for (let i = 0; i < line.length; i++) {
           const char = line[i];
-          if (char === '"') { inQuotes = !inQuotes; }
+          if (char === '"') inQuotes = !inQuotes;
           else if (char === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
-          else { current += char; }
+          else current += char;
         }
         result.push(current.trim());
         return result;
       }
 
       function autoMapColumns() {
-        const targetFields = {};
-        ALL_DIMENSIONS.forEach(dim => {
-          targetFields[dim.key] = [dim.label, dim.key];
-        });
-        targetFields['date'] = ['日期', 'date', '时间', '日报日期', 'day'];
-
+        const targetFields = { date: ['日期','date','时间'], approach: ['搭讪','approach'], reply: ['回复','reply'], newHost: ['主播','host','newHost'], comments: ['评论','comments'], storyPost: ['story','post'], video: ['视频','video'], cost: ['花费','cost'] };
         columnMapping = {};
         fileHeaders.forEach(header => {
-          const headerLower = header.toLowerCase().replace(/[\s\/\-_]/g, '');
+          const hl = header.toLowerCase().replace(/[\s\/\-_]/g, '');
           for (const [field, keywords] of Object.entries(targetFields)) {
             if (columnMapping[field]) continue;
-            for (const keyword of keywords) {
-              const kwLower = keyword.toLowerCase().replace(/[\s\/\-_]/g, '');
-              if (headerLower.includes(kwLower) || kwLower.includes(headerLower)) {
-                columnMapping[field] = header;
-                break;
-              }
+            for (const kw of keywords) {
+              if (hl.includes(kw.toLowerCase().replace(/[\s\/\-_]/g, ''))) { columnMapping[field] = header; break; }
             }
           }
         });
@@ -1541,109 +1227,55 @@
         if (previewPage > totalPages) previewPage = totalPages;
         const start = (previewPage - 1) * PREVIEW_PAGE_SIZE;
         const pageData = parsedData.slice(start, start + PREVIEW_PAGE_SIZE);
-
         const previewTable = document.getElementById(`previewTable-${regionId}`);
         let tableHTML = '<table class="mapping-table"><thead><tr>';
         fileHeaders.forEach(h => tableHTML += `<th>${h}</th>`);
         tableHTML += '</tr></thead><tbody>';
-        
-        pageData.forEach(row => {
-          tableHTML += '<tr>';
-          fileHeaders.forEach(h => tableHTML += `<td>${row[h] || ''}</td>`);
-          tableHTML += '</tr>';
-        });
-        
+        pageData.forEach(row => { tableHTML += '<tr>'; fileHeaders.forEach(h => tableHTML += `<td>${row[h] || ''}</td>`); tableHTML += '</tr>'; });
         tableHTML += '</tbody></table>';
         previewTable.innerHTML = tableHTML;
-
         const pagDiv = document.getElementById(`previewPagination-${regionId}`);
-        pagDiv.innerHTML = `
-          <button ${previewPage <= 1 ? 'disabled' : ''} id="prevPreviewPage">上一页</button>
-          <span class="page-info">第 ${previewPage} / ${totalPages} 页（共 ${parsedData.length} 条）</span>
-          <button ${previewPage >= totalPages ? 'disabled' : ''} id="nextPreviewPage">下一页</button>
-        `;
-
-        const prevBtn = document.getElementById('prevPreviewPage');
-        const nextBtn = document.getElementById('nextPreviewPage');
-        if (prevBtn) prevBtn.addEventListener('click', () => { previewPage--; renderPreviewPage(); });
-        if (nextBtn) nextBtn.addEventListener('click', () => { previewPage++; renderPreviewPage(); });
+        pagDiv.innerHTML = `<button ${previewPage<=1?'disabled':''} id="prevPreviewPage">上一页</button><span class="page-info">${previewPage}/${totalPages}页</span><button ${previewPage>=totalPages?'disabled':''} id="nextPreviewPage">下一页</button>`;
+        document.getElementById('prevPreviewPage')?.addEventListener('click', () => { previewPage--; renderPreviewPage(); });
+        document.getElementById('nextPreviewPage')?.addEventListener('click', () => { previewPage++; renderPreviewPage(); });
       }
 
       function showPreview() {
         document.getElementById(`uploadDropZone-${regionId}`).style.display = 'none';
         document.getElementById(`uploadPreview-${regionId}`).style.display = 'block';
-        document.getElementById(`rowCount-${regionId}`).textContent = `共 ${parsedData.length} 行数据`;
-
+        document.getElementById(`rowCount-${regionId}`).textContent = `共 ${parsedData.length} 行`;
         renderPreviewPage();
-
         const mappingDiv = document.getElementById(`mappingConfig-${regionId}`);
-        const allDims = [
-          { key: 'date', label: '📅 日期' },
-          ...ALL_DIMENSIONS.map(d => ({ key: d.key, label: `${d.icon} ${d.label}` }))
-        ];
-
-        mappingDiv.innerHTML = allDims.map(dim => {
-          const mapped = columnMapping[dim.key] || '';
-          return `
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-              <label style="min-width:130px; font-weight:500;">${dim.label}：</label>
-              <select id="map-${dim.key}-${regionId}" style="flex:1;">
-                <option value="">-- 不映射 --</option>
-                ${fileHeaders.map(h => `<option value="${h}" ${mapped === h ? 'selected' : ''}>${h}</option>`).join('')}
-              </select>
-              ${mapped ? '<span class="tag tag-success">已匹配</span>' : '<span class="tag tag-warning">待选择</span>'}
-            </div>
-          `;
+        const dims = [{ key: 'date', label: '📅 日期' }, ...ALL_DIMENSIONS.map(d => ({ key: d.key, label: d.icon + ' ' + d.label }))];
+        mappingDiv.innerHTML = dims.map(dim => {
+          const m = columnMapping[dim.key] || '';
+          return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;"><label style="min-width:130px;">${dim.label}：</label><select id="map-${dim.key}-${regionId}" style="flex:1;"><option value="">-- 不映射 --</option>${fileHeaders.map(h => `<option value="${h}" ${m===h?'selected':''}>${h}</option>`).join('')}</select>${m?'<span class="tag tag-success">已匹配</span>':'<span class="tag tag-warning">待选择</span>'}</div>`;
         }).join('');
       }
 
       document.getElementById('cancelUploadBtn').addEventListener('click', () => overlay.remove());
-
       document.getElementById('confirmUploadBtn').addEventListener('click', () => {
         const finalMapping = {};
-        ['date', ...ALL_DIMENSIONS.map(d => d.key)].forEach(dim => {
-          const select = document.getElementById(`map-${dim}-${regionId}`);
-          if (select && select.value) finalMapping[dim] = select.value;
-        });
-
+        ['date', ...ALL_DIMENSIONS.map(d=>d.key)].forEach(dim => { const s = document.getElementById(`map-${dim}-${regionId}`); if (s&&s.value) finalMapping[dim] = s.value; });
         const defaultDate = document.getElementById(`defaultDate-${regionId}`).value;
         let importCount = 0;
-
         parsedData.forEach(row => {
           let validDate = defaultDate;
-          if (finalMapping['date'] && row[finalMapping['date']]) {
-            const parsed = new Date(row[finalMapping['date']]);
-            if (!isNaN(parsed.getTime())) validDate = parsed.toISOString().split('T')[0];
-          }
-
+          if (finalMapping['date'] && row[finalMapping['date']]) { const p = new Date(row[finalMapping['date']]); if (!isNaN(p.getTime())) validDate = p.toISOString().split('T')[0]; }
           const record = { date: validDate };
-          ALL_DIMENSIONS.forEach(dim => {
-            record[dim.key] = parseInt(row[finalMapping[dim.key]]) || 0;
-          });
-
-          if (selectedInternId) {
-            dailyRecords[selectedInternId].push({...record});
-            importCount++;
-          }
+          ALL_DIMENSIONS.forEach(dim => { record[dim.key] = parseInt(row[finalMapping[dim.key]]) || 0; });
+          if (selectedInternId) { dailyRecords[selectedInternId].push({...record}); importCount++; }
         });
-
-        if (selectedInternId) {
-          dailyRecords[selectedInternId].sort((a, b) => new Date(a.date) - new Date(b.date));
-        }
+        if (selectedInternId) dailyRecords[selectedInternId].sort((a,b) => new Date(a.date) - new Date(b.date));
         saveDataToStorage();
         overlay.remove();
         alert(`✅ 成功导入 ${importCount} 条记录！`);
-        if (selectedInternId) {
-          currentPage[selectedInternId] = 1;
-          selectedRows[selectedInternId] = new Set();
-          refreshDataDisplay(regionId, selectedInternId);
-          renderRanking(regionId);
-        }
+        if (selectedInternId) { currentPage[selectedInternId]=1; selectedRows[selectedInternId]=new Set(); refreshAllViews(regionId, selectedInternId); renderRanking(regionId); }
       });
-
       overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
+    // ========== 实习生列表 ==========
     function renderInternList(regionId) {
       const listDiv = document.getElementById(`internList-${regionId}`);
       if (!listDiv) return;
@@ -1658,33 +1290,25 @@
           </div>
         </div>
       `).join('');
-
       listDiv.querySelectorAll('.intern-item').forEach(item => {
         item.addEventListener('click', function(e) {
           if (e.target.closest('.edit-name-btn') || e.target.closest('.delete-intern-btn')) return;
           selectIntern(this.dataset.id, regionId);
         });
       });
-
       listDiv.querySelectorAll('.edit-name-btn').forEach(btn => {
         btn.addEventListener('click', function(e) { e.stopPropagation(); showEditNameModal(this.dataset.id); });
       });
-
       listDiv.querySelectorAll('.delete-intern-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
-          const internId = this.dataset.id;
-          if (confirm('确定要删除该实习生及其所有数据吗？此操作不可恢复。')) {
+          if (confirm('确定删除该实习生及所有数据？')) {
+            const internId = this.dataset.id;
             interns = interns.filter(i => i.id !== internId);
-            delete dailyRecords[internId];
-            delete selectedRows[internId];
-            delete currentPage[internId];
-            delete dataViewMode[internId];
-            saveInternsToStorage();
-            saveDataToStorage();
+            delete dailyRecords[internId]; delete selectedRows[internId]; delete currentPage[internId]; delete dataViewMode[internId];
+            saveInternsToStorage(); saveDataToStorage();
             if (selectedInternId === internId) selectedInternId = null;
-            renderAllPanels();
-            switchRegion(regionId);
+            renderAllPanels(); switchRegion(regionId);
           }
         });
       });
@@ -1695,581 +1319,352 @@
       if (!currentPage[internId]) currentPage[internId] = 1;
       if (!selectedRows[internId]) selectedRows[internId] = new Set();
       if (!dataViewMode[internId]) dataViewMode[internId] = 'week';
-      
-      document.querySelectorAll(`#internList-${regionId} .intern-item`).forEach(el => {
-        el.classList.remove('selected');
-        if (el.dataset.id === internId) el.classList.add('selected');
-      });
-
-      // 同步视图标签
+      initFilterState(regionId);
+      document.querySelectorAll(`#internList-${regionId} .intern-item`).forEach(el => { el.classList.remove('selected'); if (el.dataset.id === internId) el.classList.add('selected'); });
       const tabs = document.getElementById(`viewTabs-${regionId}`);
-      if (tabs) {
-        tabs.querySelectorAll('.view-tab').forEach(t => {
-          t.classList.remove('active');
-          if (t.dataset.view === dataViewMode[internId]) t.classList.add('active');
-        });
+      if (tabs) tabs.querySelectorAll('.view-tab').forEach(t => { t.classList.remove('active'); if (t.dataset.view === dataViewMode[internId]) t.classList.add('active'); });
+      const filter = filterState[regionId];
+      if (filter) {
+        const si = document.getElementById(`filterStart-${regionId}`); if (si) si.value = filter.startDate || '';
+        const ei = document.getElementById(`filterEnd-${regionId}`); if (ei) ei.value = filter.endDate || '';
+        updateQuickBtnStyles(regionId, filter.period || 'week');
+        updateFilterInfo(regionId);
       }
-
-      refreshDataDisplay(regionId, internId);
+      refreshAllViews(regionId, internId);
     }
 
-            function renderDataTable(regionId, internId, filterStartDate, filterEndDate) {
+    function showEditNameModal(internId) {
+      const intern = interns.find(i => i.id === internId);
+      if (!intern) return;
+      const existing = document.querySelector('.modal-overlay');
+      if (existing) existing.remove();
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal-box">
+          <h3><i class="fas fa-user-edit"></i> 修改名字</h3>
+          <p style="color:#64748b; margin-bottom:12px;">当前：<strong>${intern.name}</strong></p>
+          <input type="text" id="newNameInput" value="${intern.name}" autocomplete="off">
+          <div class="modal-actions">
+            <button class="cancel-btn" id="cancelEditBtn">取消</button>
+            <button class="confirm-btn" id="confirmEditBtn">确认</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      const inputEl = document.getElementById('newNameInput');
+      setTimeout(() => { inputEl.focus(); inputEl.select(); }, 150);
+      document.getElementById('cancelEditBtn').addEventListener('click', () => overlay.remove());
+      document.getElementById('confirmEditBtn').addEventListener('click', () => {
+        const newName = inputEl.value.trim();
+        if (!newName) { alert('名字不能为空'); return; }
+        intern.name = newName;
+        saveInternsToStorage();
+        document.getElementById(`nameDisplay-${internId}`).textContent = newName;
+        overlay.remove();
+        const panel = document.querySelector('.region-panel.active');
+        if (panel) { const rid = panel.id.replace('panel-',''); renderInternList(rid); renderRanking(rid); if (selectedInternId===internId) refreshAllViews(rid, internId); }
+      });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+      inputEl.addEventListener('keypress', (e) => { if (e.key==='Enter') document.getElementById('confirmEditBtn').click(); });
+    }
+
+    // ========== 视图刷新 ==========
+    function refreshAllViews(regionId, internId) {
+      const view = dataViewMode[internId] || 'week';
+      const filter = getFilterDates(regionId);
+      const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
+      if (cardsDiv) cardsDiv.innerHTML = renderStandardDisplay(regionId);
+      renderSummaryCardsWithFilter(regionId, internId, view, filter);
+      if (view === 'all') {
+        document.getElementById(`tableContainer-${regionId}`).style.display = 'block';
+        renderDataTable(regionId, internId, filter.startDate, filter.endDate);
+      } else {
+        document.getElementById(`tableContainer-${regionId}`).style.display = 'none';
+      }
+      renderAnalysis(regionId, internId);
+    }
+
+    function refreshDataDisplay(regionId, internId) { refreshAllViews(regionId, internId); }
+
+    // ========== 周标准展示 ==========
+    function renderStandardDisplay(regionId) {
+      if (!weeklyStandards[regionId]) { weeklyStandards[regionId] = { enabledDimensions: ALL_DIMENSIONS.map(d=>d.key), targets: {} }; }
+      if (!weeklyStandards[regionId].enabledDimensions) weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d=>d.key);
+      if (!weeklyStandards[regionId].targets) weeklyStandards[regionId].targets = {};
+      const config = weeklyStandards[regionId];
+      const visibleDims = ALL_DIMENSIONS.filter(d => config.enabledDimensions.includes(d.key));
+      if (visibleDims.length === 0) return '';
+      return `
+        <div style="grid-column:1/-1; background:#f0f9ff; border-radius:14px; padding:14px 18px; margin-bottom:8px; border:1px solid #bae6fd;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h4 style="font-size:0.9rem; color:#0369a1; margin:0;"><i class="fas fa-bullseye"></i> 本周标准目标</h4>
+            <button onclick="document.getElementById('standardBtn-${regionId}').click()" style="background:#0ea5e9; padding:5px 12px; font-size:0.7rem; border-radius:20px;"><i class="fas fa-edit"></i> 修改</button>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            ${visibleDims.map(dim => `
+              <div style="background:white; border-radius:10px; padding:8px 14px; text-align:center; min-width:70px; flex:0 0 auto;">
+                <div style="font-size:0.65rem; color:#64748b;">${dim.icon} ${dim.label}</div>
+                <div style="font-weight:700; font-size:1rem; color:#0c4a6e;">${(config.targets[dim.key]||0).toLocaleString()}</div>
+                <div style="font-size:0.55rem; color:#94a3b8;">/周</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    // ========== 汇总卡片 ==========
+    function renderSummaryCardsWithFilter(regionId, internId, view, filter) {
+      const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
+      if (!cardsDiv) return;
+      if (!weeklyStandards[regionId]) { weeklyStandards[regionId] = { enabledDimensions: ALL_DIMENSIONS.map(d=>d.key), targets: {} }; }
+      const targets = weeklyStandards[regionId].targets || {};
+      let allRecords = dailyRecords[internId] || [];
+      if (filter && filter.startDate && filter.endDate) allRecords = allRecords.filter(r => r.date >= filter.startDate && r.date <= filter.endDate);
+      else if (filter && filter.startDate) allRecords = allRecords.filter(r => r.date >= filter.startDate);
+      else if (filter && filter.endDate) allRecords = allRecords.filter(r => r.date <= filter.endDate);
+      let records;
+      if (view === 'week') { const ws = getWeekStart().toISOString().split('T')[0]; records = allRecords.filter(r => r.date >= ws); }
+      else if (view === 'month') { const ms = getMonthStart(); records = allRecords.filter(r => r.date >= ms); }
+      else records = allRecords;
+      if (records.length === 0) { cardsDiv.innerHTML += '<p style="color:#94a3b8; padding:10px; text-align:center;">暂无数据记录</p>'; return; }
+      const totals = {};
+      ALL_DIMENSIONS.forEach(dim => { totals[dim.key] = records.reduce((s,r) => s + (r[dim.key]||0), 0); });
+      cardsDiv.innerHTML += '<div style="margin-top:8px; margin-bottom:10px;"><h4 style="font-size:0.9rem; color:#475569; margin:0;"><i class="fas fa-chart-bar"></i> ' + (view==='week'?'本周':view==='month'?'本月':'筛选范围') + '数据汇总</h4></div>';
+      var cardsHTML = '<div style="display:flex; flex-wrap:wrap; gap:10px;">';
+      ALL_DIMENSIONS.forEach(function(dim) {
+        var target = targets[dim.key] || 0;
+        var value = totals[dim.key];
+        var pct = target > 0 ? Math.round(value / target * 100) : 0;
+        var tc = 'trend-flat', ti = '➡️';
+        if (pct >= 100) { tc = 'trend-up'; ti = '✅'; }
+        else if (pct >= 70) { tc = 'trend-up'; ti = '📈'; }
+        else if (pct < 50) { tc = 'trend-down'; ti = '⚠️'; }
+        cardsHTML += '<div class="summary-card" style="flex:0 0 auto; min-width:100px;"><div class="value">' + dim.icon + ' ' + value.toLocaleString() + '</div><div class="label">' + dim.label + '</div>';
+        if (target > 0) cardsHTML += '<div class="trend ' + tc + '">' + ti + ' 目标' + target + ' (' + pct + '%)</div>';
+        cardsHTML += '</div>';
+      });
+      cardsHTML += '</div>';
+      cardsDiv.innerHTML += cardsHTML;
+    }
+
+    // ========== 数据表格 ==========
+    function renderDataTable(regionId, internId, filterStartDate, filterEndDate) {
       const container = document.getElementById(`tableContainer-${regionId}`);
       if (!container) return;
       if (!currentPage[internId]) currentPage[internId] = 1;
       if (!selectedRows[internId]) selectedRows[internId] = new Set();
-
-      // 获取所有记录
       let allRecords = dailyRecords[internId] || [];
-      
-      // 如果有筛选日期，先过滤
-      if (filterStartDate && filterEndDate) {
-        allRecords = allRecords.filter(r => r.date >= filterStartDate && r.date <= filterEndDate);
-      } else if (filterStartDate) {
-        allRecords = allRecords.filter(r => r.date >= filterStartDate);
-      } else if (filterEndDate) {
-        allRecords = allRecords.filter(r => r.date <= filterEndDate);
-      }
-      
-      // 手动分页
+      if (filterStartDate && filterEndDate) allRecords = allRecords.filter(r => r.date >= filterStartDate && r.date <= filterEndDate);
+      else if (filterStartDate) allRecords = allRecords.filter(r => r.date >= filterStartDate);
+      else if (filterEndDate) allRecords = allRecords.filter(r => r.date <= filterEndDate);
       const totalPages = Math.ceil(allRecords.length / PAGE_SIZE) || 1;
       let page = currentPage[internId];
       if (page > totalPages) page = totalPages;
       if (page < 1) page = 1;
       currentPage[internId] = page;
-      
       const start = (page - 1) * PAGE_SIZE;
       const records = allRecords.slice(start, start + PAGE_SIZE);
+      const selectedSet = selectedRows[internId];
+      const allCurrentPageSelected = records.length > 0 && records.every((_, idx) => selectedSet.has((page - 1) * PAGE_SIZE + idx));
 
-      const allCurrentPageSelected = records.length > 0 && records.every((_, idx) => selectedSet.has((paged.page - 1) * PAGE_SIZE + idx));
-
-      // 确保配置存在
-      if (!weeklyStandards[regionId]) {
-        weeklyStandards[regionId] = {
-          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
-          targets: {}
-        };
-      }
-      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
-        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
-      }
-      
-            // 始终显示全部维度
-      const visibleDims = ALL_DIMENSIONS;
-
-            let html = `
-        <div class="toolbar" style="justify-content:space-between;">
-          <div style="display:flex; gap:8px; align-items:center;">
-            <button class="danger" id="batchDeleteBtn-${regionId}" style="padding:8px 16px; font-size:0.85rem;" ${selectedSet.size === 0 ? 'disabled' : ''}>
-              <i class="fas fa-trash-alt"></i> 批量删除 (${selectedSet.size})
-            </button>
-            <span style="font-size:0.8rem; color:#64748b;">共 ${allRecords.length} 条记录</span>
-          </div>
-          <div style="display:flex; gap:6px; align-items:center;">
-            <input type="date" id="filterStart-${regionId}" style="width:130px; padding:6px 10px; font-size:0.8rem;" title="开始日期" value="${filterStartDate || ''}">
-            <span style="color:#94a3b8; font-size:0.8rem;">至</span>
-            <input type="date" id="filterEnd-${regionId}" style="width:130px; padding:6px 10px; font-size:0.8rem;" title="结束日期" value="${filterEndDate || ''}">
-            <button id="applyFilterBtn-${regionId}" style="background:#0ea5e9; padding:6px 12px; font-size:0.8rem;">
-              <i class="fas fa-filter"></i> 筛选
-            </button>
-            <button id="clearFilterBtn-${regionId}" style="background:#94a3b8; padding:6px 12px; font-size:0.8rem;" ${(!filterStartDate && !filterEndDate) ? 'disabled' : ''}>
-              <i class="fas fa-times"></i> 清除
-            </button>
-          </div>
+      let html = `<div class="toolbar" style="justify-content:space-between;">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="danger" id="batchDeleteBtn-${regionId}" style="padding:8px 16px; font-size:0.85rem;" ${selectedSet.size===0?'disabled':''}><i class="fas fa-trash-alt"></i> 批量删除 (${selectedSet.size})</button>
+          <span style="font-size:0.8rem; color:#64748b;">共 ${allRecords.length} 条</span>
         </div>
-        <div class="table-wrapper"><table>
-        <thead><tr>
-          <th style="width:40px;"><input type="checkbox" id="selectAll-${regionId}" ${allCurrentPageSelected ? 'checked' : ''}></th>
-          <th>日期</th>
-          ${visibleDims.map(d => `<th>${d.icon} ${d.label}</th>`).join('')}
-          <th>操作</th>
-        </tr></thead><tbody>`;
+      </div>
+      <div class="table-wrapper"><table>
+      <thead><tr><th style="width:40px;"><input type="checkbox" id="selectAll-${regionId}" ${allCurrentPageSelected?'checked':''}></th><th>日期</th>${ALL_DIMENSIONS.map(d=>`<th>${d.icon} ${d.label}</th>`).join('')}<th>操作</th></tr></thead><tbody>`;
 
       records.forEach((rec, idx) => {
-        const globalIdx = (paged.page - 1) * PAGE_SIZE + idx;
-        const isChecked = selectedSet.has(globalIdx);
-        html += `<tr>
-          <td><input type="checkbox" class="row-checkbox" data-idx="${globalIdx}" ${isChecked ? 'checked' : ''}></td>
-          <td>${rec.date}</td>
-          ${visibleDims.map(d => {
-            const value = rec[d.key] || 0;
-            return `<td>${value}${d.key === 'cost' ? '$' : ''}</td>`;
-          }).join('')}
-          <td><button class="secondary" style="padding:4px 10px;" data-delete="${internId}" data-idx="${globalIdx}"><i class="fas fa-trash"></i></button></td>
-        </tr>`;
+        const gIdx = (page - 1) * PAGE_SIZE + idx;
+        html += `<tr><td><input type="checkbox" class="row-checkbox" data-idx="${gIdx}" ${selectedSet.has(gIdx)?'checked':''}></td><td>${rec.date}</td>${ALL_DIMENSIONS.map(d=>`<td>${rec[d.key]||0}${d.key==='cost'?'$':''}</td>`).join('')}<td><button class="secondary" style="padding:4px 10px;" data-delete="${internId}" data-idx="${gIdx}"><i class="fas fa-trash"></i></button></td></tr>`;
       });
 
-      // 录入行也只用启用的维度
-      html += `<tr class="batch-input-row">
-        <td></td>
-        <td><input type="date" id="batchDate-${regionId}" style="width:120px;"></td>
-        ${visibleDims.map(d => `<td><input class="small-input" id="batch-${d.key}-${regionId}" placeholder="${d.label}" style="width:${d.key === 'cost' ? '90px' : '70px'};"></td>`).join('')}
-        <td><button id="saveBatchBtn-${regionId}"><i class="fas fa-save"></i> 保存</button></td>
-      </tr>`;
-
+      html += `<tr class="batch-input-row"><td></td><td><input type="date" id="batchDate-${regionId}" style="width:120px;"></td>${ALL_DIMENSIONS.map(d=>`<td><input class="small-input" id="batch-${d.key}-${regionId}" placeholder="${d.label}"></td>`).join('')}<td><button id="saveBatchBtn-${regionId}"><i class="fas fa-save"></i> 保存</button></td></tr>`;
       html += `</tbody></table></div>`;
-
-      html += `<div class="pagination">
-        <button ${paged.page <= 1 ? 'disabled' : ''} id="prevPage-${regionId}">上一页</button>
-        <span class="page-info">第 ${paged.page} / ${paged.totalPages} 页</span>
-        <button ${paged.page >= paged.totalPages ? 'disabled' : ''} id="nextPage-${regionId}">下一页</button>
-      </div>`;
-
+      html += `<div class="pagination"><button ${page<=1?'disabled':''} id="prevPage-${regionId}">上一页</button><span class="page-info">第 ${page}/${totalPages} 页</span><button ${page>=totalPages?'disabled':''} id="nextPage-${regionId}">下一页</button></div>`;
       container.innerHTML = html;
 
-      // 全选复选框
-      const selectAllCheckbox = document.getElementById(`selectAll-${regionId}`);
-      if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-          records.forEach((_, idx) => {
-            const globalIdx = (paged.page - 1) * PAGE_SIZE + idx;
-            if (this.checked) selectedSet.add(globalIdx);
-            else selectedSet.delete(globalIdx);
-          });
-          renderDataTable(regionId, internId);
-        });
-      }
-
-      // 行复选框
+      document.getElementById(`selectAll-${regionId}`)?.addEventListener('change', function() {
+        records.forEach((_, idx) => { const gIdx = (page-1)*PAGE_SIZE+idx; if (this.checked) selectedSet.add(gIdx); else selectedSet.delete(gIdx); });
+        renderDataTable(regionId, internId, filterStartDate, filterEndDate);
+      });
       container.querySelectorAll('.row-checkbox').forEach(cb => {
         cb.addEventListener('change', function() {
-          const globalIdx = parseInt(this.dataset.idx);
-          if (this.checked) selectedSet.add(globalIdx);
-          else selectedSet.delete(globalIdx);
-          renderDataTable(regionId, internId);
+          const gIdx = parseInt(this.dataset.idx);
+          if (this.checked) selectedSet.add(gIdx); else selectedSet.delete(gIdx);
+          renderDataTable(regionId, internId, filterStartDate, filterEndDate);
         });
       });
 
-            // 批量删除
-      const batchDeleteBtn = document.getElementById(`batchDeleteBtn-${regionId}`);
-      if (batchDeleteBtn) {
-        batchDeleteBtn.addEventListener('click', () => {
-          if (selectedSet.size === 0) return;
-          if (confirm(`确定要删除选中的 ${selectedSet.size} 条记录吗？`)) {
-            const sortedIndices = Array.from(selectedSet).sort((a, b) => b - a);
-            sortedIndices.forEach(idx => { dailyRecords[internId].splice(idx, 1); });
-            selectedRows[internId] = new Set();
-            saveDataToStorage();
-            
-            // 获取当前筛选条件
-            const fsEl = document.getElementById(`filterStart-${regionId}`);
-            const feEl = document.getElementById(`filterEnd-${regionId}`);
-            const fs = fsEl ? fsEl.value : '';
-            const fe = feEl ? feEl.value : '';
-            
-            // 基于筛选后的数据计算总页数
-            let filteredRecords = dailyRecords[internId] || [];
-            if (fs && fe) {
-              filteredRecords = filteredRecords.filter(r => r.date >= fs && r.date <= fe);
-            } else if (fs) {
-              filteredRecords = filteredRecords.filter(r => r.date >= fs);
-            } else if (fe) {
-              filteredRecords = filteredRecords.filter(r => r.date <= fe);
-            }
-            
-            const totalPages = Math.ceil(filteredRecords.length / PAGE_SIZE) || 1;
-            if (currentPage[internId] > totalPages) currentPage[internId] = totalPages;
-            
-            // 传递筛选参数重新渲染
-            renderDataTable(regionId, internId, fs, fe);
-            renderAnalysis(regionId, internId);
-            renderRanking(regionId);
-          }
-        });
-      }
+      document.getElementById(`batchDeleteBtn-${regionId}`)?.addEventListener('click', () => {
+        if (selectedSet.size === 0) return;
+        if (confirm(`确定删除 ${selectedSet.size} 条记录？`)) {
+          Array.from(selectedSet).sort((a,b)=>b-a).forEach(idx => { dailyRecords[internId].splice(idx, 1); });
+          selectedRows[internId] = new Set();
+          saveDataToStorage();
+          const tp = Math.ceil(dailyRecords[internId].length/PAGE_SIZE)||1;
+          if (currentPage[internId] > tp) currentPage[internId] = tp;
+          refreshAllViews(regionId, internId); renderRanking(regionId);
+        }
+      });
 
-            // 单条删除
       container.querySelectorAll('[data-delete]').forEach(btn => {
         btn.addEventListener('click', function() {
-          const delIntern = this.dataset.delete;
-          const idx = parseInt(this.dataset.idx);
-          if (confirm('确定要删除这条记录吗？')) {
-            dailyRecords[delIntern].splice(idx, 1);
-            selectedRows[delIntern].delete(idx);
-            const newSet = new Set();
-            selectedRows[delIntern].forEach(i => {
-              if (i > idx) newSet.add(i - 1);
-              else if (i < idx) newSet.add(i);
-            });
-            selectedRows[delIntern] = newSet;
+          if (confirm('确定删除这条记录？')) {
+            const idx = parseInt(this.dataset.idx);
+            dailyRecords[internId].splice(idx, 1);
+            selectedRows[internId].delete(idx);
+            const ns = new Set();
+            selectedRows[internId].forEach(i => { if (i>idx) ns.add(i-1); else if (i<idx) ns.add(i); });
+            selectedRows[internId] = ns;
             saveDataToStorage();
-            
-            // 重新计算总页数（基于可能筛选后的数据）
-            let allRecordsForPage = dailyRecords[delIntern] || [];
-            const fsEl = document.getElementById(`filterStart-${regionId}`);
-            const feEl = document.getElementById(`filterEnd-${regionId}`);
-            const fs = fsEl ? fsEl.value : '';
-            const fe = feEl ? feEl.value : '';
-            
-            // 如果有筛选条件，用筛选后的数据计算总页数
-            if (fs && fe) {
-              allRecordsForPage = allRecordsForPage.filter(r => r.date >= fs && r.date <= fe);
-            } else if (fs) {
-              allRecordsForPage = allRecordsForPage.filter(r => r.date >= fs);
-            } else if (fe) {
-              allRecordsForPage = allRecordsForPage.filter(r => r.date <= fe);
-            }
-            
-            const totalPages = Math.ceil(allRecordsForPage.length / PAGE_SIZE) || 1;
-            if (currentPage[delIntern] > totalPages) currentPage[delIntern] = totalPages;
-            
-            // ★ 第6步修改：传递筛选参数重新渲染表格
-            renderDataTable(regionId, internId, fs, fe);
-            renderAnalysis(regionId, internId);
-            renderRanking(regionId);
+            const tp = Math.ceil((dailyRecords[internId]||[]).length/PAGE_SIZE)||1;
+            if (currentPage[internId] > tp) currentPage[internId] = tp;
+            refreshAllViews(regionId, internId); renderRanking(regionId);
           }
         });
       });
 
-            // 分页
-      const prevBtn = document.getElementById(`prevPage-${regionId}`);
-      const nextBtn = document.getElementById(`nextPage-${regionId}`);
-      if (prevBtn) prevBtn.addEventListener('click', () => {
-        if (currentPage[internId] > 1) { 
-          currentPage[internId]--; 
-          const fs = document.getElementById(`filterStart-${regionId}`).value;
-          const fe = document.getElementById(`filterEnd-${regionId}`).value;
-          renderDataTable(regionId, internId, fs, fe); 
-        }
-      });
-      if (nextBtn) nextBtn.addEventListener('click', () => {
-        if (currentPage[internId] < totalPages) { 
-          currentPage[internId]++; 
-          const fs = document.getElementById(`filterStart-${regionId}`).value;
-          const fe = document.getElementById(`filterEnd-${regionId}`).value;
-          renderDataTable(regionId, internId, fs, fe); 
-        }
-      });
-
-      // 筛选按钮
-      const applyFilterBtn = document.getElementById(`applyFilterBtn-${regionId}`);
-      const clearFilterBtn = document.getElementById(`clearFilterBtn-${regionId}`);
-      
-      if (applyFilterBtn) {
-        applyFilterBtn.addEventListener('click', () => {
-          const fs = document.getElementById(`filterStart-${regionId}`).value;
-          const fe = document.getElementById(`filterEnd-${regionId}`).value;
-          if (!fs && !fe) {
-            alert('请至少选择一个日期');
-            return;
-          }
-          if (fs && fe && fs > fe) {
-            alert('开始日期不能晚于结束日期');
-            return;
-          }
-          currentPage[internId] = 1;
-          selectedRows[internId] = new Set();
-          renderDataTable(regionId, internId, fs, fe);
-        });
-      }
-      
-      if (clearFilterBtn) {
-        clearFilterBtn.addEventListener('click', () => {
-          currentPage[internId] = 1;
-          selectedRows[internId] = new Set();
-          renderDataTable(regionId, internId, '', '');
-        });
-      }
-
-      // 保存按钮
-      const saveBtn = document.getElementById(`saveBatchBtn-${regionId}`);
-      if (saveBtn) saveBtn.addEventListener('click', () => batchAddRecord(regionId, internId));
+      document.getElementById(`prevPage-${regionId}`)?.addEventListener('click', () => { if (currentPage[internId]>1) { currentPage[internId]--; renderDataTable(regionId, internId, filterStartDate, filterEndDate); } });
+      document.getElementById(`nextPage-${regionId}`)?.addEventListener('click', () => { if (currentPage[internId]<totalPages) { currentPage[internId]++; renderDataTable(regionId, internId, filterStartDate, filterEndDate); } });
+      document.getElementById(`saveBatchBtn-${regionId}`)?.addEventListener('click', () => batchAddRecord(regionId, internId));
     }
 
-      function batchAddRecord(regionId, internId) {
+    function batchAddRecord(regionId, internId) {
       const date = document.getElementById(`batchDate-${regionId}`).value;
       if (!date) { alert('请选择日期'); return; }
-      
-      // 确保配置存在
-      if (!weeklyStandards[regionId]) {
-        weeklyStandards[regionId] = {
-          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
-          targets: {}
-        };
-      }
-      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
-        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
-      }
-      
-            // 始终使用全部维度
-      const visibleDims = ALL_DIMENSIONS;
-      
       const record = { date };
-      // 启用的维度从输入框读取，未启用的设为0
-      ALL_DIMENSIONS.forEach(dim => {
-        if (enabledDimKeys.includes(dim.key)) {
-          const el = document.getElementById(`batch-${dim.key}-${regionId}`);
-          record[dim.key] = el ? (parseInt(el.value) || 0) : 0;
-        } else {
-          record[dim.key] = 0;
-        }
-      });
-
+      ALL_DIMENSIONS.forEach(dim => { const el = document.getElementById(`batch-${dim.key}-${regionId}`); record[dim.key] = el ? (parseInt(el.value)||0) : 0; });
       dailyRecords[internId].push(record);
-      dailyRecords[internId].sort((a, b) => new Date(a.date) - new Date(b.date));
+      dailyRecords[internId].sort((a,b) => new Date(a.date) - new Date(b.date));
       saveDataToStorage();
-
-      // 清空输入框
-      visibleDims.forEach(dim => {
-        const el = document.getElementById(`batch-${dim.key}-${regionId}`);
-        if (el) el.value = '';
-      });
-
+      ALL_DIMENSIONS.forEach(dim => { const el = document.getElementById(`batch-${dim.key}-${regionId}`); if (el) el.value = ''; });
       currentPage[internId] = Math.ceil(dailyRecords[internId].length / PAGE_SIZE);
-      refreshDataDisplay(regionId, internId);
-      renderRanking(regionId);
+      refreshAllViews(regionId, internId); renderRanking(regionId);
     }
 
+    // ========== 分析 ==========
     function renderAnalysis(regionId, internId) {
       const card = document.getElementById(`analysisCard-${regionId}`);
       if (!card) return;
-
-            if (!weeklyStandards[regionId]) {
-        weeklyStandards[regionId] = {
-          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
-          targets: {}
-        };
-      }
-      const standardConfig = weeklyStandards[regionId];
-      const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
-      const targets = standardConfig.targets || {};
-
-      const weekRecords = getWeekRecords(internId);
-      const monthRecords = getMonthRecords(internId);
-      const allRecords = dailyRecords[internId] || [];
-
-      if (allRecords.length === 0) {
-        card.innerHTML = `<p style="color:#64748b;">暂无数据，请先录入日报。</p>`;
-        return;
-      }
-
-      const weekTotals = {};
-      const monthTotals = {};
-      ALL_DIMENSIONS.forEach(dim => {
-        weekTotals[dim.key] = weekRecords.reduce((s, r) => s + (r[dim.key] || 0), 0);
-        monthTotals[dim.key] = monthRecords.reduce((s, r) => s + (r[dim.key] || 0), 0);
-      });
-
-      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDims.includes(d.key));
-      
-      const checks = visibleDims.map(dim => ({
-        ...dim,
-        weekValue: weekTotals[dim.key],
-        monthValue: monthTotals[dim.key],
-        target: targets[dim.key] || 0
-      }));
-
+      if (!weeklyStandards[regionId]) { weeklyStandards[regionId] = { enabledDimensions: ALL_DIMENSIONS.map(d=>d.key), targets: {} }; }
+      const config = weeklyStandards[regionId];
+      const enabledDims = config.enabledDimensions || ALL_DIMENSIONS.map(d=>d.key);
+      const targets = config.targets || {};
+      const filter = getFilterDates(regionId);
+      let allRecords = dailyRecords[internId] || [];
+      if (filter.startDate && filter.endDate) allRecords = allRecords.filter(r => r.date >= filter.startDate && r.date <= filter.endDate);
+      else if (filter.startDate) allRecords = allRecords.filter(r => r.date >= filter.startDate);
+      else if (filter.endDate) allRecords = allRecords.filter(r => r.date <= filter.endDate);
+      const weekRecords = allRecords.filter(r => r.date >= getWeekStart().toISOString().split('T')[0]);
+      const monthRecords = allRecords.filter(r => r.date >= getMonthStart());
+      if (allRecords.length === 0) { card.innerHTML = '<p style="color:#64748b;">暂无数据</p>'; return; }
+      const weekTotals = {}, monthTotals = {};
+      ALL_DIMENSIONS.forEach(dim => { weekTotals[dim.key] = weekRecords.reduce((s,r)=>s+(r[dim.key]||0),0); monthTotals[dim.key] = monthRecords.reduce((s,r)=>s+(r[dim.key]||0),0); });
+      const checks = ALL_DIMENSIONS.filter(d=>enabledDims.includes(d.key)).map(dim => ({ ...dim, weekValue: weekTotals[dim.key], monthValue: monthTotals[dim.key], target: targets[dim.key]||0 }));
       const passCount = checks.filter(c => c.target > 0 && c.weekValue >= c.target).length;
       const totalChecks = checks.filter(c => c.target > 0).length;
-
-      let suggestion = '';
-      if (totalChecks === 0) suggestion = '📝 请先设置该地区的周标准维度。';
-      else if (passCount === totalChecks) suggestion = '🎉 本周全部达标！表现优秀，继续保持！';
-      else if (passCount >= totalChecks * 0.7) suggestion = '👍 大部分指标达标，继续加油！';
-      else if (passCount >= totalChecks * 0.4) suggestion = '📈 还有提升空间，重点关注未达标项。';
-      else suggestion = '⚠️ 多项指标未达标，需要制定改进计划。';
-
-      card.innerHTML = `
-        <h4 style="margin-bottom:12px;"><i class="fas fa-chart-pie"></i> 本周 vs 本月产出对比</h4>
-        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:10px; font-size:0.85rem;">
+      let suggestion = totalChecks===0 ? '📝 请设置周标准维度。' : passCount===totalChecks ? '🎉 本周全部达标！' : passCount>=totalChecks*0.7 ? '👍 大部分达标，继续加油！' : passCount>=totalChecks*0.4 ? '📈 还有提升空间。' : '⚠️ 多项未达标，需改进。';
+      card.innerHTML = `<h4 style="margin-bottom:12px;"><i class="fas fa-chart-pie"></i> 本周 vs 本月产出对比</h4>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:10px; font-size:0.85rem;">
           ${checks.map(c => `
             <div style="padding:10px; background:white; border-radius:10px; text-align:center; border:1px solid #e9eef3;">
               <div style="color:#64748b; font-weight:600;">${c.icon} ${c.label}</div>
               <div style="display:flex; justify-content:center; gap:16px; margin-top:6px;">
-                <div>
-                  <div style="font-size:0.65rem; color:#94a3b8;">本周</div>
-                  <div style="font-weight:700; font-size:1.1rem;">${c.weekValue.toLocaleString()}</div>
-                </div>
-                <div>
-                  <div style="font-size:0.65rem; color:#94a3b8;">本月</div>
-                  <div style="font-weight:700; font-size:1.1rem;">${c.monthValue.toLocaleString()}</div>
-                </div>
+                <div><div style="font-size:0.65rem; color:#94a3b8;">本周</div><div style="font-weight:700; font-size:1.1rem;">${c.weekValue.toLocaleString()}</div></div>
+                <div><div style="font-size:0.65rem; color:#94a3b8;">本月</div><div style="font-weight:700; font-size:1.1rem;">${c.monthValue.toLocaleString()}</div></div>
               </div>
-              ${c.target > 0 ? `
-                <div style="margin-top:4px; font-size:0.7rem;">
-                  目标：${c.target} | 
-                  <span class="${c.weekValue >= c.target ? 'status-pass' : 'status-fail'}">
-                    ${c.weekValue >= c.target ? '✓达标' : '✗差' + (c.target - c.weekValue)}
-                  </span>
-                </div>
-              ` : '<div style="margin-top:4px; font-size:0.7rem; color:#94a3b8;">未设目标</div>'}
-            </div>
-          `).join('')}
+              ${c.target>0?`<div style="margin-top:4px; font-size:0.7rem;">目标：${c.target} | <span class="${c.weekValue>=c.target?'status-pass':'status-fail'}">${c.weekValue>=c.target?'✓达标':'✗差'+(c.target-c.weekValue)}</span></div>`:'<div style="margin-top:4px; font-size:0.7rem; color:#94a3b8;">未设目标</div>'}
+            </div>`).join('')}
         </div>
-        ${totalChecks > 0 ? `
-          <div style="margin-top:12px; font-weight:600; text-align:center;">
-            周达标率：${passCount}/${totalChecks} (${Math.round(passCount/totalChecks*100)}%)
-          </div>
-        ` : ''}
-        <div style="margin-top:14px; background:#eef2ff; padding:12px; border-radius:14px;">
-          <i class="fas fa-lightbulb" style="color:#4f46e5;"></i> <strong>改善建议：</strong>${suggestion}
-        </div>
-      `;
+        ${totalChecks>0?`<div style="margin-top:12px; font-weight:600; text-align:center;">周达标率：${passCount}/${totalChecks} (${Math.round(passCount/totalChecks*100)}%)</div>`:''}
+        <div style="margin-top:14px; background:#eef2ff; padding:12px; border-radius:14px;"><i class="fas fa-lightbulb" style="color:#4f46e5;"></i> <strong>改善建议：</strong>${suggestion}</div>`;
     }
 
+    // ========== 排名 ==========
     function renderRanking(regionId) {
       const rankingDiv = document.getElementById(`rankingList-${regionId}`);
       if (!rankingDiv) return;
       const regionInterns = getInternsByRegion(regionId);
-
-      if (regionInterns.length === 0) {
-        rankingDiv.innerHTML = '<p style="color:#94a3b8; font-size:0.85rem;">暂无实习生</p>';
-        return;
-      }
-
+      if (regionInterns.length === 0) { rankingDiv.innerHTML = '<p style="color:#94a3b8; font-size:0.85rem;">暂无实习生</p>'; return; }
       const rankings = regionInterns.map(intern => {
-        const weekRecords = getWeekRecords(intern.id);
-        const score = calculateScore(weekRecords);
-        return {
-          id: intern.id, name: intern.name, score,
-          approach: weekRecords.reduce((s,r)=> s+r.approach, 0),
-          reply: weekRecords.reduce((s,r)=> s+r.reply, 0),
-          host: weekRecords.reduce((s,r)=> s+r.newHost, 0)
-        };
-      });
-
-      rankings.sort((a, b) => b.score - a.score);
-
+        const wr = getWeekRecords(intern.id);
+        return { id: intern.id, name: intern.name, score: calculateScore(wr), approach: wr.reduce((s,r)=>s+r.approach,0), reply: wr.reduce((s,r)=>s+r.reply,0), host: wr.reduce((s,r)=>s+r.newHost,0) };
+      }).sort((a,b) => b.score - a.score);
       rankingDiv.innerHTML = rankings.map((r, idx) => {
-        let rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other';
-        return `
-          <div class="rank-item">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div class="rank-badge ${rankClass}">${idx + 1}</div>
-              <div>
-                <div style="font-weight:700;">${r.name}</div>
-                <div style="font-size:0.75rem; color:#64748b;">搭讪${r.approach} | 回复${r.reply} | 主播${r.host}</div>
-              </div>
-            </div>
-            <div style="font-weight:700; color:#4f46e5;">${r.score}分</div>
-          </div>
-        `;
+        let rc = idx===0?'rank-1':idx===1?'rank-2':idx===2?'rank-3':'rank-other';
+        return `<div class="rank-item"><div style="display:flex; align-items:center; gap:10px;"><div class="rank-badge ${rc}">${idx+1}</div><div><div style="font-weight:700;">${r.name}</div><div style="font-size:0.75rem; color:#64748b;">搭讪${r.approach} | 回复${r.reply} | 主播${r.host}</div></div></div><div style="font-weight:700; color:#4f46e5;">${r.score}分</div></div>`;
       }).join('');
     }
-    // 奖金计算规则
-    function getBonusRate(newHostCount) {
-      if (newHostCount < 2) return { comment: 0, video: 0 };
-      if (newHostCount >= 3 && newHostCount <= 5) return { comment: 0.5, video: 5 };
-      if (newHostCount >= 6 && newHostCount <= 8) return { comment: 0.8, video: 8 };
-      if (newHostCount >= 9 && newHostCount <= 11) return { comment: 1.0, video: 10 };
-      if (newHostCount >= 12 && newHostCount <= 14) return { comment: 1.2, video: 12 };
-      if (newHostCount >= 15 && newHostCount <= 20) return { comment: 1.4, video: 14 };
-      if (newHostCount >= 21 && newHostCount <= 30) return { comment: 1.6, video: 16 };
-      if (newHostCount >= 31) return { comment: 1.8, video: 18 };
+
+    // ========== 奖金计算 ==========
+    function getBonusRate(n) {
+      if (n < 2) return { comment: 0, video: 0 };
+      if (n >= 3 && n <= 5) return { comment: 0.5, video: 5 };
+      if (n >= 6 && n <= 8) return { comment: 0.8, video: 8 };
+      if (n >= 9 && n <= 11) return { comment: 1.0, video: 10 };
+      if (n >= 12 && n <= 14) return { comment: 1.2, video: 12 };
+      if (n >= 15 && n <= 20) return { comment: 1.4, video: 14 };
+      if (n >= 21 && n <= 30) return { comment: 1.6, video: 16 };
+      if (n >= 31) return { comment: 1.8, video: 18 };
       return { comment: 0, video: 0 };
     }
 
-    // 计算奖金
     function calculateBonus(regionId) {
       const startDate = document.getElementById(`bonusStart-${regionId}`).value;
       const endDate = document.getElementById(`bonusEnd-${regionId}`).value;
       const resultDiv = document.getElementById(`bonusResult-${regionId}`);
-
-      if (!startDate || !endDate) {
-        resultDiv.innerHTML = '<p style="color:#ef4444; font-size:0.8rem;">请选择开始和结束日期</p>';
-        return;
-      }
-
-      if (startDate > endDate) {
-        resultDiv.innerHTML = '<p style="color:#ef4444; font-size:0.8rem;">开始日期不能晚于结束日期</p>';
-        return;
-      }
-
+      if (!startDate || !endDate) { resultDiv.innerHTML = '<p style="color:#ef4444; font-size:0.8rem;">请选择日期</p>'; return; }
+      if (startDate > endDate) { resultDiv.innerHTML = '<p style="color:#ef4444; font-size:0.8rem;">开始日期不能晚于结束日期</p>'; return; }
       const regionInterns = getInternsByRegion(regionId);
-      if (regionInterns.length === 0) {
-        resultDiv.innerHTML = '<p style="color:#94a3b8; font-size:0.8rem;">该地区暂无实习生</p>';
-        return;
-      }
-
-      // 获取日期范围内的所有记录
-      const allPeriodRecords = {};
-      regionInterns.forEach(intern => {
-        const records = dailyRecords[intern.id] || [];
-        allPeriodRecords[intern.id] = records.filter(r => r.date >= startDate && r.date <= endDate);
-      });
-
-      // 计算总周数（用于计算每周平均奖金）
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      if (regionInterns.length === 0) { resultDiv.innerHTML = '<p style="color:#94a3b8;">暂无实习生</p>'; return; }
+      const start = new Date(startDate), end = new Date(endDate);
+      const diffDays = Math.ceil((end - start) / (1000*60*60*24)) + 1;
       const totalWeeks = Math.max(1, Math.ceil(diffDays / 7));
-
-      let html = '<div style="margin-top:12px;">';
-      html += '<p style="font-size:0.75rem; color:#64748b; margin-bottom:6px;">📅 ' + startDate + ' 至 ' + endDate + '（约' + totalWeeks + '周）</p>';
-      html += '<table class="bonus-table"><thead><tr>';
-      html += '<th>实习生</th><th>周期新增主播</th><th>周期评论数</th><th>周期视频数</th><th>奖金等级</th><th>评论奖金</th><th>视频奖金</th><th>总奖金</th>';
-      html += '</tr></thead><tbody>';
-
-      let grandTotalBonus = 0;
-
-      regionInterns.forEach(intern => {
-        const records = allPeriodRecords[intern.id];
-        const totalNewHost = records.reduce((s, r) => s + (r.newHost || 0), 0);
-        const totalComments = records.reduce((s, r) => s + (r.comments || 0), 0);
-        const totalVideo = records.reduce((s, r) => s + (r.video || 0), 0);
-
-        const rate = getBonusRate(totalNewHost);
-        const commentBonus = totalComments * rate.comment;
-        const videoBonus = totalVideo * rate.video;
-        const totalBonus = commentBonus + videoBonus;
-        grandTotalBonus += totalBonus;
-
-        let levelText = '';
-        if (totalNewHost < 2) levelText = '无奖金';
-        else if (totalNewHost <= 5) levelText = 'Lv.1';
-        else if (totalNewHost <= 8) levelText = 'Lv.2';
-        else if (totalNewHost <= 11) levelText = 'Lv.3';
-        else if (totalNewHost <= 14) levelText = 'Lv.4';
-        else if (totalNewHost <= 20) levelText = 'Lv.5';
-        else if (totalNewHost <= 30) levelText = 'Lv.6';
-        else levelText = 'Lv.7';
-
-        html += '<tr>';
-        html += '<td style="text-align:left; padding-left:8px;">' + intern.name + '</td>';
-        html += '<td>' + totalNewHost + '</td>';
-        html += '<td>' + totalComments + '</td>';
-        html += '<td>' + totalVideo + '</td>';
-        html += '<td><span style="background:#fef3c7; padding:2px 8px; border-radius:10px; font-size:0.7rem;">' + levelText + '</span></td>';
-        html += '<td>$' + commentBonus.toFixed(1) + '</td>';
-        html += '<td>$' + videoBonus.toFixed(1) + '</td>';
-        html += '<td class="bonus-highlight">$' + totalBonus.toFixed(1) + '</td>';
-        html += '</tr>';
-      });
-
-      // 每周平均奖金
-      const weeklyAvgBonus = grandTotalBonus / totalWeeks;
-      // 每月平均奖金
       const totalMonths = Math.max(1, Math.ceil(diffDays / 30));
-      const monthlyAvgBonus = grandTotalBonus / totalMonths;
-
-      html += '<tr style="background:#fef9c3;">';
-      html += '<td colspan="7" style="text-align:right; font-weight:700;">💰 周期总奖金：</td>';
-      html += '<td class="bonus-highlight" style="font-size:1rem;">$' + grandTotalBonus.toFixed(1) + '</td>';
-      html += '</tr>';
-      html += '</tbody></table>';
-
-      // 每周和每月汇总
+      let html = '<div style="margin-top:12px;"><p style="font-size:0.75rem; color:#64748b;">📅 ' + startDate + ' 至 ' + endDate + '（约' + totalWeeks + '周）</p>';
+      html += '<table class="bonus-table"><thead><tr><th>实习生</th><th>新增主播</th><th>评论数</th><th>视频数</th><th>等级</th><th>评论奖金</th><th>视频奖金</th><th>总奖金</th></tr></thead><tbody>';
+      let grandTotal = 0;
+      regionInterns.forEach(intern => {
+        const records = (dailyRecords[intern.id]||[]).filter(r => r.date >= startDate && r.date <= endDate);
+        const nh = records.reduce((s,r)=>s+(r.newHost||0),0);
+        const cm = records.reduce((s,r)=>s+(r.comments||0),0);
+        const vd = records.reduce((s,r)=>s+(r.video||0),0);
+        const rate = getBonusRate(nh);
+        const cb = cm * rate.comment, vb = vd * rate.video, tb = cb + vb;
+        grandTotal += tb;
+        let lv = nh<2?'无奖金':nh<=5?'Lv.1':nh<=8?'Lv.2':nh<=11?'Lv.3':nh<=14?'Lv.4':nh<=20?'Lv.5':nh<=30?'Lv.6':'Lv.7';
+        html += '<tr><td style="text-align:left;">'+intern.name+'</td><td>'+nh+'</td><td>'+cm+'</td><td>'+vd+'</td><td><span style="background:#fef3c7; padding:2px 8px; border-radius:10px; font-size:0.7rem;">'+lv+'</span></td><td>$'+cb.toFixed(1)+'</td><td>$'+vb.toFixed(1)+'</td><td class="bonus-highlight">$'+tb.toFixed(1)+'</td></tr>';
+      });
+      html += '<tr style="background:#fef9c3;"><td colspan="7" style="text-align:right; font-weight:700;">💰 周期总奖金：</td><td class="bonus-highlight" style="font-size:1rem;">$'+grandTotal.toFixed(1)+'</td></tr></tbody></table>';
       html += '<div style="display:flex; gap:16px; margin-top:10px; justify-content:center;">';
-      html += '<div style="background:white; border-radius:10px; padding:10px 16px; text-align:center; border:1px solid #fcd34d;">';
-      html += '<div style="font-size:0.7rem; color:#92400e;">📅 每周平均奖金</div>';
-      html += '<div style="font-weight:700; font-size:1.2rem; color:#92400e;">$' + weeklyAvgBonus.toFixed(1) + '</div>';
-      html += '</div>';
-      html += '<div style="background:white; border-radius:10px; padding:10px 16px; text-align:center; border:1px solid #fcd34d;">';
-      html += '<div style="font-size:0.7rem; color:#92400e;">📆 每月平均奖金</div>';
-      html += '<div style="font-weight:700; font-size:1.2rem; color:#92400e;">$' + monthlyAvgBonus.toFixed(1) + '</div>';
-      html += '</div>';
-      html += '</div>';
-
-      html += '</div>';
+      html += '<div style="background:white; border-radius:10px; padding:10px 16px; text-align:center; border:1px solid #fcd34d;"><div style="font-size:0.7rem; color:#92400e;">📅 每周平均</div><div style="font-weight:700; font-size:1.2rem; color:#92400e;">$'+(grandTotal/totalWeeks).toFixed(1)+'</div></div>';
+      html += '<div style="background:white; border-radius:10px; padding:10px 16px; text-align:center; border:1px solid #fcd34d;"><div style="font-size:0.7rem; color:#92400e;">📆 每月平均</div><div style="font-weight:700; font-size:1.2rem; color:#92400e;">$'+(grandTotal/totalMonths).toFixed(1)+'</div></div>';
+      html += '</div></div>';
       resultDiv.innerHTML = html;
     }
+
+    // ========== 地区切换 ==========
     function switchRegion(regionId) {
       currentRegion = regionId;
+      initFilterState(regionId);
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`.tab-btn[data-region="${regionId}"]`).classList.add('active');
       document.querySelectorAll('.region-panel').forEach(p => p.classList.remove('active'));
       document.getElementById(`panel-${regionId}`).classList.add('active');
       renderRanking(regionId);
+      const filter = filterState[regionId];
+      if (filter) {
+        setTimeout(() => {
+          const si = document.getElementById(`filterStart-${regionId}`); if (si) si.value = filter.startDate || '';
+          const ei = document.getElementById(`filterEnd-${regionId}`); if (ei) ei.value = filter.endDate || '';
+          updateQuickBtnStyles(regionId, filter.period || 'week');
+          updateFilterInfo(regionId);
+        }, 50);
+      }
       const regionInterns = getInternsByRegion(regionId);
       if (regionInterns.length > 0) {
         selectedInternId = regionInterns[0].id;
@@ -2277,63 +1672,16 @@
         if (!selectedRows[selectedInternId]) selectedRows[selectedInternId] = new Set();
         if (!dataViewMode[selectedInternId]) dataViewMode[selectedInternId] = 'week';
         renderInternList(regionId);
-        refreshDataDisplay(regionId, selectedInternId);
-            } else {
+        refreshAllViews(regionId, selectedInternId);
+      } else {
         selectedInternId = null;
-        document.getElementById(`tableContainer-${regionId}`).innerHTML = '<p>暂无实习生，请先添加</p>';
+        document.getElementById(`tableContainer-${regionId}`).innerHTML = '<p>暂无实习生</p>';
         document.getElementById(`summaryCards-${regionId}`).innerHTML = '';
         document.getElementById(`analysisCard-${regionId}`).innerHTML = '<p style="color:#64748b;">暂无实习生</p>';
-        document.getElementById(`bonusResult-${regionId}`).innerHTML = '<p style="color:#94a3b8; font-size:0.8rem;">选择日期范围后点击计算</p>';
       }
     }
 
-    function showEditNameModal(internId) {
-      const intern = interns.find(i => i.id === internId);
-      if (!intern) return;
-
-      const existing = document.querySelector('.modal-overlay');
-      if (existing) existing.remove();
-
-      const overlay = document.createElement('div');
-      overlay.className = 'modal-overlay';
-      overlay.innerHTML = `
-        <div class="modal-box">
-          <h3><i class="fas fa-user-edit"></i> 修改实习生名字</h3>
-          <p style="color:#64748b; margin-bottom:12px;">当前名字：<strong>${intern.name}</strong></p>
-          <input type="text" id="newNameInput" value="${intern.name}" placeholder="请输入新名字" autocomplete="off">
-          <div class="modal-actions">
-            <button class="cancel-btn" id="cancelEditBtn">取消</button>
-            <button class="confirm-btn" id="confirmEditBtn">确认修改</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-
-      const inputEl = document.getElementById('newNameInput');
-      setTimeout(() => { inputEl.focus(); inputEl.select(); }, 150);
-
-      document.getElementById('cancelEditBtn').addEventListener('click', () => overlay.remove());
-      document.getElementById('confirmEditBtn').addEventListener('click', () => {
-        const newName = inputEl.value.trim();
-        if (!newName) { alert('名字不能为空'); inputEl.focus(); return; }
-        intern.name = newName;
-        saveInternsToStorage();
-        const nameDisplay = document.getElementById(`nameDisplay-${internId}`);
-        if (nameDisplay) nameDisplay.textContent = newName;
-        overlay.remove();
-        const currentPanel = document.querySelector('.region-panel.active');
-        if (currentPanel) {
-          const regionId = currentPanel.id.replace('panel-', '');
-          renderInternList(regionId);
-          renderRanking(regionId);
-          if (selectedInternId === internId) refreshDataDisplay(regionId, internId);
-        }
-      });
-
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-      inputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('confirmEditBtn').click(); } });
-    }
-
+    // ========== 事件绑定与初始化 ==========
     document.getElementById('regionTabs').addEventListener('click', (e) => {
       const btn = e.target.closest('.tab-btn');
       if (!btn) return;
@@ -2347,11 +1695,12 @@
       currentPage[selectedInternId] = 1;
       selectedRows[selectedInternId] = new Set();
       dataViewMode[selectedInternId] = 'week';
+      initFilterState('taiwan');
       setTimeout(() => {
         renderInternList('taiwan');
-        refreshDataDisplay('taiwan', selectedInternId);
+        refreshAllViews('taiwan', selectedInternId);
         renderRanking('taiwan');
-      }, 20);
+      }, 50);
     }
   })();
 </script>
