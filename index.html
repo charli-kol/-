@@ -1002,7 +1002,17 @@
       const existing = document.querySelector('.modal-overlay');
       if (existing) existing.remove();
 
-      const config = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key), targets: {} };
+            // 确保该地区的标准配置存在
+      if (!weeklyStandards[regionId]) {
+        weeklyStandards[regionId] = {
+          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
+          targets: {}
+        };
+        ALL_DIMENSIONS.forEach(dim => {
+          weeklyStandards[regionId].targets[dim.key] = 0;
+        });
+      }
+      const config = weeklyStandards[regionId];
       const regionName = getRegionName(regionId);
 
       const overlay = document.createElement('div');
@@ -1487,7 +1497,13 @@
       const allCurrentPageSelected = records.length > 0 && records.every((_, idx) => selectedSet.has((paged.page - 1) * PAGE_SIZE + idx));
 
       // 获取启用的维度
-      const standardConfig = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key) };
+            if (!weeklyStandards[regionId]) {
+        weeklyStandards[regionId] = {
+          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
+          targets: {}
+        };
+      }
+      const standardConfig = weeklyStandards[regionId];
       const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
       const visibleDims = ALL_DIMENSIONS.filter(d => enabledDims.includes(d.key));
 
@@ -1611,7 +1627,13 @@
       const date = document.getElementById(`batchDate-${regionId}`).value;
       if (!date) { alert('请选择日期'); return; }
       
-      const standardConfig = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key) };
+            if (!weeklyStandards[regionId]) {
+        weeklyStandards[regionId] = {
+          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
+          targets: {}
+        };
+      }
+      const standardConfig = weeklyStandards[regionId];
       const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
       
       const record = { date };
@@ -1642,7 +1664,13 @@
       const card = document.getElementById(`analysisCard-${regionId}`);
       if (!card) return;
 
-      const standardConfig = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key), targets: {} };
+            if (!weeklyStandards[regionId]) {
+        weeklyStandards[regionId] = {
+          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
+          targets: {}
+        };
+      }
+      const standardConfig = weeklyStandards[regionId];
       const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
       const targets = standardConfig.targets || {};
 
