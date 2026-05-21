@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
   <title>KOL实习生管理系统 · 多地区日报分析</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -925,8 +926,8 @@
           <div class="upload-area" id="uploadDropZone-${regionId}">
             <i class="fas fa-cloud-upload-alt"></i>
             <p><strong>点击选择文件</strong> 或拖拽文件到此处</p>
-            <p class="file-types">支持 .csv 格式</p>
-            <input type="file" id="fileInput-${regionId}" accept=".csv" style="display:none;">
+            <p class="file-types">支持 .csv, .xlsx 格式</p>
+            <input type="file" id="fileInput-${regionId}" accept=".csv,.xlsx,.xls" style="display:none;">
           </div>
 
           <div id="uploadPreview-${regionId}" style="display:none;">
@@ -983,12 +984,34 @@
         if (file) processFile(file);
       });
 
-      function processFile(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          parseCSV(e.target.result);
-        };
-        reader.readAsText(file);
+            function processFile(file) {
+        const fileName = file.name.toLowerCase();
+        
+        if (fileName.endsWith('.csv')) {
+          // CSV文件：直接读取文本
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            parseCSV(e.target.result);
+          };
+          reader.readAsText(file);
+        } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+          // Excel文件：使用SheetJS解析
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: 'array' });
+              const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+              const csvText = XLSX.utils.sheet_to_csv(firstSheet);
+              parseCSV(csvText);
+            } catch (err) {
+              alert('Excel文件解析失败，请确保文件格式正确。\n错误信息：' + err.message);
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        } else {
+          alert('不支持的文件格式，请上传 .csv 或 .xlsx 文件');
+        }
       }
 
       function parseCSV(text) {
