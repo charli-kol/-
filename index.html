@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>KOL实习生管理系统 | 多地区日报·产出分析</title>
+  <!-- 使用现代字体与图标库 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f4f6fc;
+      color: #1e293b;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .dashboard {
+      max-width: 1440px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* 头部 */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      padding: 18px 28px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .title h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #0f172a;
+    }
+
+    .title span {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .region-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge {
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      background: #f1f5f9;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      cursor: default;
+    }
+
+    .badge i {
+      font-size: 0.8rem;
+    }
+
+    .badge.taiwan { background: #fef3c7; color: #92400e; }
+    .badge.turkey { background: #fee2e2; color: #991b1b; }
+    .badge.spanish { background: #fce7f3; color: #9d174d; }
+    .badge.brazil { background: #dbeafe; color: #1e3a8a; }
+
+    /* 卡片通用设计 */
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 22px 24px;
+      box-shadow: 0 10px 25px -8px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #0f172a;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 650px) {
+      .grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 实习生条目 */
+    .intern-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .intern-row:last-child {
+      border-bottom: none;
+    }
+
+    .intern-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .intern-name {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .region-tag {
+      font-size: 0.7rem;
+      background: #e2e8f0;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-weight: 600;
+    }
+
+    .kpi-numbers {
+      display: flex;
+      gap: 16px;
+      font-size: 0.9rem;
+    }
+
+    .kpi-item {
+      text-align: center;
+    }
+
+    .kpi-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .improve-btn {
+      background: none;
+      border: 1px solid #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      transition: 0.2s;
+      background: white;
+    }
+
+    .improve-btn:hover {
+      background: #4f46e5;
+      color: white;
+      border-color: #4f46e5;
+    }
+
+    .analysis-box {
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 14px;
+      margin-top: 16px;
+    }
+
+    .suggestion-text {
+      font-style: italic;
+      color: #475569;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+      font-family: inherit;
+      resize: vertical;
+      margin-top: 8px;
+      background: #ffffff;
+    }
+
+    button {
+      background: #4f46e5;
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button.secondary {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    select {
+      padding: 10px 16px;
+      border-radius: 30px;
+      border: 1px solid #cbd5e1;
+      font-weight: 500;
+      background: white;
+    }
+
+    hr {
+      margin: 16px 0;
+      border: 0.5px solid #e9eef3;
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard">
+  
+  <!-- 头部区域 -->
+  <div class="header">
+    <div class="logo-area">
+      <div class="logo-icon"><i class="fas fa-users"></i></div>
+      <div class="title">
+        <h1>KOL实习生管理</h1>
+        <span>台湾 · 土耳其 · 西语大区 · 巴西</span>
+      </div>
+    </div>
+    <div class="region-badges">
+      <div class="badge taiwan"><i class="fas fa-map-marker-alt"></i> 台湾</div>
+      <div class="badge turkey"><i class="fas fa-map-marker-alt"></i> 土耳其</div>
+      <div class="badge spanish"><i class="fas fa-map-marker-alt"></i> 西语大区</div>
+      <div class="badge brazil"><i class="fas fa-map-marker-alt"></i> 巴西</div>
+    </div>
+  </div>
+
+  <!-- 四个地区卡片：日报数据 + 实习生列表 -->
+  <div class="grid-4" id="regionGrid"></div>
+
+  <!-- 周度/月度产出分析 + 改善建议区域 -->
+  <div class="card" style="margin-top: 6px;">
+    <div class="section-title"><i class="fas fa-chart-line" style="color:#4f46e5;"></i> 产出分析与改善建议</div>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-bottom: 16px;">
+      <select id="analysisInternSelect" style="min-width: 200px;">
+        <option value="">-- 选择实习生 --</option>
+      </select>
+      <select id="periodSelect">
+        <option value="weekly">本周</option>
+        <option value="monthly" selected>本月</option>
+      </select>
+      <button id="runAnalysisBtn"><i class="fas fa-calculator"></i> 运行分析</button>
+    </div>
+    <div id="analysisResult" class="analysis-box">
+      <p style="color:#64748b;">👆 请选择实习生并点击“运行分析”查看产出数据与建议。</p>
+    </div>
+    <div style="margin-top: 14px;">
+      <label style="font-weight:600; font-size:0.9rem;"><i class="fas fa-lightbulb"></i> 管理者改善建议（可编辑）</label>
+      <textarea id="managerSuggestion" placeholder="输入对该实习生的具体改善建议...">提高互动率，建议增加故事性内容；优化发布时间。</textarea>
+      <button id="saveSuggestionBtn" style="margin-top:8px;"><i class="fas fa-save"></i> 保存建议</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- 模拟数据：四个地区实习生及其日报KOL数据 -----
+    const regions = [
+      { id: 'taiwan', name: '台湾', icon: 'fa-flag', class: 'taiwan' },
+      { id: 'turkey', name: '土耳其', icon: 'fa-flag', class: 'turkey' },
+      { id: 'spanish', name: '西语大区', icon: 'fa-globe', class: 'spanish' },
+      { id: 'brazil', name: '巴西', icon: 'fa-flag', class: 'brazil' }
+    ];
+
+    // 实习生数据 (包含日报统计)
+    let internsData = [
+      // 台湾
+      { id: 'tw1', name: '陈雅婷', region: 'taiwan', posts: 18, engagement: 1240, followersGain: 320, kolHandled: 5 },
+      { id: 'tw2', name: '林俊杰', region: 'taiwan', posts: 14, engagement: 980, followersGain: 210, kolHandled: 4 },
+      // 土耳其
+      { id: 'tr1', name: 'Elif Demir', region: 'turkey', posts: 22, engagement: 1560, followersGain: 480, kolHandled: 6 },
+      { id: 'tr2', name: 'Mehmet Yılmaz', region: 'turkey', posts: 16, engagement: 1100, followersGain: 290, kolHandled: 4 },
+      // 西语大区
+      { id: 'es1', name: 'Sofía García', region: 'spanish', posts: 20, engagement: 1890, followersGain: 540, kolHandled: 7 },
+      { id: 'es2', name: 'Carlos Ruiz', region: 'spanish', posts: 12, engagement: 870, followersGain: 180, kolHandled: 3 },
+      // 巴西
+      { id: 'br1', name: 'Ana Silva', region: 'brazil', posts: 25, engagement: 2100, followersGain: 620, kolHandled: 8 },
+      { id: 'br2', name: 'João Costa', region: 'brazil', posts: 17, engagement: 1320, followersGain: 350, kolHandled: 5 }
+    ];
+
+    // 改善建议存储 (按实习生id)
+    let suggestions = {
+      'tw1': '增加视频内容互动，尝试更多本地化话题。',
+      'tw2': '提升发布频率，优化KOL选择质量。',
+      'tr1': '数据优秀，可尝试带领小型项目。',
+      'tr2': '加强故事性内容，提高粉丝转化。',
+      'es1': '保持势头，拓展跨平台合作。',
+      'es2': '需改进内容创意，增加与粉丝互动。',
+      'br1': '表现突出，建议参与策略制定。',
+      'br2': '稳定增长，可探索直播形式。'
+    };
+
+    // 当前选中的实习生id (用于分析)
+    let currentSelectedInternId = null;
+
+    // 获取地区名称
+    function getRegionName(regionId) {
+      const r = regions.find(r => r.id === regionId);
+      return r ? r.name : regionId;
+    }
+
+    function getRegionClass(regionId) {
+      const r = regions.find(r => r.id === regionId);
+      return r ? r.class : '';
+    }
+
+    // 渲染四个地区卡片
+    function renderRegionCards() {
+      const grid = document.getElementById('regionGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      regions.forEach(region => {
+        const regionInterns = internsData.filter(i => i.region === region.id);
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="section-title">
+            <i class="fas ${region.icon}" style="color:#4f46e5;"></i> ${region.name} 
+            <span style="font-size:0.8rem; margin-left:8px; color:#64748b;">(${regionInterns.length}人)</span>
+          </div>
+          <div id="internList-${region.id}"></div>
+        `;
+        grid.appendChild(card);
+
+        // 填充实习生列表
+        const listContainer = document.getElementById(`internList-${region.id}`);
+        if (regionInterns.length === 0) {
+          listContainer.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">暂无实习生</p>';
+          return;
+        }
+
+        regionInterns.forEach(intern => {
+          const row = document.createElement('div');
+          row.className = 'intern-row';
+          row.innerHTML = `
+            <div class="intern-info">
+              <div class="intern-name">
+                ${intern.name} 
+                <span class="region-tag ${getRegionClass(intern.region)}">${getRegionName(intern.region)}</span>
+              </div>
+              <div style="font-size:0.75rem; color:#64748b;">负责KOL: ${intern.kolHandled}个</div>
+            </div>
+            <div class="kpi-numbers">
+              <div class="kpi-item"><span class="kpi-value">${intern.posts}</span><br><small>帖子</small></div>
+              <div class="kpi-item"><span class="kpi-value">${intern.engagement}</span><br><small>互动</small></div>
+              <div class="kpi-item"><span class="kpi-value">${intern.followersGain}</span><br><small>新粉</small></div>
+            </div>
+            <button class="improve-btn" data-id="${intern.id}"><i class="fas fa-pen"></i> 建议</button>
+          `;
+          listContainer.appendChild(row);
+        });
+      });
+
+      // 绑定“建议”按钮事件
+      document.querySelectorAll('.improve-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const internId = this.getAttribute('data-id');
+          const intern = internsData.find(i => i.id === internId);
+          if (intern) {
+            document.getElementById('analysisInternSelect').value = internId;
+            currentSelectedInternId = internId;
+            // 自动加载分析
+            runAnalysisFor(internId, document.getElementById('periodSelect').value);
+            // 填充建议框
+            document.getElementById('managerSuggestion').value = suggestions[internId] || '';
+          }
+        });
+      });
+    }
+
+    // 填充实习生下拉选择器
+    function populateSelect() {
+      const select = document.getElementById('analysisInternSelect');
+      if (!select) return;
+      select.innerHTML = '<option value="">-- 选择实习生 --</option>';
+      internsData.forEach(intern => {
+        const option = document.createElement('option');
+        option.value = intern.id;
+        option.textContent = `${intern.name} (${getRegionName(intern.region)})`;
+        select.appendChild(option);
+      });
+    }
+
+    // 运行分析 (基于选中的实习生和周期)
+    function runAnalysisFor(internId, period = 'monthly') {
+      const intern = internsData.find(i => i.id === internId);
+      const resultDiv = document.getElementById('analysisResult');
+      if (!intern || !resultDiv) return;
+
+      // 模拟周度/月度数据差异 (月度大致为周度*4左右，稍作变化)
+      const multiplier = period === 'weekly' ? 0.25 : 1.0;
+      const posts = Math.round(intern.posts * multiplier);
+      const engagement = Math.round(intern.engagement * multiplier);
+      const followers = Math.round(intern.followersGain * multiplier);
+      
+      // 简单评价逻辑
+      let performanceLevel = '';
+      let autoSuggestion = '';
+      const engagementRate = (engagement / (posts || 1)).toFixed(1);
+      
+      if (posts > 20 && engagement > 1800) {
+        performanceLevel = '优秀 🌟';
+        autoSuggestion = '产出高效，建议承担更多指导角色或拓展新平台。';
+      } else if (posts >= 14 && engagement >= 1000) {
+        performanceLevel = '良好 👍';
+        autoSuggestion = '稳定输出，可优化内容多样性以提升互动。';
+      } else {
+        performanceLevel = '需提升 📈';
+        autoSuggestion = '建议增加发布频次，研究高互动KOL内容风格。';
+      }
+
+      const periodText = period === 'weekly' ? '本周' : '本月';
+
+      resultDiv.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:1.1rem;">${intern.name} · ${periodText}产出</strong>
+          <span style="background:#e0e7ff; padding:4px 14px; border-radius:20px; font-weight:600; color:#3730a3;">${performanceLevel}</span>
+        </div>
+        <div style="display:flex; gap:24px; margin-top:12px; flex-wrap:wrap;">
+          <div><span style="color:#475569;">帖子数：</span><strong>${posts}</strong></div>
+          <div><span style="color:#475569;">总互动：</span><strong>${engagement}</strong></div>
+          <div><span style="color:#475569;">新增粉丝：</span><strong>${followers}</strong></div>
+          <div><span style="color:#475569;">平均互动/帖：</span><strong>${engagementRate}</strong></div>
+        </div>
+        <div class="suggestion-text" style="margin-top:12px;"><i class="fas fa-robot" style="margin-right:6px;"></i> ${autoSuggestion}</div>
+      `;
+      
+      // 同步当前选中id
+      currentSelectedInternId = internId;
+      // 加载已存储建议
+      document.getElementById('managerSuggestion').value = suggestions[internId] || '';
+    }
+
+    // 事件绑定
+    function bindEvents() {
+      document.getElementById('runAnalysisBtn').addEventListener('click', function() {
+        const select = document.getElementById('analysisInternSelect');
+        const period = document.getElementById('periodSelect').value;
+        const internId = select.value;
+        if (!internId) {
+          alert('请先选择一位实习生');
+          return;
+        }
+        runAnalysisFor(internId, period);
+      });
+
+      document.getElementById('saveSuggestionBtn').addEventListener('click', function() {
+        if (!currentSelectedInternId) {
+          alert('请先通过分析选择一位实习生');
+          return;
+        }
+        const textarea = document.getElementById('managerSuggestion');
+        suggestions[currentSelectedInternId] = textarea.value;
+        alert('改善建议已保存！');
+        // 可选视觉反馈
+      });
+
+      // 当通过下拉手动更改实习生时，自动更新currentSelectedInternId但不自动运行分析（等待点击）
+      document.getElementById('analysisInternSelect').addEventListener('change', function() {
+        currentSelectedInternId = this.value;
+        if (this.value) {
+          document.getElementById('managerSuggestion').value = suggestions[this.value] || '';
+        }
+      });
+    }
+
+    // 初始化整个界面
+    function init() {
+      renderRegionCards();
+      populateSelect();
+      bindEvents();
+      // 默认不自动选中，保持空白分析区
+    }
+
+    // 页面加载完成后启动
+    window.addEventListener('DOMContentLoaded', init);
+  })();
+</script>
+</body>
+</html>
