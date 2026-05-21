@@ -926,10 +926,69 @@
         });
       });
     }
+    // 渲染周标准展示板块
+    function renderStandardDisplay(regionId) {
+      const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
+      if (!cardsDiv) return;
+      
+      // 确保配置存在
+      if (!weeklyStandards[regionId]) {
+        weeklyStandards[regionId] = {
+          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
+          targets: {}
+        };
+      }
+      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
+        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
+      }
+      if (!weeklyStandards[regionId].targets) {
+        weeklyStandards[regionId].targets = {};
+      }
 
-    function refreshDataDisplay(regionId, internId) {
+      const config = weeklyStandards[regionId];
+      const enabledDims = config.enabledDimensions;
+      const targets = config.targets;
+      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDims.includes(d.key));
+
+      if (visibleDims.length === 0) {
+        return ''; // 没有启用维度时不显示
+      }
+
+      let html = `
+        <div style="background:#f0f9ff; border-radius:14px; padding:16px; margin-bottom:16px; border:1px solid #bae6fd;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h4 style="font-size:0.95rem; color:#0369a1;"><i class="fas fa-bullseye"></i> 本周标准目标</h4>
+            <button onclick="document.getElementById('standardBtn-${regionId}').click()" style="background:#0ea5e9; padding:6px 14px; font-size:0.75rem;">
+              <i class="fas fa-edit"></i> 修改
+            </button>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px;">
+            ${visibleDims.map(dim => `
+              <div style="background:white; border-radius:10px; padding:10px 14px; text-align:center; min-width:80px;">
+                <div style="font-size:0.7rem; color:#64748b;">${dim.icon} ${dim.label}</div>
+                <div style="font-weight:700; font-size:1.1rem; color:#0c4a6e;">${(targets[dim.key] || 0).toLocaleString()}</div>
+                <div style="font-size:0.6rem; color:#94a3b8;">/周</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      return html;
+    }
+        function refreshDataDisplay(regionId, internId) {
       const view = dataViewMode[internId] || 'week';
+      
+      // 先渲染周标准展示
+      const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
+      if (cardsDiv) {
+        const standardHTML = renderStandardDisplay(regionId);
+        cardsDiv.innerHTML = standardHTML;
+      }
+      
+      // 再渲染汇总卡片
       renderSummaryCards(regionId, internId, view);
+      
       if (view === 'all') {
         document.getElementById(`tableContainer-${regionId}`).style.display = 'block';
         renderDataTable(regionId, internId);
@@ -939,11 +998,22 @@
       renderAnalysis(regionId, internId);
     }
 
-    function renderSummaryCards(regionId, internId, view) {
+      function renderSummaryCards(regionId, internId, view) {
       const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
       if (!cardsDiv) return;
 
-      const standardConfig = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key), targets: {} };
+      // 确保配置存在
+      if (!weeklyStandards[regionId]) {
+        weeklyStandards[regionId] = {
+          enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
+          targets: {}
+        };
+      }
+      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
+        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
+      }
+
+      const standardConfig = weeklyStandards[regionId];
       const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
 
       let records;
@@ -955,8 +1025,9 @@
         records = dailyRecords[internId] || [];
       }
 
+      // ★ 修改点1：没有记录时，用追加方式显示提示，不覆盖之前的周标准展示
       if (records.length === 0) {
-        cardsDiv.innerHTML = '<p style="color:#94a3b8; padding:20px; text-align:center;">暂无数据</p>';
+        cardsDiv.innerHTML += '<p style="color:#94a3b8; padding:10px; text-align:center; grid-column:1/-1;">暂无数据记录</p>';
         return;
       }
 
@@ -965,9 +1036,20 @@
         totals[dim.key] = records.reduce((s, r) => s + (r[dim.key] || 0), 0);
       });
 
-      cardsDiv.innerHTML = ALL_DIMENSIONS
+      // ★ 修改点2：用追加方式（+=）添加汇总卡片，不覆盖周标准展示
+      // 先添加标题行
+      cardsDiv.innerHTML += `
+        <div style="grid-column:1/-1; margin-top:8px;">
+          <h4 style="font-size:0.9rem; color:#475569; margin-bottom:8px;">
+            <i class="fas fa-chart-bar"></i> ${view === 'week' ? '本周' : view === 'month' ? '本月' : '全部'}数据汇总
+          </h4>
+        </div>
+      `;
+
+      // ★ 修改点3：然后追加每个维度的汇总卡片
+      ALL_DIMENSIONS
         .filter(dim => enabledDims.includes(dim.key))
-        .map(dim => {
+        .forEach(dim => {
           const target = (standardConfig.targets && standardConfig.targets[dim.key]) || 0;
           const value = totals[dim.key];
           const pct = target > 0 ? Math.round(value / target * 100) : 0;
@@ -977,14 +1059,16 @@
           else if (pct >= 70) { trendClass = 'trend-up'; trendIcon = '📈'; }
           else if (pct < 50) { trendClass = 'trend-down'; trendIcon = '⚠️'; }
 
-          return `
+          // 每个卡片追加到容器中
+          const cardHTML = `
             <div class="summary-card">
               <div class="value">${dim.icon} ${value.toLocaleString()}</div>
               <div class="label">${dim.label}</div>
               ${target > 0 ? `<div class="trend ${trendClass}">${trendIcon} 目标 ${target} (${pct}%)</div>` : ''}
             </div>
           `;
-        }).join('');
+          cardsDiv.innerHTML += cardHTML;
+        });
     }
 
     function bindRegionButtons(regionId) {
@@ -1497,7 +1581,7 @@
       refreshDataDisplay(regionId, internId);
     }
 
-    function renderDataTable(regionId, internId) {
+        function renderDataTable(regionId, internId) {
       const container = document.getElementById(`tableContainer-${regionId}`);
       if (!container) return;
       if (!currentPage[internId]) currentPage[internId] = 1;
@@ -1510,23 +1594,27 @@
 
       const allCurrentPageSelected = records.length > 0 && records.every((_, idx) => selectedSet.has((paged.page - 1) * PAGE_SIZE + idx));
 
-      // 获取启用的维度
-            if (!weeklyStandards[regionId]) {
+      // 确保配置存在
+      if (!weeklyStandards[regionId]) {
         weeklyStandards[regionId] = {
           enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
           targets: {}
         };
       }
-      const standardConfig = weeklyStandards[regionId];
-      const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
-      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDims.includes(d.key));
+      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
+        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
+      }
+      
+      // ★ 关键：只获取启用的维度
+      const enabledDimKeys = weeklyStandards[regionId].enabledDimensions;
+      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDimKeys.includes(d.key));
 
       let html = `
         <div class="toolbar">
           <button class="danger" id="batchDeleteBtn-${regionId}" style="padding:8px 16px; font-size:0.85rem;" ${selectedSet.size === 0 ? 'disabled' : ''}>
             <i class="fas fa-trash-alt"></i> 批量删除 (${selectedSet.size})
           </button>
-          <span style="font-size:0.8rem; color:#64748b;">共 ${allRecords.length} 条记录</span>
+          <span style="font-size:0.8rem; color:#64748b;">共 ${allRecords.length} 条记录 | 显示 ${visibleDims.length} 个维度</span>
         </div>
         <div class="table-wrapper"><table>
         <thead><tr>
@@ -1542,11 +1630,15 @@
         html += `<tr>
           <td><input type="checkbox" class="row-checkbox" data-idx="${globalIdx}" ${isChecked ? 'checked' : ''}></td>
           <td>${rec.date}</td>
-          ${visibleDims.map(d => `<td>${rec[d.key] || 0}${d.key === 'cost' ? '$' : ''}</td>`).join('')}
+          ${visibleDims.map(d => {
+            const value = rec[d.key] || 0;
+            return `<td>${value}${d.key === 'cost' ? '$' : ''}</td>`;
+          }).join('')}
           <td><button class="secondary" style="padding:4px 10px;" data-delete="${internId}" data-idx="${globalIdx}"><i class="fas fa-trash"></i></button></td>
         </tr>`;
       });
 
+      // 录入行也只用启用的维度
       html += `<tr class="batch-input-row">
         <td></td>
         <td><input type="date" id="batchDate-${regionId}" style="width:120px;"></td>
@@ -1564,6 +1656,7 @@
 
       container.innerHTML = html;
 
+      // 全选复选框
       const selectAllCheckbox = document.getElementById(`selectAll-${regionId}`);
       if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function() {
@@ -1576,6 +1669,7 @@
         });
       }
 
+      // 行复选框
       container.querySelectorAll('.row-checkbox').forEach(cb => {
         cb.addEventListener('change', function() {
           const globalIdx = parseInt(this.dataset.idx);
@@ -1585,6 +1679,7 @@
         });
       });
 
+      // 批量删除
       const batchDeleteBtn = document.getElementById(`batchDeleteBtn-${regionId}`);
       if (batchDeleteBtn) {
         batchDeleteBtn.addEventListener('click', () => {
@@ -1602,6 +1697,7 @@
         });
       }
 
+      // 单条删除
       container.querySelectorAll('[data-delete]').forEach(btn => {
         btn.addEventListener('click', function() {
           const delIntern = this.dataset.delete;
@@ -1624,6 +1720,7 @@
         });
       });
 
+      // 分页
       const prevBtn = document.getElementById(`prevPage-${regionId}`);
       const nextBtn = document.getElementById(`nextPage-${regionId}`);
       if (prevBtn) prevBtn.addEventListener('click', () => {
@@ -1633,26 +1730,33 @@
         if (currentPage[internId] < paged.totalPages) { currentPage[internId]++; renderDataTable(regionId, internId); }
       });
 
+      // 保存按钮
       const saveBtn = document.getElementById(`saveBatchBtn-${regionId}`);
       if (saveBtn) saveBtn.addEventListener('click', () => batchAddRecord(regionId, internId));
     }
 
-    function batchAddRecord(regionId, internId) {
+      function batchAddRecord(regionId, internId) {
       const date = document.getElementById(`batchDate-${regionId}`).value;
       if (!date) { alert('请选择日期'); return; }
       
-            if (!weeklyStandards[regionId]) {
+      // 确保配置存在
+      if (!weeklyStandards[regionId]) {
         weeklyStandards[regionId] = {
           enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
           targets: {}
         };
       }
-      const standardConfig = weeklyStandards[regionId];
-      const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
+      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
+        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
+      }
+      
+      const enabledDimKeys = weeklyStandards[regionId].enabledDimensions;
+      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDimKeys.includes(d.key));
       
       const record = { date };
+      // 启用的维度从输入框读取，未启用的设为0
       ALL_DIMENSIONS.forEach(dim => {
-        if (enabledDims.includes(dim.key)) {
+        if (enabledDimKeys.includes(dim.key)) {
           const el = document.getElementById(`batch-${dim.key}-${regionId}`);
           record[dim.key] = el ? (parseInt(el.value) || 0) : 0;
         } else {
@@ -1664,7 +1768,8 @@
       dailyRecords[internId].sort((a, b) => new Date(a.date) - new Date(b.date));
       saveDataToStorage();
 
-      ALL_DIMENSIONS.forEach(dim => {
+      // 清空输入框
+      visibleDims.forEach(dim => {
         const el = document.getElementById(`batch-${dim.key}-${regionId}`);
         if (el) el.value = '';
       });
