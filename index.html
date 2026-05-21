@@ -387,7 +387,6 @@
       color: #94a3b8;
     }
 
-    /* 映射预览表 */
     .mapping-table {
       width: 100%;
       border-collapse: collapse;
@@ -458,19 +457,13 @@
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
       position: relative;
       animation: modalFadeIn 0.2s ease;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow-y: auto;
     }
 
     @keyframes modalFadeIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95) translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
+      from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
     }
 
     .modal-box h3 {
@@ -556,12 +549,106 @@
       margin-bottom: 12px;
     }
 
+    /* 数据展示视图切换 */
+    .view-tabs {
+      display: flex;
+      gap: 4px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    .view-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #64748b;
+      transition: 0.2s;
+    }
+
+    .view-tab.active {
+      background: white;
+      color: #4f46e5;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* 周/月汇总卡片 */
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      border: 1px solid #e9eef3;
+    }
+
+    .summary-card .value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .summary-card .label {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .summary-card .trend {
+      font-size: 0.7rem;
+      margin-top: 4px;
+    }
+
+    .trend-up { color: #10b981; }
+    .trend-down { color: #ef4444; }
+    .trend-flat { color: #94a3b8; }
+
+    /* 维度开关 */
+    .dimension-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .dim-tag {
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+      background: white;
+      color: #64748b;
+      transition: 0.2s;
+    }
+
+    .dim-tag.active {
+      background: #4f46e5;
+      color: white;
+      border-color: #4f46e5;
+    }
+
     @media (max-width: 850px) {
       .region-panel {
         flex-direction: column;
       }
       .intern-sidebar {
         flex: auto;
+      }
+      .summary-cards {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
   </style>
@@ -593,17 +680,23 @@
       { id: 'brazil', name: '巴西', icon: 'fa-flag' }
     ];
 
-    // 实习生基础数据
+    // 默认维度列表
+    const ALL_DIMENSIONS = [
+      { key: 'approach', label: '搭讪人数', icon: '💬' },
+      { key: 'reply', label: '回复人数', icon: '↩️' },
+      { key: 'newHost', label: '新增主播', icon: '🎤' },
+      { key: 'comments', label: '评论数', icon: '💭' },
+      { key: 'storyPost', label: 'Story/Post', icon: '📱' },
+      { key: 'video', label: '视频数', icon: '🎬' },
+      { key: 'cost', label: '花费($)', icon: '💰' }
+    ];
+
     let interns = [];
 
     function loadInternsFromStorage() {
       const saved = localStorage.getItem('kolInterns');
       if (saved) {
-        try {
-          interns = JSON.parse(saved);
-        } catch (e) {
-          initDefaultInterns();
-        }
+        try { interns = JSON.parse(saved); } catch (e) { initDefaultInterns(); }
       } else {
         initDefaultInterns();
         saveInternsToStorage();
@@ -633,28 +726,19 @@
       let maxNum = 0;
       regionInterns.forEach(intern => {
         const match = intern.id.match(/\d+$/);
-        if (match) {
-          const num = parseInt(match[0]);
-          if (num > maxNum) maxNum = num;
-        }
+        if (match) { const num = parseInt(match[0]); if (num > maxNum) maxNum = num; }
       });
       return `${prefix}${maxNum + 1}`;
     }
 
-    // 日报数据存储
     let dailyRecords = {};
-    // 分页状态
     let currentPage = {};
     const PAGE_SIZE = 10;
 
     function loadDataFromStorage() {
       const saved = localStorage.getItem('kolDailyRecords');
       if (saved) {
-        try {
-          dailyRecords = JSON.parse(saved);
-        } catch (e) {
-          initEmptyRecords();
-        }
+        try { dailyRecords = JSON.parse(saved); } catch (e) { initEmptyRecords(); }
       } else {
         initEmptyRecords();
         seedSampleData();
@@ -664,9 +748,7 @@
 
     function initEmptyRecords() {
       dailyRecords = {};
-      interns.forEach(intern => {
-        dailyRecords[intern.id] = [];
-      });
+      interns.forEach(intern => { dailyRecords[intern.id] = []; });
     }
 
     function saveDataToStorage() {
@@ -675,25 +757,21 @@
 
     function seedSampleData() {
       const today = new Date().toISOString().split('T')[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      if (dailyRecords['tw1']) dailyRecords['tw1'].push({ date: yesterday, approach: 12, reply: 8, newHost: 2, comments: 34, storyPost: 5, video: 2, cost: 150 });
+      const y = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      if (dailyRecords['tw1']) dailyRecords['tw1'].push({ date: y, approach: 12, reply: 8, newHost: 2, comments: 34, storyPost: 5, video: 2, cost: 150 });
       if (dailyRecords['tw1']) dailyRecords['tw1'].push({ date: today, approach: 15, reply: 10, newHost: 3, comments: 40, storyPost: 6, video: 3, cost: 200 });
-      if (dailyRecords['tr1']) dailyRecords['tr1'].push({ date: yesterday, approach: 20, reply: 14, newHost: 4, comments: 55, storyPost: 8, video: 4, cost: 320 });
+      if (dailyRecords['tr1']) dailyRecords['tr1'].push({ date: y, approach: 20, reply: 14, newHost: 4, comments: 55, storyPost: 8, video: 4, cost: 320 });
       if (dailyRecords['es1']) dailyRecords['es1'].push({ date: today, approach: 18, reply: 12, newHost: 5, comments: 48, storyPost: 7, video: 3, cost: 280 });
-      if (dailyRecords['br1']) dailyRecords['br1'].push({ date: yesterday, approach: 22, reply: 16, newHost: 6, comments: 62, storyPost: 10, video: 5, cost: 400 });
+      if (dailyRecords['br1']) dailyRecords['br1'].push({ date: y, approach: 22, reply: 16, newHost: 6, comments: 62, storyPost: 10, video: 5, cost: 400 });
     }
 
-    // 周标准存储
+    // 周标准存储 - 现在每个地区可以自定义维度和标准
     let weeklyStandards = {};
 
     function loadStandardsFromStorage() {
       const saved = localStorage.getItem('kolWeeklyStandards');
       if (saved) {
-        try {
-          weeklyStandards = JSON.parse(saved);
-        } catch (e) {
-          initDefaultStandards();
-        }
+        try { weeklyStandards = JSON.parse(saved); } catch (e) { initDefaultStandards(); }
       } else {
         initDefaultStandards();
         saveStandardsToStorage();
@@ -701,27 +779,35 @@
     }
 
     function initDefaultStandards() {
-      weeklyStandards = {
-        taiwan: { approach: 50, reply: 30, newHost: 8, comments: 100, storyPost: 20, video: 8, cost: 500 },
-        turkey: { approach: 60, reply: 35, newHost: 10, comments: 120, storyPost: 25, video: 10, cost: 600 },
-        spanish: { approach: 55, reply: 32, newHost: 9, comments: 110, storyPost: 22, video: 9, cost: 550 },
-        brazil: { approach: 65, reply: 40, newHost: 12, comments: 140, storyPost: 28, video: 12, cost: 700 }
-      };
+      weeklyStandards = {};
+      REGIONS.forEach(region => {
+        weeklyStandards[region.id] = {
+          enabledDimensions: ['approach', 'reply', 'newHost', 'comments', 'storyPost', 'video', 'cost'],
+          targets: {
+            approach: region.id === 'taiwan' ? 50 : region.id === 'turkey' ? 60 : region.id === 'spanish' ? 55 : 65,
+            reply: region.id === 'taiwan' ? 30 : region.id === 'turkey' ? 35 : region.id === 'spanish' ? 32 : 40,
+            newHost: region.id === 'taiwan' ? 8 : region.id === 'turkey' ? 10 : region.id === 'spanish' ? 9 : 12,
+            comments: region.id === 'taiwan' ? 100 : region.id === 'turkey' ? 120 : region.id === 'spanish' ? 110 : 140,
+            storyPost: region.id === 'taiwan' ? 20 : region.id === 'turkey' ? 25 : region.id === 'spanish' ? 22 : 28,
+            video: region.id === 'taiwan' ? 8 : region.id === 'turkey' ? 10 : region.id === 'spanish' ? 9 : 12,
+            cost: region.id === 'taiwan' ? 500 : region.id === 'turkey' ? 600 : region.id === 'spanish' ? 550 : 700
+          }
+        };
+      });
     }
 
     function saveStandardsToStorage() {
       localStorage.setItem('kolWeeklyStandards', JSON.stringify(weeklyStandards));
     }
 
-    // 初始化
     loadInternsFromStorage();
     loadDataFromStorage();
     loadStandardsFromStorage();
 
     let currentRegion = 'taiwan';
     let selectedInternId = null;
-    // 选中删除的行
     let selectedRows = {};
+    let dataViewMode = {}; // 'week' | 'month' | 'all'
 
     function getInternsByRegion(regionId) {
       return interns.filter(i => i.region === regionId);
@@ -736,14 +822,24 @@
       const now = new Date();
       const day = now.getDay();
       const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(now.setDate(diff));
-      return monday.toISOString().split('T')[0];
+      return new Date(new Date(now.setDate(diff)).toISOString().split('T')[0]);
+    }
+
+    function getMonthStart() {
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
     }
 
     function getWeekRecords(internId) {
-      const weekStart = getWeekStart();
+      const weekStart = getWeekStart().toISOString().split('T')[0];
       const records = dailyRecords[internId] || [];
       return records.filter(r => r.date >= weekStart);
+    }
+
+    function getMonthRecords(internId) {
+      const monthStart = getMonthStart();
+      const records = dailyRecords[internId] || [];
+      return records.filter(r => r.date >= monthStart);
     }
 
     function calculateScore(records) {
@@ -752,15 +848,13 @@
       }, 0);
     }
 
-    // 获取分页数据
     function getPagedRecords(internId, page) {
       const records = dailyRecords[internId] || [];
       const totalPages = Math.ceil(records.length / PAGE_SIZE) || 1;
       const p = Math.min(Math.max(page || 1, 1), totalPages);
       const start = (p - 1) * PAGE_SIZE;
-      const end = start + PAGE_SIZE;
       return {
-        records: records.slice(start, end),
+        records: records.slice(start, start + PAGE_SIZE),
         page: p,
         totalPages: totalPages,
         total: records.length
@@ -779,7 +873,7 @@
             <h3 style="margin-bottom:16px;"><i class="fas ${region.icon}"></i> ${region.name}实习生</h3>
             <div id="internList-${region.id}"></div>
             <button class="add-intern-btn" id="addInternBtn-${region.id}"><i class="fas fa-user-plus"></i> 新增实习生</button>
-            <button class="standard-btn" id="standardBtn-${region.id}"><i class="fas fa-bullseye"></i> 设置周标准</button>
+            <button class="standard-btn" id="standardBtn-${region.id}"><i class="fas fa-sliders-h"></i> 自定义周标准维度</button>
             <div class="ranking-card" id="rankingCard-${region.id}" style="margin-top:16px;">
               <h4 style="margin-bottom:10px;"><i class="fas fa-trophy"></i> 本周排名</h4>
               <div id="rankingList-${region.id}"></div>
@@ -789,13 +883,21 @@
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
               <h3 style="font-weight:600;">📋 日报数据表</h3>
               <div style="display:flex; gap:8px; align-items:center;">
-                <span style="color:#64748b; font-size:0.85rem;">维度：搭讪/回复/新增主播/评论/Story·Post/视频/花费</span>
                 <button id="batchUploadBtn-${region.id}" style="background:#10b981; padding:8px 16px; font-size:0.85rem;">
                   <i class="fas fa-file-upload"></i> 批量上传
                 </button>
               </div>
             </div>
-            <div id="tableContainer-${region.id}" style="margin-top:16px;"></div>
+            <!-- 视图切换 -->
+            <div class="view-tabs" id="viewTabs-${region.id}">
+              <button class="view-tab active" data-view="week">📅 本周汇总</button>
+              <button class="view-tab" data-view="month">📆 本月汇总</button>
+              <button class="view-tab" data-view="all">📋 全部记录</button>
+            </div>
+            <!-- 汇总卡片 -->
+            <div class="summary-cards" id="summaryCards-${region.id}"></div>
+            <!-- 全部记录表格 -->
+            <div id="tableContainer-${region.id}"></div>
             <div class="analysis-card" id="analysisCard-${region.id}">
               <p style="color:#64748b;">👈 请选择左侧实习生查看数据与产出分析</p>
             </div>
@@ -805,7 +907,84 @@
         renderInternList(region.id);
         renderRanking(region.id);
         bindRegionButtons(region.id);
+        bindViewTabs(region.id);
       });
+    }
+
+    function bindViewTabs(regionId) {
+      const tabs = document.getElementById(`viewTabs-${regionId}`);
+      if (!tabs) return;
+      tabs.querySelectorAll('.view-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+          tabs.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          const view = this.dataset.view;
+          if (selectedInternId) {
+            dataViewMode[selectedInternId] = view;
+            refreshDataDisplay(regionId, selectedInternId);
+          }
+        });
+      });
+    }
+
+    function refreshDataDisplay(regionId, internId) {
+      const view = dataViewMode[internId] || 'week';
+      renderSummaryCards(regionId, internId, view);
+      if (view === 'all') {
+        document.getElementById(`tableContainer-${regionId}`).style.display = 'block';
+        renderDataTable(regionId, internId);
+      } else {
+        document.getElementById(`tableContainer-${regionId}`).style.display = 'none';
+      }
+      renderAnalysis(regionId, internId);
+    }
+
+    function renderSummaryCards(regionId, internId, view) {
+      const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
+      if (!cardsDiv) return;
+
+      const standardConfig = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key), targets: {} };
+      const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
+
+      let records;
+      if (view === 'week') {
+        records = getWeekRecords(internId);
+      } else if (view === 'month') {
+        records = getMonthRecords(internId);
+      } else {
+        records = dailyRecords[internId] || [];
+      }
+
+      if (records.length === 0) {
+        cardsDiv.innerHTML = '<p style="color:#94a3b8; padding:20px; text-align:center;">暂无数据</p>';
+        return;
+      }
+
+      const totals = {};
+      ALL_DIMENSIONS.forEach(dim => {
+        totals[dim.key] = records.reduce((s, r) => s + (r[dim.key] || 0), 0);
+      });
+
+      cardsDiv.innerHTML = ALL_DIMENSIONS
+        .filter(dim => enabledDims.includes(dim.key))
+        .map(dim => {
+          const target = (standardConfig.targets && standardConfig.targets[dim.key]) || 0;
+          const value = totals[dim.key];
+          const pct = target > 0 ? Math.round(value / target * 100) : 0;
+          let trendClass = 'trend-flat';
+          let trendIcon = '➡️';
+          if (pct >= 100) { trendClass = 'trend-up'; trendIcon = '✅'; }
+          else if (pct >= 70) { trendClass = 'trend-up'; trendIcon = '📈'; }
+          else if (pct < 50) { trendClass = 'trend-down'; trendIcon = '⚠️'; }
+
+          return `
+            <div class="summary-card">
+              <div class="value">${dim.icon} ${value.toLocaleString()}</div>
+              <div class="label">${dim.label}</div>
+              ${target > 0 ? `<div class="trend ${trendClass}">${trendIcon} 目标 ${target} (${pct}%)</div>` : ''}
+            </div>
+          `;
+        }).join('');
     }
 
     function bindRegionButtons(regionId) {
@@ -816,6 +995,98 @@
       if (addBtn) addBtn.addEventListener('click', () => showAddInternModal(regionId));
       if (standardBtn) standardBtn.addEventListener('click', () => showStandardModal(regionId));
       if (uploadBtn) uploadBtn.addEventListener('click', () => showUploadModal(regionId));
+    }
+
+    // 自定义周标准弹窗（支持选择维度和设置目标）
+    function showStandardModal(regionId) {
+      const existing = document.querySelector('.modal-overlay');
+      if (existing) existing.remove();
+
+      const config = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key), targets: {} };
+      const regionName = getRegionName(regionId);
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal-box" style="width:600px; max-width:95vw;">
+          <h3><i class="fas fa-sliders-h"></i> ${regionName} - 自定义周标准</h3>
+          <p style="color:#64748b; font-size:0.85rem; margin-bottom:14px;">
+            选择需要考核的维度，并为每个维度设置周目标值。未选中的维度将不参与达标分析。
+          </p>
+          
+          <div style="margin-bottom:16px;">
+            <label style="font-weight:600; margin-bottom:8px; display:block;">📌 启用维度（可多选）</label>
+            <div class="dimension-tags" id="dimTags-${regionId}">
+              ${ALL_DIMENSIONS.map(dim => `
+                <span class="dim-tag ${config.enabledDimensions.includes(dim.key) ? 'active' : ''}" data-dim="${dim.key}">
+                  ${dim.icon} ${dim.label}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+
+          <div id="dimTargets-${regionId}">
+            ${ALL_DIMENSIONS.map(dim => `
+              <div class="standard-row" id="targetRow-${dim.key}-${regionId}" style="display:${config.enabledDimensions.includes(dim.key) ? 'flex' : 'none'};">
+                <label>${dim.icon} ${dim.label}：</label>
+                <input type="number" id="std-${dim.key}-${regionId}" value="${config.targets[dim.key] || 0}" min="0" style="width:120px;">
+                <span style="font-size:0.8rem; color:#94a3b8;">/周</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="modal-actions">
+            <button class="cancel-btn" id="cancelStdBtn">取消</button>
+            <button class="confirm-btn" id="confirmStdBtn">保存标准</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      // 维度标签点击切换
+      const dimTags = document.getElementById(`dimTags-${regionId}`);
+      let enabledDims = [...config.enabledDimensions];
+
+      dimTags.querySelectorAll('.dim-tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+          const dimKey = this.dataset.dim;
+          this.classList.toggle('active');
+          if (this.classList.contains('active')) {
+            if (!enabledDims.includes(dimKey)) enabledDims.push(dimKey);
+          } else {
+            enabledDims = enabledDims.filter(d => d !== dimKey);
+          }
+          // 显示/隐藏目标输入行
+          const targetRow = document.getElementById(`targetRow-${dimKey}-${regionId}`);
+          if (targetRow) {
+            targetRow.style.display = this.classList.contains('active') ? 'flex' : 'none';
+          }
+        });
+      });
+
+      document.getElementById('cancelStdBtn').addEventListener('click', () => overlay.remove());
+      document.getElementById('confirmStdBtn').addEventListener('click', () => {
+        const targets = {};
+        ALL_DIMENSIONS.forEach(dim => {
+          const input = document.getElementById(`std-${dim.key}-${regionId}`);
+          if (input && enabledDims.includes(dim.key)) {
+            targets[dim.key] = parseInt(input.value) || 0;
+          }
+        });
+
+        weeklyStandards[regionId] = {
+          enabledDimensions: enabledDims,
+          targets: targets
+        };
+        saveStandardsToStorage();
+        overlay.remove();
+        if (selectedInternId) {
+          refreshDataDisplay(regionId, selectedInternId);
+        }
+        renderRanking(regionId);
+      });
+
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
     function showAddInternModal(regionId) {
@@ -849,6 +1120,7 @@
         const newId = generateInternId(region);
         interns.push({ id: newId, name: name, region: region });
         dailyRecords[newId] = [];
+        dataViewMode[newId] = 'week';
         saveInternsToStorage();
         saveDataToStorage();
         overlay.remove();
@@ -859,51 +1131,6 @@
       overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
-    function showStandardModal(regionId) {
-      const existing = document.querySelector('.modal-overlay');
-      if (existing) existing.remove();
-
-      const standard = weeklyStandards[regionId] || { approach: 0, reply: 0, newHost: 0, comments: 0, storyPost: 0, video: 0, cost: 0 };
-      const regionName = getRegionName(regionId);
-
-      const overlay = document.createElement('div');
-      overlay.className = 'modal-overlay';
-      overlay.innerHTML = `
-        <div class="modal-box">
-          <h3><i class="fas fa-bullseye"></i> ${regionName} - 周标准设置</h3>
-          ${['approach','reply','newHost','comments','storyPost','video','cost'].map(key => {
-            const labels = { approach:'搭讪人数', reply:'回复人数', newHost:'新增主播', comments:'评论数', storyPost:'Story/Post', video:'视频数', cost:'花费($)' };
-            return `<div class="standard-row"><label>${labels[key]}：</label><input type="number" id="std-${key}" value="${standard[key]}" min="0"></div>`;
-          }).join('')}
-          <div class="modal-actions">
-            <button class="cancel-btn" id="cancelStdBtn">取消</button>
-            <button class="confirm-btn" id="confirmStdBtn">保存标准</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-
-      document.getElementById('cancelStdBtn').addEventListener('click', () => overlay.remove());
-      document.getElementById('confirmStdBtn').addEventListener('click', () => {
-        weeklyStandards[regionId] = {
-          approach: parseInt(document.getElementById('std-approach').value) || 0,
-          reply: parseInt(document.getElementById('std-reply').value) || 0,
-          newHost: parseInt(document.getElementById('std-newHost').value) || 0,
-          comments: parseInt(document.getElementById('std-comments').value) || 0,
-          storyPost: parseInt(document.getElementById('std-storyPost').value) || 0,
-          video: parseInt(document.getElementById('std-video').value) || 0,
-          cost: parseInt(document.getElementById('std-cost').value) || 0
-        };
-        saveStandardsToStorage();
-        overlay.remove();
-        if (selectedInternId) renderAnalysis(regionId, selectedInternId);
-        renderRanking(regionId);
-      });
-
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-    }
-
-    // 批量上传弹窗（优化版）
     function showUploadModal(regionId) {
       const regionInterns = getInternsByRegion(regionId);
       if (regionInterns.length === 0) {
@@ -920,7 +1147,7 @@
         <div class="modal-box" style="width:700px; max-width:95vw;">
           <h3><i class="fas fa-file-upload"></i> 智能批量上传日报</h3>
           <p style="color:#64748b; font-size:0.9rem; margin-bottom:12px;">
-            支持CSV文件上传。系统只识别表格中存在的列数据。
+            支持CSV和Excel文件上传。系统只识别表格中存在的列数据。
           </p>
           
           <div class="upload-area" id="uploadDropZone-${regionId}">
@@ -941,7 +1168,7 @@
             <div style="margin-top:16px;">
               <h4 style="font-size:1rem; margin-bottom:8px;">🔗 列映射设置（仅显示表格中有的列）</h4>
               <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">
-                系统只识别CSV文件中实际存在的列。请确认映射关系。
+                系统只识别文件中实际存在的列。请确认映射关系。
               </p>
               <div id="mappingConfig-${regionId}"></div>
             </div>
@@ -984,18 +1211,14 @@
         if (file) processFile(file);
       });
 
-            function processFile(file) {
+      function processFile(file) {
         const fileName = file.name.toLowerCase();
         
         if (fileName.endsWith('.csv')) {
-          // CSV文件：直接读取文本
           const reader = new FileReader();
-          reader.onload = function(e) {
-            parseCSV(e.target.result);
-          };
+          reader.onload = function(e) { parseCSV(e.target.result); };
           reader.readAsText(file);
         } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-          // Excel文件：使用SheetJS解析
           const reader = new FileReader();
           reader.onload = function(e) {
             try {
@@ -1024,9 +1247,7 @@
           const values = parseCSVLine(lines[i]);
           if (values.length > 0 && values.some(v => v.trim() !== '')) {
             const row = {};
-            fileHeaders.forEach((header, idx) => {
-              row[header] = values[idx] || '';
-            });
+            fileHeaders.forEach((header, idx) => { row[header] = values[idx] || ''; });
             parsedData.push(row);
           }
         }
@@ -1053,19 +1274,13 @@
       }
 
       function autoMapColumns() {
-        const targetFields = {
-          'date': ['日期', 'date', '时间', '日报日期', 'day'],
-          'approach': ['搭讪', '搭讪人数', 'approach', '搭讪数', 'reach'],
-          'reply': ['回复', '回复人数', 'reply', '回复数', 'response'],
-          'newHost': ['新增主播', '主播', 'host', 'newHost', '新增', '主播数'],
-          'comments': ['评论', '评论数', 'comments', 'comment'],
-          'storyPost': ['story', 'post', '故事', 'story/post', 'storypost', '内容'],
-          'video': ['视频', '视频数', 'video', 'videos'],
-          'cost': ['花费', '费用', 'cost', '金额', '预算', 'spend']
-        };
+        const targetFields = {};
+        ALL_DIMENSIONS.forEach(dim => {
+          targetFields[dim.key] = [dim.label, dim.key];
+        });
+        targetFields['date'] = ['日期', 'date', '时间', '日报日期', 'day'];
 
         columnMapping = {};
-        // 只针对文件中实际存在的列进行匹配
         fileHeaders.forEach(header => {
           const headerLower = header.toLowerCase().replace(/[\s\/\-_]/g, '');
           for (const [field, keywords] of Object.entries(targetFields)) {
@@ -1085,8 +1300,7 @@
         const totalPages = Math.ceil(parsedData.length / PREVIEW_PAGE_SIZE) || 1;
         if (previewPage > totalPages) previewPage = totalPages;
         const start = (previewPage - 1) * PREVIEW_PAGE_SIZE;
-        const end = start + PREVIEW_PAGE_SIZE;
-        const pageData = parsedData.slice(start, end);
+        const pageData = parsedData.slice(start, start + PREVIEW_PAGE_SIZE);
 
         const previewTable = document.getElementById(`previewTable-${regionId}`);
         let tableHTML = '<table class="mapping-table"><thead><tr>';
@@ -1102,13 +1316,12 @@
         tableHTML += '</tbody></table>';
         previewTable.innerHTML = tableHTML;
 
-        // 渲染预览分页
         const pagDiv = document.getElementById(`previewPagination-${regionId}`);
-        let pagHTML = '';
-        pagHTML += `<button ${previewPage <= 1 ? 'disabled' : ''} id="prevPreviewPage">上一页</button>`;
-        pagHTML += `<span class="page-info">第 ${previewPage} / ${totalPages} 页（共 ${parsedData.length} 条）</span>`;
-        pagHTML += `<button ${previewPage >= totalPages ? 'disabled' : ''} id="nextPreviewPage">下一页</button>`;
-        pagDiv.innerHTML = pagHTML;
+        pagDiv.innerHTML = `
+          <button ${previewPage <= 1 ? 'disabled' : ''} id="prevPreviewPage">上一页</button>
+          <span class="page-info">第 ${previewPage} / ${totalPages} 页（共 ${parsedData.length} 条）</span>
+          <button ${previewPage >= totalPages ? 'disabled' : ''} id="nextPreviewPage">下一页</button>
+        `;
 
         const prevBtn = document.getElementById('prevPreviewPage');
         const nextBtn = document.getElementById('nextPreviewPage');
@@ -1117,32 +1330,23 @@
       }
 
       function showPreview() {
-        const previewDiv = document.getElementById(`uploadPreview-${regionId}`);
-        const uploadArea = document.getElementById(`uploadDropZone-${regionId}`);
-        uploadArea.style.display = 'none';
-        previewDiv.style.display = 'block';
+        document.getElementById(`uploadDropZone-${regionId}`).style.display = 'none';
+        document.getElementById(`uploadPreview-${regionId}`).style.display = 'block';
         document.getElementById(`rowCount-${regionId}`).textContent = `共 ${parsedData.length} 行数据`;
 
         renderPreviewPage();
 
-        // 渲染列映射（只显示文件中存在的维度映射）
         const mappingDiv = document.getElementById(`mappingConfig-${regionId}`);
-        const allDimensions = [
+        const allDims = [
           { key: 'date', label: '📅 日期' },
-          { key: 'approach', label: '💬 搭讪人数' },
-          { key: 'reply', label: '↩️ 回复人数' },
-          { key: 'newHost', label: '🎤 新增主播' },
-          { key: 'comments', label: '💭 评论数' },
-          { key: 'storyPost', label: '📱 Story/Post数' },
-          { key: 'video', label: '🎬 视频数' },
-          { key: 'cost', label: '💰 花费' }
+          ...ALL_DIMENSIONS.map(d => ({ key: d.key, label: `${d.icon} ${d.label}` }))
         ];
 
-        mappingDiv.innerHTML = allDimensions.map(dim => {
+        mappingDiv.innerHTML = allDims.map(dim => {
           const mapped = columnMapping[dim.key] || '';
           return `
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-              <label style="min-width:120px; font-weight:500;">${dim.label}：</label>
+              <label style="min-width:130px; font-weight:500;">${dim.label}：</label>
               <select id="map-${dim.key}-${regionId}" style="flex:1;">
                 <option value="">-- 不映射 --</option>
                 ${fileHeaders.map(h => `<option value="${h}" ${mapped === h ? 'selected' : ''}>${h}</option>`).join('')}
@@ -1157,14 +1361,14 @@
 
       document.getElementById('confirmUploadBtn').addEventListener('click', () => {
         const finalMapping = {};
-        ['date', 'approach', 'reply', 'newHost', 'comments', 'storyPost', 'video', 'cost'].forEach(dim => {
+        ['date', ...ALL_DIMENSIONS.map(d => d.key)].forEach(dim => {
           const select = document.getElementById(`map-${dim}-${regionId}`);
           if (select && select.value) finalMapping[dim] = select.value;
         });
 
         const defaultDate = document.getElementById(`defaultDate-${regionId}`).value;
-
         let importCount = 0;
+
         parsedData.forEach(row => {
           let validDate = defaultDate;
           if (finalMapping['date'] && row[finalMapping['date']]) {
@@ -1172,16 +1376,10 @@
             if (!isNaN(parsed.getTime())) validDate = parsed.toISOString().split('T')[0];
           }
 
-          const record = {
-            date: validDate,
-            approach: parseInt(row[finalMapping['approach']]) || 0,
-            reply: parseInt(row[finalMapping['reply']]) || 0,
-            newHost: parseInt(row[finalMapping['newHost']]) || 0,
-            comments: parseInt(row[finalMapping['comments']]) || 0,
-            storyPost: parseInt(row[finalMapping['storyPost']]) || 0,
-            video: parseInt(row[finalMapping['video']]) || 0,
-            cost: parseInt(row[finalMapping['cost']]) || 0
-          };
+          const record = { date: validDate };
+          ALL_DIMENSIONS.forEach(dim => {
+            record[dim.key] = parseInt(row[finalMapping[dim.key]]) || 0;
+          });
 
           if (selectedInternId) {
             dailyRecords[selectedInternId].push({...record});
@@ -1198,8 +1396,7 @@
         if (selectedInternId) {
           currentPage[selectedInternId] = 1;
           selectedRows[selectedInternId] = new Set();
-          renderDataTable(regionId, selectedInternId);
-          renderAnalysis(regionId, selectedInternId);
+          refreshDataDisplay(regionId, selectedInternId);
           renderRanking(regionId);
         }
       });
@@ -1242,6 +1439,7 @@
             delete dailyRecords[internId];
             delete selectedRows[internId];
             delete currentPage[internId];
+            delete dataViewMode[internId];
             saveInternsToStorage();
             saveDataToStorage();
             if (selectedInternId === internId) selectedInternId = null;
@@ -1256,12 +1454,23 @@
       selectedInternId = internId;
       if (!currentPage[internId]) currentPage[internId] = 1;
       if (!selectedRows[internId]) selectedRows[internId] = new Set();
+      if (!dataViewMode[internId]) dataViewMode[internId] = 'week';
+      
       document.querySelectorAll(`#internList-${regionId} .intern-item`).forEach(el => {
         el.classList.remove('selected');
         if (el.dataset.id === internId) el.classList.add('selected');
       });
-      renderDataTable(regionId, internId);
-      renderAnalysis(regionId, internId);
+
+      // 同步视图标签
+      const tabs = document.getElementById(`viewTabs-${regionId}`);
+      if (tabs) {
+        tabs.querySelectorAll('.view-tab').forEach(t => {
+          t.classList.remove('active');
+          if (t.dataset.view === dataViewMode[internId]) t.classList.add('active');
+        });
+      }
+
+      refreshDataDisplay(regionId, internId);
     }
 
     function renderDataTable(regionId, internId) {
@@ -1275,8 +1484,12 @@
       const allRecords = dailyRecords[internId] || [];
       const selectedSet = selectedRows[internId];
 
-      // 判断当前页是否全选
       const allCurrentPageSelected = records.length > 0 && records.every((_, idx) => selectedSet.has((paged.page - 1) * PAGE_SIZE + idx));
+
+      // 获取启用的维度
+      const standardConfig = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key) };
+      const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
+      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDims.includes(d.key));
 
       let html = `
         <div class="toolbar">
@@ -1288,7 +1501,9 @@
         <div class="table-wrapper"><table>
         <thead><tr>
           <th style="width:40px;"><input type="checkbox" id="selectAll-${regionId}" ${allCurrentPageSelected ? 'checked' : ''}></th>
-          <th>日期</th><th>搭讪人数</th><th>回复人数</th><th>新增主播</th><th>评论数</th><th>Story/Post</th><th>视频数</th><th>花费</th><th>操作</th>
+          <th>日期</th>
+          ${visibleDims.map(d => `<th>${d.icon} ${d.label}</th>`).join('')}
+          <th>操作</th>
         </tr></thead><tbody>`;
 
       records.forEach((rec, idx) => {
@@ -1297,28 +1512,20 @@
         html += `<tr>
           <td><input type="checkbox" class="row-checkbox" data-idx="${globalIdx}" ${isChecked ? 'checked' : ''}></td>
           <td>${rec.date}</td>
-          <td>${rec.approach}</td><td>${rec.reply}</td><td>${rec.newHost}</td>
-          <td>${rec.comments}</td><td>${rec.storyPost}</td><td>${rec.video}</td><td>$${rec.cost}</td>
+          ${visibleDims.map(d => `<td>${rec[d.key] || 0}${d.key === 'cost' ? '$' : ''}</td>`).join('')}
           <td><button class="secondary" style="padding:4px 10px;" data-delete="${internId}" data-idx="${globalIdx}"><i class="fas fa-trash"></i></button></td>
         </tr>`;
       });
 
-      html += `<tr class="batch-input-row" id="batchRow-${regionId}">
+      html += `<tr class="batch-input-row">
         <td></td>
         <td><input type="date" id="batchDate-${regionId}" style="width:120px;"></td>
-        <td><input class="small-input" id="batchApproach-${regionId}" placeholder="搭讪"></td>
-        <td><input class="small-input" id="batchReply-${regionId}" placeholder="回复"></td>
-        <td><input class="small-input" id="batchHost-${regionId}" placeholder="主播"></td>
-        <td><input class="small-input" id="batchComments-${regionId}" placeholder="评论"></td>
-        <td><input class="small-input" id="batchStory-${regionId}" placeholder="Story"></td>
-        <td><input class="small-input" id="batchVideo-${regionId}" placeholder="视频"></td>
-        <td><input class="small-input" id="batchCost-${regionId}" placeholder="花费"></td>
+        ${visibleDims.map(d => `<td><input class="small-input" id="batch-${d.key}-${regionId}" placeholder="${d.label}" style="width:${d.key === 'cost' ? '90px' : '70px'};"></td>`).join('')}
         <td><button id="saveBatchBtn-${regionId}"><i class="fas fa-save"></i> 保存</button></td>
       </tr>`;
 
       html += `</tbody></table></div>`;
 
-      // 分页
       html += `<div class="pagination">
         <button ${paged.page <= 1 ? 'disabled' : ''} id="prevPage-${regionId}">上一页</button>
         <span class="page-info">第 ${paged.page} / ${paged.totalPages} 页</span>
@@ -1327,58 +1534,44 @@
 
       container.innerHTML = html;
 
-      // 全选/取消全选
       const selectAllCheckbox = document.getElementById(`selectAll-${regionId}`);
       if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function() {
           records.forEach((_, idx) => {
             const globalIdx = (paged.page - 1) * PAGE_SIZE + idx;
-            if (this.checked) {
-              selectedSet.add(globalIdx);
-            } else {
-              selectedSet.delete(globalIdx);
-            }
+            if (this.checked) selectedSet.add(globalIdx);
+            else selectedSet.delete(globalIdx);
           });
           renderDataTable(regionId, internId);
         });
       }
 
-      // 行复选框
       container.querySelectorAll('.row-checkbox').forEach(cb => {
         cb.addEventListener('change', function() {
           const globalIdx = parseInt(this.dataset.idx);
-          if (this.checked) {
-            selectedSet.add(globalIdx);
-          } else {
-            selectedSet.delete(globalIdx);
-          }
+          if (this.checked) selectedSet.add(globalIdx);
+          else selectedSet.delete(globalIdx);
           renderDataTable(regionId, internId);
         });
       });
 
-      // 批量删除
       const batchDeleteBtn = document.getElementById(`batchDeleteBtn-${regionId}`);
       if (batchDeleteBtn) {
         batchDeleteBtn.addEventListener('click', () => {
           if (selectedSet.size === 0) return;
-          if (confirm(`确定要删除选中的 ${selectedSet.size} 条记录吗？此操作不可恢复。`)) {
+          if (confirm(`确定要删除选中的 ${selectedSet.size} 条记录吗？`)) {
             const sortedIndices = Array.from(selectedSet).sort((a, b) => b - a);
-            sortedIndices.forEach(idx => {
-              dailyRecords[internId].splice(idx, 1);
-            });
+            sortedIndices.forEach(idx => { dailyRecords[internId].splice(idx, 1); });
             selectedRows[internId] = new Set();
             saveDataToStorage();
-            // 调整页码
             const totalPages = Math.ceil(dailyRecords[internId].length / PAGE_SIZE) || 1;
             if (currentPage[internId] > totalPages) currentPage[internId] = totalPages;
-            renderDataTable(regionId, internId);
-            renderAnalysis(regionId, internId);
+            refreshDataDisplay(regionId, internId);
             renderRanking(regionId);
           }
         });
       }
 
-      // 单条删除
       container.querySelectorAll('[data-delete]').forEach(btn => {
         btn.addEventListener('click', function() {
           const delIntern = this.dataset.delete;
@@ -1386,7 +1579,6 @@
           if (confirm('确定要删除这条记录吗？')) {
             dailyRecords[delIntern].splice(idx, 1);
             selectedRows[delIntern].delete(idx);
-            // 更新大于该索引的选中项
             const newSet = new Set();
             selectedRows[delIntern].forEach(i => {
               if (i > idx) newSet.add(i - 1);
@@ -1396,30 +1588,21 @@
             saveDataToStorage();
             const totalPages = Math.ceil(dailyRecords[delIntern].length / PAGE_SIZE) || 1;
             if (currentPage[delIntern] > totalPages) currentPage[delIntern] = totalPages;
-            renderDataTable(regionId, internId);
-            renderAnalysis(regionId, internId);
+            refreshDataDisplay(regionId, internId);
             renderRanking(regionId);
           }
         });
       });
 
-      // 分页按钮
       const prevBtn = document.getElementById(`prevPage-${regionId}`);
       const nextBtn = document.getElementById(`nextPage-${regionId}`);
       if (prevBtn) prevBtn.addEventListener('click', () => {
-        if (currentPage[internId] > 1) {
-          currentPage[internId]--;
-          renderDataTable(regionId, internId);
-        }
+        if (currentPage[internId] > 1) { currentPage[internId]--; renderDataTable(regionId, internId); }
       });
       if (nextBtn) nextBtn.addEventListener('click', () => {
-        if (currentPage[internId] < paged.totalPages) {
-          currentPage[internId]++;
-          renderDataTable(regionId, internId);
-        }
+        if (currentPage[internId] < paged.totalPages) { currentPage[internId]++; renderDataTable(regionId, internId); }
       });
 
-      // 保存按钮
       const saveBtn = document.getElementById(`saveBatchBtn-${regionId}`);
       if (saveBtn) saveBtn.addEventListener('click', () => batchAddRecord(regionId, internId));
     }
@@ -1427,36 +1610,44 @@
     function batchAddRecord(regionId, internId) {
       const date = document.getElementById(`batchDate-${regionId}`).value;
       if (!date) { alert('请选择日期'); return; }
-      const record = {
-        date,
-        approach: parseInt(document.getElementById(`batchApproach-${regionId}`).value) || 0,
-        reply: parseInt(document.getElementById(`batchReply-${regionId}`).value) || 0,
-        newHost: parseInt(document.getElementById(`batchHost-${regionId}`).value) || 0,
-        comments: parseInt(document.getElementById(`batchComments-${regionId}`).value) || 0,
-        storyPost: parseInt(document.getElementById(`batchStory-${regionId}`).value) || 0,
-        video: parseInt(document.getElementById(`batchVideo-${regionId}`).value) || 0,
-        cost: parseInt(document.getElementById(`batchCost-${regionId}`).value) || 0
-      };
+      
+      const standardConfig = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key) };
+      const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
+      
+      const record = { date };
+      ALL_DIMENSIONS.forEach(dim => {
+        if (enabledDims.includes(dim.key)) {
+          const el = document.getElementById(`batch-${dim.key}-${regionId}`);
+          record[dim.key] = el ? (parseInt(el.value) || 0) : 0;
+        } else {
+          record[dim.key] = 0;
+        }
+      });
 
       dailyRecords[internId].push(record);
       dailyRecords[internId].sort((a, b) => new Date(a.date) - new Date(b.date));
       saveDataToStorage();
 
-      ['batchApproach','batchReply','batchHost','batchComments','batchStory','batchVideo','batchCost'].forEach(id => {
-        const el = document.getElementById(`${id}-${regionId}`);
+      ALL_DIMENSIONS.forEach(dim => {
+        const el = document.getElementById(`batch-${dim.key}-${regionId}`);
         if (el) el.value = '';
       });
-      // 跳转到最后一页
+
       currentPage[internId] = Math.ceil(dailyRecords[internId].length / PAGE_SIZE);
-      renderDataTable(regionId, internId);
-      renderAnalysis(regionId, internId);
+      refreshDataDisplay(regionId, internId);
       renderRanking(regionId);
     }
 
     function renderAnalysis(regionId, internId) {
       const card = document.getElementById(`analysisCard-${regionId}`);
       if (!card) return;
+
+      const standardConfig = weeklyStandards[regionId] || { enabledDimensions: ALL_DIMENSIONS.map(d => d.key), targets: {} };
+      const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
+      const targets = standardConfig.targets || {};
+
       const weekRecords = getWeekRecords(internId);
+      const monthRecords = getMonthRecords(internId);
       const allRecords = dailyRecords[internId] || [];
 
       if (allRecords.length === 0) {
@@ -1464,63 +1655,64 @@
         return;
       }
 
-      const wApproach = weekRecords.reduce((s,r)=> s+r.approach, 0);
-      const wReply = weekRecords.reduce((s,r)=> s+r.reply, 0);
-      const wHost = weekRecords.reduce((s,r)=> s+r.newHost, 0);
-      const wComments = weekRecords.reduce((s,r)=> s+r.comments, 0);
-      const wStory = weekRecords.reduce((s,r)=> s+r.storyPost, 0);
-      const wVideo = weekRecords.reduce((s,r)=> s+r.video, 0);
-      const wCost = weekRecords.reduce((s,r)=> s+r.cost, 0);
+      const weekTotals = {};
+      const monthTotals = {};
+      ALL_DIMENSIONS.forEach(dim => {
+        weekTotals[dim.key] = weekRecords.reduce((s, r) => s + (r[dim.key] || 0), 0);
+        monthTotals[dim.key] = monthRecords.reduce((s, r) => s + (r[dim.key] || 0), 0);
+      });
 
-      const totalApproach = allRecords.reduce((s,r)=> s+r.approach, 0);
-      const totalReply = allRecords.reduce((s,r)=> s+r.reply, 0);
-      const totalHost = allRecords.reduce((s,r)=> s+r.newHost, 0);
-      const totalComments = allRecords.reduce((s,r)=> s+r.comments, 0);
-      const totalStory = allRecords.reduce((s,r)=> s+r.storyPost, 0);
-      const totalVideo = allRecords.reduce((s,r)=> s+r.video, 0);
-      const totalCost = allRecords.reduce((s,r)=> s+r.cost, 0);
+      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDims.includes(d.key));
+      
+      const checks = visibleDims.map(dim => ({
+        ...dim,
+        weekValue: weekTotals[dim.key],
+        monthValue: monthTotals[dim.key],
+        target: targets[dim.key] || 0
+      }));
 
-      const standard = weeklyStandards[regionId] || { approach: 0, reply: 0, newHost: 0, comments: 0, storyPost: 0, video: 0, cost: 0 };
-
-      const checks = [
-        { label: '搭讪人数', value: wApproach, std: standard.approach },
-        { label: '回复人数', value: wReply, std: standard.reply },
-        { label: '新增主播', value: wHost, std: standard.newHost },
-        { label: '评论数', value: wComments, std: standard.comments },
-        { label: 'Story/Post', value: wStory, std: standard.storyPost },
-        { label: '视频数', value: wVideo, std: standard.video },
-        { label: '花费', value: wCost, std: standard.cost }
-      ];
-
-      const passCount = checks.filter(c => c.value >= c.std).length;
-      const totalChecks = checks.length;
+      const passCount = checks.filter(c => c.target > 0 && c.weekValue >= c.target).length;
+      const totalChecks = checks.filter(c => c.target > 0).length;
 
       let suggestion = '';
-      if (passCount === totalChecks) suggestion = '🎉 本周全部达标！表现优秀，继续保持！';
+      if (totalChecks === 0) suggestion = '📝 请先设置该地区的周标准维度。';
+      else if (passCount === totalChecks) suggestion = '🎉 本周全部达标！表现优秀，继续保持！';
       else if (passCount >= totalChecks * 0.7) suggestion = '👍 大部分指标达标，继续加油！';
       else if (passCount >= totalChecks * 0.4) suggestion = '📈 还有提升空间，重点关注未达标项。';
       else suggestion = '⚠️ 多项指标未达标，需要制定改进计划。';
 
       card.innerHTML = `
-        <h4 style="margin-bottom:12px;"><i class="fas fa-chart-pie"></i> 本周产出 vs 周标准</h4>
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; font-size:0.85rem;">
+        <h4 style="margin-bottom:12px;"><i class="fas fa-chart-pie"></i> 本周 vs 本月产出对比</h4>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:10px; font-size:0.85rem;">
           ${checks.map(c => `
-            <div style="padding:8px; background:white; border-radius:8px; text-align:center;">
-              <div style="color:#64748b;">${c.label}</div>
-              <div style="font-weight:700;">${c.value} <span style="font-size:0.75rem; color:#94a3b8;">/ ${c.std}</span></div>
-              <div class="${c.value >= c.std ? 'status-pass' : 'status-fail'}">${c.value >= c.std ? '✓ 达标' : '✗ 未达标'}</div>
+            <div style="padding:10px; background:white; border-radius:10px; text-align:center; border:1px solid #e9eef3;">
+              <div style="color:#64748b; font-weight:600;">${c.icon} ${c.label}</div>
+              <div style="display:flex; justify-content:center; gap:16px; margin-top:6px;">
+                <div>
+                  <div style="font-size:0.65rem; color:#94a3b8;">本周</div>
+                  <div style="font-weight:700; font-size:1.1rem;">${c.weekValue.toLocaleString()}</div>
+                </div>
+                <div>
+                  <div style="font-size:0.65rem; color:#94a3b8;">本月</div>
+                  <div style="font-weight:700; font-size:1.1rem;">${c.monthValue.toLocaleString()}</div>
+                </div>
+              </div>
+              ${c.target > 0 ? `
+                <div style="margin-top:4px; font-size:0.7rem;">
+                  目标：${c.target} | 
+                  <span class="${c.weekValue >= c.target ? 'status-pass' : 'status-fail'}">
+                    ${c.weekValue >= c.target ? '✓达标' : '✗差' + (c.target - c.weekValue)}
+                  </span>
+                </div>
+              ` : '<div style="margin-top:4px; font-size:0.7rem; color:#94a3b8;">未设目标</div>'}
             </div>
           `).join('')}
         </div>
-        <div style="margin-top:10px; font-weight:600; text-align:center;">达标率：${passCount}/${totalChecks} (${Math.round(passCount/totalChecks*100)}%)</div>
-        <hr style="margin:16px 0;">
-        <h4 style="margin-bottom:8px;">📊 全部历史汇总</h4>
-        <div style="display:flex; gap:24px; flex-wrap:wrap;">
-          <div><strong>总搭讪：</strong>${totalApproach}</div><div><strong>回复：</strong>${totalReply}</div>
-          <div><strong>新增主播：</strong>${totalHost}</div><div><strong>评论：</strong>${totalComments}</div>
-          <div><strong>Story/Post：</strong>${totalStory}</div><div><strong>视频：</strong>${totalVideo}</div>
-          <div><strong>总花费：</strong>$${totalCost}</div>
-        </div>
+        ${totalChecks > 0 ? `
+          <div style="margin-top:12px; font-weight:600; text-align:center;">
+            周达标率：${passCount}/${totalChecks} (${Math.round(passCount/totalChecks*100)}%)
+          </div>
+        ` : ''}
         <div style="margin-top:14px; background:#eef2ff; padding:12px; border-radius:14px;">
           <i class="fas fa-lightbulb" style="color:#4f46e5;"></i> <strong>改善建议：</strong>${suggestion}
         </div>
@@ -1579,12 +1771,13 @@
         selectedInternId = regionInterns[0].id;
         if (!currentPage[selectedInternId]) currentPage[selectedInternId] = 1;
         if (!selectedRows[selectedInternId]) selectedRows[selectedInternId] = new Set();
+        if (!dataViewMode[selectedInternId]) dataViewMode[selectedInternId] = 'week';
         renderInternList(regionId);
-        renderDataTable(regionId, selectedInternId);
-        renderAnalysis(regionId, selectedInternId);
+        refreshDataDisplay(regionId, selectedInternId);
       } else {
         selectedInternId = null;
         document.getElementById(`tableContainer-${regionId}`).innerHTML = '<p>暂无实习生，请先添加</p>';
+        document.getElementById(`summaryCards-${regionId}`).innerHTML = '<p style="color:#94a3b8; padding:20px; text-align:center;">暂无实习生</p>';
         document.getElementById(`analysisCard-${regionId}`).innerHTML = '<p style="color:#64748b;">暂无实习生</p>';
       }
     }
@@ -1628,7 +1821,7 @@
           const regionId = currentPanel.id.replace('panel-', '');
           renderInternList(regionId);
           renderRanking(regionId);
-          if (selectedInternId === internId) renderAnalysis(regionId, internId);
+          if (selectedInternId === internId) refreshDataDisplay(regionId, internId);
         }
       });
 
@@ -1648,10 +1841,10 @@
       selectedInternId = firstTw.id;
       currentPage[selectedInternId] = 1;
       selectedRows[selectedInternId] = new Set();
+      dataViewMode[selectedInternId] = 'week';
       setTimeout(() => {
         renderInternList('taiwan');
-        renderDataTable('taiwan', selectedInternId);
-        renderAnalysis('taiwan', selectedInternId);
+        refreshDataDisplay('taiwan', selectedInternId);
         renderRanking('taiwan');
       }, 20);
     }
