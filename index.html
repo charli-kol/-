@@ -1098,7 +1098,7 @@
       
       return html;
     }
-      function refreshDataDisplay(regionId, internId) {
+          function refreshDataDisplay(regionId, internId) {
       const view = dataViewMode[internId] || 'week';
       
       // 先渲染周标准展示
@@ -1113,7 +1113,14 @@
       
       if (view === 'all') {
         document.getElementById(`tableContainer-${regionId}`).style.display = 'block';
-        renderDataTable(regionId, internId);
+        
+        // ★ 第5步修改：获取当前筛选日期输入框的值，传递给renderDataTable
+        const fsEl = document.getElementById(`filterStart-${regionId}`);
+        const feEl = document.getElementById(`filterEnd-${regionId}`);
+        const fs = fsEl ? fsEl.value : '';
+        const fe = feEl ? feEl.value : '';
+        renderDataTable(regionId, internId, fs, fe);
+        
       } else {
         document.getElementById(`tableContainer-${regionId}`).style.display = 'none';
       }
@@ -1706,16 +1713,33 @@
       refreshDataDisplay(regionId, internId);
     }
 
-        function renderDataTable(regionId, internId) {
+            function renderDataTable(regionId, internId, filterStartDate, filterEndDate) {
       const container = document.getElementById(`tableContainer-${regionId}`);
       if (!container) return;
       if (!currentPage[internId]) currentPage[internId] = 1;
       if (!selectedRows[internId]) selectedRows[internId] = new Set();
 
-      const paged = getPagedRecords(internId, currentPage[internId]);
-      const records = paged.records;
-      const allRecords = dailyRecords[internId] || [];
-      const selectedSet = selectedRows[internId];
+      // 获取所有记录
+      let allRecords = dailyRecords[internId] || [];
+      
+      // 如果有筛选日期，先过滤
+      if (filterStartDate && filterEndDate) {
+        allRecords = allRecords.filter(r => r.date >= filterStartDate && r.date <= filterEndDate);
+      } else if (filterStartDate) {
+        allRecords = allRecords.filter(r => r.date >= filterStartDate);
+      } else if (filterEndDate) {
+        allRecords = allRecords.filter(r => r.date <= filterEndDate);
+      }
+      
+      // 手动分页
+      const totalPages = Math.ceil(allRecords.length / PAGE_SIZE) || 1;
+      let page = currentPage[internId];
+      if (page > totalPages) page = totalPages;
+      if (page < 1) page = 1;
+      currentPage[internId] = page;
+      
+      const start = (page - 1) * PAGE_SIZE;
+      const records = allRecords.slice(start, start + PAGE_SIZE);
 
       const allCurrentPageSelected = records.length > 0 && records.every((_, idx) => selectedSet.has((paged.page - 1) * PAGE_SIZE + idx));
 
@@ -1733,12 +1757,25 @@
             // 始终显示全部维度
       const visibleDims = ALL_DIMENSIONS;
 
-      let html = `
-        <div class="toolbar">
-          <button class="danger" id="batchDeleteBtn-${regionId}" style="padding:8px 16px; font-size:0.85rem;" ${selectedSet.size === 0 ? 'disabled' : ''}>
-            <i class="fas fa-trash-alt"></i> 批量删除 (${selectedSet.size})
-          </button>
-          <span style="font-size:0.8rem; color:#64748b;">共 ${allRecords.length} 条记录 | 显示 ${visibleDims.length} 个维度</span>
+            let html = `
+        <div class="toolbar" style="justify-content:space-between;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="danger" id="batchDeleteBtn-${regionId}" style="padding:8px 16px; font-size:0.85rem;" ${selectedSet.size === 0 ? 'disabled' : ''}>
+              <i class="fas fa-trash-alt"></i> 批量删除 (${selectedSet.size})
+            </button>
+            <span style="font-size:0.8rem; color:#64748b;">共 ${allRecords.length} 条记录</span>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <input type="date" id="filterStart-${regionId}" style="width:130px; padding:6px 10px; font-size:0.8rem;" title="开始日期" value="${filterStartDate || ''}">
+            <span style="color:#94a3b8; font-size:0.8rem;">至</span>
+            <input type="date" id="filterEnd-${regionId}" style="width:130px; padding:6px 10px; font-size:0.8rem;" title="结束日期" value="${filterEndDate || ''}">
+            <button id="applyFilterBtn-${regionId}" style="background:#0ea5e9; padding:6px 12px; font-size:0.8rem;">
+              <i class="fas fa-filter"></i> 筛选
+            </button>
+            <button id="clearFilterBtn-${regionId}" style="background:#94a3b8; padding:6px 12px; font-size:0.8rem;" ${(!filterStartDate && !filterEndDate) ? 'disabled' : ''}>
+              <i class="fas fa-times"></i> 清除
+            </button>
+          </div>
         </div>
         <div class="table-wrapper"><table>
         <thead><tr>
@@ -1803,7 +1840,7 @@
         });
       });
 
-      // 批量删除
+            // 批量删除
       const batchDeleteBtn = document.getElementById(`batchDeleteBtn-${regionId}`);
       if (batchDeleteBtn) {
         batchDeleteBtn.addEventListener('click', () => {
@@ -1813,15 +1850,35 @@
             sortedIndices.forEach(idx => { dailyRecords[internId].splice(idx, 1); });
             selectedRows[internId] = new Set();
             saveDataToStorage();
-            const totalPages = Math.ceil(dailyRecords[internId].length / PAGE_SIZE) || 1;
+            
+            // 获取当前筛选条件
+            const fsEl = document.getElementById(`filterStart-${regionId}`);
+            const feEl = document.getElementById(`filterEnd-${regionId}`);
+            const fs = fsEl ? fsEl.value : '';
+            const fe = feEl ? feEl.value : '';
+            
+            // 基于筛选后的数据计算总页数
+            let filteredRecords = dailyRecords[internId] || [];
+            if (fs && fe) {
+              filteredRecords = filteredRecords.filter(r => r.date >= fs && r.date <= fe);
+            } else if (fs) {
+              filteredRecords = filteredRecords.filter(r => r.date >= fs);
+            } else if (fe) {
+              filteredRecords = filteredRecords.filter(r => r.date <= fe);
+            }
+            
+            const totalPages = Math.ceil(filteredRecords.length / PAGE_SIZE) || 1;
             if (currentPage[internId] > totalPages) currentPage[internId] = totalPages;
-            refreshDataDisplay(regionId, internId);
+            
+            // 传递筛选参数重新渲染
+            renderDataTable(regionId, internId, fs, fe);
+            renderAnalysis(regionId, internId);
             renderRanking(regionId);
           }
         });
       }
 
-      // 单条删除
+            // 单条删除
       container.querySelectorAll('[data-delete]').forEach(btn => {
         btn.addEventListener('click', function() {
           const delIntern = this.dataset.delete;
@@ -1836,23 +1893,83 @@
             });
             selectedRows[delIntern] = newSet;
             saveDataToStorage();
-            const totalPages = Math.ceil(dailyRecords[delIntern].length / PAGE_SIZE) || 1;
+            
+            // 重新计算总页数（基于可能筛选后的数据）
+            let allRecordsForPage = dailyRecords[delIntern] || [];
+            const fsEl = document.getElementById(`filterStart-${regionId}`);
+            const feEl = document.getElementById(`filterEnd-${regionId}`);
+            const fs = fsEl ? fsEl.value : '';
+            const fe = feEl ? feEl.value : '';
+            
+            // 如果有筛选条件，用筛选后的数据计算总页数
+            if (fs && fe) {
+              allRecordsForPage = allRecordsForPage.filter(r => r.date >= fs && r.date <= fe);
+            } else if (fs) {
+              allRecordsForPage = allRecordsForPage.filter(r => r.date >= fs);
+            } else if (fe) {
+              allRecordsForPage = allRecordsForPage.filter(r => r.date <= fe);
+            }
+            
+            const totalPages = Math.ceil(allRecordsForPage.length / PAGE_SIZE) || 1;
             if (currentPage[delIntern] > totalPages) currentPage[delIntern] = totalPages;
-            refreshDataDisplay(regionId, internId);
+            
+            // ★ 第6步修改：传递筛选参数重新渲染表格
+            renderDataTable(regionId, internId, fs, fe);
+            renderAnalysis(regionId, internId);
             renderRanking(regionId);
           }
         });
       });
 
-      // 分页
+            // 分页
       const prevBtn = document.getElementById(`prevPage-${regionId}`);
       const nextBtn = document.getElementById(`nextPage-${regionId}`);
       if (prevBtn) prevBtn.addEventListener('click', () => {
-        if (currentPage[internId] > 1) { currentPage[internId]--; renderDataTable(regionId, internId); }
+        if (currentPage[internId] > 1) { 
+          currentPage[internId]--; 
+          const fs = document.getElementById(`filterStart-${regionId}`).value;
+          const fe = document.getElementById(`filterEnd-${regionId}`).value;
+          renderDataTable(regionId, internId, fs, fe); 
+        }
       });
       if (nextBtn) nextBtn.addEventListener('click', () => {
-        if (currentPage[internId] < paged.totalPages) { currentPage[internId]++; renderDataTable(regionId, internId); }
+        if (currentPage[internId] < totalPages) { 
+          currentPage[internId]++; 
+          const fs = document.getElementById(`filterStart-${regionId}`).value;
+          const fe = document.getElementById(`filterEnd-${regionId}`).value;
+          renderDataTable(regionId, internId, fs, fe); 
+        }
       });
+
+      // 筛选按钮
+      const applyFilterBtn = document.getElementById(`applyFilterBtn-${regionId}`);
+      const clearFilterBtn = document.getElementById(`clearFilterBtn-${regionId}`);
+      
+      if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', () => {
+          const fs = document.getElementById(`filterStart-${regionId}`).value;
+          const fe = document.getElementById(`filterEnd-${regionId}`).value;
+          if (!fs && !fe) {
+            alert('请至少选择一个日期');
+            return;
+          }
+          if (fs && fe && fs > fe) {
+            alert('开始日期不能晚于结束日期');
+            return;
+          }
+          currentPage[internId] = 1;
+          selectedRows[internId] = new Set();
+          renderDataTable(regionId, internId, fs, fe);
+        });
+      }
+      
+      if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', () => {
+          currentPage[internId] = 1;
+          selectedRows[internId] = new Set();
+          renderDataTable(regionId, internId, '', '');
+        });
+      }
 
       // 保存按钮
       const saveBtn = document.getElementById(`saveBatchBtn-${regionId}`);
