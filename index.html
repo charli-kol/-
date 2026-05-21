@@ -197,6 +197,11 @@
       text-align: left;
       font-weight: 600;
       color: #334155;
+      position: relative;
+    }
+
+    th .select-all-checkbox {
+      margin-right: 4px;
     }
 
     td {
@@ -314,6 +319,40 @@
       color: #dc2626;
     }
 
+    /* 分页样式 */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .pagination button {
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      background: #f1f5f9;
+      color: #334155;
+      border-radius: 8px;
+    }
+
+    .pagination button.active {
+      background: #4f46e5;
+      color: white;
+    }
+
+    .pagination button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .pagination .page-info {
+      font-size: 0.85rem;
+      color: #64748b;
+      padding: 0 8px;
+    }
+
     /* 文件上传区域 */
     .upload-area {
       border: 2px dashed #cbd5e1;
@@ -374,7 +413,7 @@
     }
 
     .preview-scroll {
-      max-height: 200px;
+      max-height: 250px;
       overflow-y: auto;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
@@ -508,6 +547,14 @@
       margin-bottom: 0;
     }
 
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
     @media (max-width: 850px) {
       .region-panel {
         flex-direction: column;
@@ -595,6 +642,9 @@
 
     // 日报数据存储
     let dailyRecords = {};
+    // 分页状态
+    let currentPage = {};
+    const PAGE_SIZE = 10;
 
     function loadDataFromStorage() {
       const saved = localStorage.getItem('kolDailyRecords');
@@ -669,6 +719,8 @@
 
     let currentRegion = 'taiwan';
     let selectedInternId = null;
+    // 选中删除的行
+    let selectedRows = {};
 
     function getInternsByRegion(regionId) {
       return interns.filter(i => i.region === regionId);
@@ -679,7 +731,6 @@
       return region ? region.name : regionId;
     }
 
-    // 获取当前周的开始日期（周一）
     function getWeekStart() {
       const now = new Date();
       const day = now.getDay();
@@ -688,21 +739,33 @@
       return monday.toISOString().split('T')[0];
     }
 
-    // 获取本周数据
     function getWeekRecords(internId) {
       const weekStart = getWeekStart();
       const records = dailyRecords[internId] || [];
       return records.filter(r => r.date >= weekStart);
     }
 
-    // 计算总分（用于排名）
     function calculateScore(records) {
       return records.reduce((s, r) => {
         return s + r.approach + r.reply + r.newHost * 3 + r.comments + r.storyPost * 2 + r.video * 3;
       }, 0);
     }
 
-    // 渲染所有地区面板
+    // 获取分页数据
+    function getPagedRecords(internId, page) {
+      const records = dailyRecords[internId] || [];
+      const totalPages = Math.ceil(records.length / PAGE_SIZE) || 1;
+      const p = Math.min(Math.max(page || 1, 1), totalPages);
+      const start = (p - 1) * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      return {
+        records: records.slice(start, end),
+        page: p,
+        totalPages: totalPages,
+        total: records.length
+      };
+    }
+
     function renderAllPanels() {
       const container = document.getElementById('regionPanelsContainer');
       container.innerHTML = '';
@@ -744,24 +807,16 @@
       });
     }
 
-    // 绑定地区按钮
     function bindRegionButtons(regionId) {
       const addBtn = document.getElementById(`addInternBtn-${regionId}`);
       const standardBtn = document.getElementById(`standardBtn-${regionId}`);
       const uploadBtn = document.getElementById(`batchUploadBtn-${regionId}`);
 
-      if (addBtn) {
-        addBtn.addEventListener('click', () => showAddInternModal(regionId));
-      }
-      if (standardBtn) {
-        standardBtn.addEventListener('click', () => showStandardModal(regionId));
-      }
-      if (uploadBtn) {
-        uploadBtn.addEventListener('click', () => showUploadModal(regionId));
-      }
+      if (addBtn) addBtn.addEventListener('click', () => showAddInternModal(regionId));
+      if (standardBtn) standardBtn.addEventListener('click', () => showStandardModal(regionId));
+      if (uploadBtn) uploadBtn.addEventListener('click', () => showUploadModal(regionId));
     }
 
-    // 显示新增实习生弹窗
     function showAddInternModal(regionId) {
       const existing = document.querySelector('.modal-overlay');
       if (existing) existing.remove();
@@ -789,10 +844,7 @@
       document.getElementById('confirmAddBtn').addEventListener('click', () => {
         const name = document.getElementById('newInternName').value.trim();
         const region = document.getElementById('newInternRegion').value;
-        if (!name) {
-          alert('请输入名字');
-          return;
-        }
+        if (!name) { alert('请输入名字'); return; }
         const newId = generateInternId(region);
         interns.push({ id: newId, name: name, region: region });
         dailyRecords[newId] = [];
@@ -803,12 +855,9 @@
         switchRegion(region);
       });
 
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.remove();
-      });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
-    // 显示周标准设置弹窗
     function showStandardModal(regionId) {
       const existing = document.querySelector('.modal-overlay');
       if (existing) existing.remove();
@@ -821,34 +870,10 @@
       overlay.innerHTML = `
         <div class="modal-box">
           <h3><i class="fas fa-bullseye"></i> ${regionName} - 周标准设置</h3>
-          <div class="standard-row">
-            <label>搭讪人数：</label>
-            <input type="number" id="stdApproach" value="${standard.approach}" min="0">
-          </div>
-          <div class="standard-row">
-            <label>回复人数：</label>
-            <input type="number" id="stdReply" value="${standard.reply}" min="0">
-          </div>
-          <div class="standard-row">
-            <label>新增主播：</label>
-            <input type="number" id="stdHost" value="${standard.newHost}" min="0">
-          </div>
-          <div class="standard-row">
-            <label>评论数：</label>
-            <input type="number" id="stdComments" value="${standard.comments}" min="0">
-          </div>
-          <div class="standard-row">
-            <label>Story/Post：</label>
-            <input type="number" id="stdStory" value="${standard.storyPost}" min="0">
-          </div>
-          <div class="standard-row">
-            <label>视频数：</label>
-            <input type="number" id="stdVideo" value="${standard.video}" min="0">
-          </div>
-          <div class="standard-row">
-            <label>花费($)：</label>
-            <input type="number" id="stdCost" value="${standard.cost}" min="0">
-          </div>
+          ${['approach','reply','newHost','comments','storyPost','video','cost'].map(key => {
+            const labels = { approach:'搭讪人数', reply:'回复人数', newHost:'新增主播', comments:'评论数', storyPost:'Story/Post', video:'视频数', cost:'花费($)' };
+            return `<div class="standard-row"><label>${labels[key]}：</label><input type="number" id="std-${key}" value="${standard[key]}" min="0"></div>`;
+          }).join('')}
           <div class="modal-actions">
             <button class="cancel-btn" id="cancelStdBtn">取消</button>
             <button class="confirm-btn" id="confirmStdBtn">保存标准</button>
@@ -860,28 +885,24 @@
       document.getElementById('cancelStdBtn').addEventListener('click', () => overlay.remove());
       document.getElementById('confirmStdBtn').addEventListener('click', () => {
         weeklyStandards[regionId] = {
-          approach: parseInt(document.getElementById('stdApproach').value) || 0,
-          reply: parseInt(document.getElementById('stdReply').value) || 0,
-          newHost: parseInt(document.getElementById('stdHost').value) || 0,
-          comments: parseInt(document.getElementById('stdComments').value) || 0,
-          storyPost: parseInt(document.getElementById('stdStory').value) || 0,
-          video: parseInt(document.getElementById('stdVideo').value) || 0,
-          cost: parseInt(document.getElementById('stdCost').value) || 0
+          approach: parseInt(document.getElementById('std-approach').value) || 0,
+          reply: parseInt(document.getElementById('std-reply').value) || 0,
+          newHost: parseInt(document.getElementById('std-newHost').value) || 0,
+          comments: parseInt(document.getElementById('std-comments').value) || 0,
+          storyPost: parseInt(document.getElementById('std-storyPost').value) || 0,
+          video: parseInt(document.getElementById('std-video').value) || 0,
+          cost: parseInt(document.getElementById('std-cost').value) || 0
         };
         saveStandardsToStorage();
         overlay.remove();
-        if (selectedInternId) {
-          renderAnalysis(regionId, selectedInternId);
-        }
+        if (selectedInternId) renderAnalysis(regionId, selectedInternId);
         renderRanking(regionId);
       });
 
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.remove();
-      });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
-    // 显示批量上传弹窗
+    // 批量上传弹窗（优化版）
     function showUploadModal(regionId) {
       const regionInterns = getInternsByRegion(regionId);
       if (regionInterns.length === 0) {
@@ -895,30 +916,31 @@
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
       overlay.innerHTML = `
-        <div class="modal-box" style="width:650px; max-width:95vw;">
+        <div class="modal-box" style="width:700px; max-width:95vw;">
           <h3><i class="fas fa-file-upload"></i> 智能批量上传日报</h3>
           <p style="color:#64748b; font-size:0.9rem; margin-bottom:12px;">
-            支持CSV文件上传。系统会自动识别表头并匹配数据列。
+            支持CSV文件上传。系统只识别表格中存在的列数据。
           </p>
           
           <div class="upload-area" id="uploadDropZone-${regionId}">
             <i class="fas fa-cloud-upload-alt"></i>
             <p><strong>点击选择文件</strong> 或拖拽文件到此处</p>
             <p class="file-types">支持 .csv 格式</p>
-            <input type="file" id="fileInput-${regionId}" accept=".csv,.xlsx" style="display:none;">
+            <input type="file" id="fileInput-${regionId}" accept=".csv" style="display:none;">
           </div>
 
           <div id="uploadPreview-${regionId}" style="display:none;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-              <h4 style="font-size:1rem;">📋 数据预览与列映射</h4>
+              <h4 style="font-size:1rem;">📋 数据预览（分页显示）</h4>
               <span id="rowCount-${regionId}" style="font-size:0.85rem; color:#64748b;"></span>
             </div>
             <div class="preview-scroll" id="previewTable-${regionId}"></div>
+            <div class="pagination" id="previewPagination-${regionId}"></div>
             
             <div style="margin-top:16px;">
-              <h4 style="font-size:1rem; margin-bottom:8px;">🔗 列映射设置</h4>
+              <h4 style="font-size:1rem; margin-bottom:8px;">🔗 列映射设置（仅显示表格中有的列）</h4>
               <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">
-                系统已自动匹配，请确认或手动调整。未映射的列将被忽略。
+                系统只识别CSV文件中实际存在的列。请确认映射关系。
               </p>
               <div id="mappingConfig-${regionId}"></div>
             </div>
@@ -940,23 +962,15 @@
       let parsedData = [];
       let fileHeaders = [];
       let columnMapping = {};
+      let previewPage = 1;
+      const PREVIEW_PAGE_SIZE = 8;
 
       const dropZone = document.getElementById(`uploadDropZone-${regionId}`);
       const fileInput = document.getElementById(`fileInput-${regionId}`);
 
       dropZone.addEventListener('click', () => fileInput.click());
-
-      dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.style.borderColor = '#4f46e5';
-        dropZone.style.background = '#f5f3ff';
-      });
-
-      dropZone.addEventListener('dragleave', () => {
-        dropZone.style.borderColor = '#cbd5e1';
-        dropZone.style.background = '#fafbfc';
-      });
-
+      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#4f46e5'; dropZone.style.background = '#f5f3ff'; });
+      dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#cbd5e1'; dropZone.style.background = '#fafbfc'; });
       dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         dropZone.style.borderColor = '#cbd5e1';
@@ -964,7 +978,6 @@
         const file = e.dataTransfer.files[0];
         if (file) processFile(file);
       });
-
       fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) processFile(file);
@@ -973,21 +986,16 @@
       function processFile(file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const text = e.target.result;
-          parseCSV(text);
+          parseCSV(e.target.result);
         };
         reader.readAsText(file);
       }
 
       function parseCSV(text) {
         const lines = text.split('\n').filter(line => line.trim() !== '');
-        if (lines.length < 2) {
-          alert('文件内容不足，至少需要表头和一行数据');
-          return;
-        }
+        if (lines.length < 2) { alert('文件内容不足'); return; }
 
         fileHeaders = parseCSVLine(lines[0]);
-        
         parsedData = [];
         for (let i = 1; i < lines.length; i++) {
           const values = parseCSVLine(lines[i]);
@@ -1000,12 +1008,10 @@
           }
         }
 
-        if (parsedData.length === 0) {
-          alert('未解析到有效数据行');
-          return;
-        }
+        if (parsedData.length === 0) { alert('未解析到有效数据行'); return; }
 
         autoMapColumns();
+        previewPage = 1;
         showPreview();
       }
 
@@ -1013,17 +1019,11 @@
         const result = [];
         let current = '';
         let inQuotes = false;
-        
         for (let i = 0; i < line.length; i++) {
           const char = line[i];
-          if (char === '"') {
-            inQuotes = !inQuotes;
-          } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
-            current = '';
-          } else {
-            current += char;
-          }
+          if (char === '"') { inQuotes = !inQuotes; }
+          else if (char === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
+          else { current += char; }
         }
         result.push(current.trim());
         return result;
@@ -1042,9 +1042,9 @@
         };
 
         columnMapping = {};
+        // 只针对文件中实际存在的列进行匹配
         fileHeaders.forEach(header => {
           const headerLower = header.toLowerCase().replace(/[\s\/\-_]/g, '');
-          
           for (const [field, keywords] of Object.entries(targetFields)) {
             if (columnMapping[field]) continue;
             for (const keyword of keywords) {
@@ -1056,43 +1056,55 @@
             }
           }
         });
-
-        if (!columnMapping['date']) {
-          columnMapping['date'] = null;
-        }
       }
 
-      function showPreview() {
-        const previewDiv = document.getElementById(`uploadPreview-${regionId}`);
-        const uploadArea = document.getElementById(`uploadDropZone-${regionId}`);
-        
-        uploadArea.style.display = 'none';
-        previewDiv.style.display = 'block';
-
-        document.getElementById(`rowCount-${regionId}`).textContent = `共 ${parsedData.length} 行数据`;
+      function renderPreviewPage() {
+        const totalPages = Math.ceil(parsedData.length / PREVIEW_PAGE_SIZE) || 1;
+        if (previewPage > totalPages) previewPage = totalPages;
+        const start = (previewPage - 1) * PREVIEW_PAGE_SIZE;
+        const end = start + PREVIEW_PAGE_SIZE;
+        const pageData = parsedData.slice(start, end);
 
         const previewTable = document.getElementById(`previewTable-${regionId}`);
-        const previewRows = parsedData.slice(0, 5);
-        
         let tableHTML = '<table class="mapping-table"><thead><tr>';
         fileHeaders.forEach(h => tableHTML += `<th>${h}</th>`);
         tableHTML += '</tr></thead><tbody>';
         
-        previewRows.forEach(row => {
+        pageData.forEach(row => {
           tableHTML += '<tr>';
           fileHeaders.forEach(h => tableHTML += `<td>${row[h] || ''}</td>`);
           tableHTML += '</tr>';
         });
         
-        if (parsedData.length > 5) {
-          tableHTML += `<tr><td colspan="${fileHeaders.length}" style="text-align:center; color:#64748b;">... 还有 ${parsedData.length - 5} 行数据</td></tr>`;
-        }
-        
         tableHTML += '</tbody></table>';
         previewTable.innerHTML = tableHTML;
 
+        // 渲染预览分页
+        const pagDiv = document.getElementById(`previewPagination-${regionId}`);
+        let pagHTML = '';
+        pagHTML += `<button ${previewPage <= 1 ? 'disabled' : ''} id="prevPreviewPage">上一页</button>`;
+        pagHTML += `<span class="page-info">第 ${previewPage} / ${totalPages} 页（共 ${parsedData.length} 条）</span>`;
+        pagHTML += `<button ${previewPage >= totalPages ? 'disabled' : ''} id="nextPreviewPage">下一页</button>`;
+        pagDiv.innerHTML = pagHTML;
+
+        const prevBtn = document.getElementById('prevPreviewPage');
+        const nextBtn = document.getElementById('nextPreviewPage');
+        if (prevBtn) prevBtn.addEventListener('click', () => { previewPage--; renderPreviewPage(); });
+        if (nextBtn) nextBtn.addEventListener('click', () => { previewPage++; renderPreviewPage(); });
+      }
+
+      function showPreview() {
+        const previewDiv = document.getElementById(`uploadPreview-${regionId}`);
+        const uploadArea = document.getElementById(`uploadDropZone-${regionId}`);
+        uploadArea.style.display = 'none';
+        previewDiv.style.display = 'block';
+        document.getElementById(`rowCount-${regionId}`).textContent = `共 ${parsedData.length} 行数据`;
+
+        renderPreviewPage();
+
+        // 渲染列映射（只显示文件中存在的维度映射）
         const mappingDiv = document.getElementById(`mappingConfig-${regionId}`);
-        const dimensions = [
+        const allDimensions = [
           { key: 'date', label: '📅 日期' },
           { key: 'approach', label: '💬 搭讪人数' },
           { key: 'reply', label: '↩️ 回复人数' },
@@ -1103,51 +1115,38 @@
           { key: 'cost', label: '💰 花费' }
         ];
 
-        mappingDiv.innerHTML = dimensions.map(dim => `
-          <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-            <label style="min-width:120px; font-weight:500;">${dim.label}：</label>
-            <select id="map-${dim.key}-${regionId}" style="flex:1;">
-              <option value="">-- 不映射 --</option>
-              ${fileHeaders.map(h => `
-                <option value="${h}" ${columnMapping[dim.key] === h ? 'selected' : ''}>${h}</option>
-              `).join('')}
-            </select>
-            ${columnMapping[dim.key] ? '<span class="tag tag-success">已匹配</span>' : '<span class="tag tag-warning">待选择</span>'}
-          </div>
-        `).join('');
+        mappingDiv.innerHTML = allDimensions.map(dim => {
+          const mapped = columnMapping[dim.key] || '';
+          return `
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+              <label style="min-width:120px; font-weight:500;">${dim.label}：</label>
+              <select id="map-${dim.key}-${regionId}" style="flex:1;">
+                <option value="">-- 不映射 --</option>
+                ${fileHeaders.map(h => `<option value="${h}" ${mapped === h ? 'selected' : ''}>${h}</option>`).join('')}
+              </select>
+              ${mapped ? '<span class="tag tag-success">已匹配</span>' : '<span class="tag tag-warning">待选择</span>'}
+            </div>
+          `;
+        }).join('');
       }
 
       document.getElementById('cancelUploadBtn').addEventListener('click', () => overlay.remove());
 
       document.getElementById('confirmUploadBtn').addEventListener('click', () => {
         const finalMapping = {};
-        const dimensions = ['date', 'approach', 'reply', 'newHost', 'comments', 'storyPost', 'video', 'cost'];
-        
-        dimensions.forEach(dim => {
+        ['date', 'approach', 'reply', 'newHost', 'comments', 'storyPost', 'video', 'cost'].forEach(dim => {
           const select = document.getElementById(`map-${dim}-${regionId}`);
-          if (select && select.value) {
-            finalMapping[dim] = select.value;
-          }
+          if (select && select.value) finalMapping[dim] = select.value;
         });
 
         const defaultDate = document.getElementById(`defaultDate-${regionId}`).value;
 
-        if (!finalMapping['approach'] && !finalMapping['reply'] && !finalMapping['newHost']) {
-          alert('请至少映射一个数据维度（搭讪人数/回复人数/新增主播）');
-          return;
-        }
-
         let importCount = 0;
-
         parsedData.forEach(row => {
-          const date = finalMapping['date'] ? row[finalMapping['date']] : defaultDate;
-          
           let validDate = defaultDate;
           if (finalMapping['date'] && row[finalMapping['date']]) {
             const parsed = new Date(row[finalMapping['date']]);
-            if (!isNaN(parsed.getTime())) {
-              validDate = parsed.toISOString().split('T')[0];
-            }
+            if (!isNaN(parsed.getTime())) validDate = parsed.toISOString().split('T')[0];
           }
 
           const record = {
@@ -1171,23 +1170,20 @@
           dailyRecords[selectedInternId].sort((a, b) => new Date(a.date) - new Date(b.date));
         }
         saveDataToStorage();
-        
         overlay.remove();
         alert(`✅ 成功导入 ${importCount} 条记录！`);
-        
         if (selectedInternId) {
+          currentPage[selectedInternId] = 1;
+          selectedRows[selectedInternId] = new Set();
           renderDataTable(regionId, selectedInternId);
           renderAnalysis(regionId, selectedInternId);
           renderRanking(regionId);
         }
       });
 
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.remove();
-      });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     }
 
-    // 渲染实习生列表
     function renderInternList(regionId) {
       const listDiv = document.getElementById(`internList-${regionId}`);
       if (!listDiv) return;
@@ -1196,12 +1192,8 @@
         <div class="intern-item ${selectedInternId === intern.id ? 'selected' : ''}" data-id="${intern.id}">
           <span class="intern-name" id="nameDisplay-${intern.id}">${intern.name}</span>
           <div style="display:flex; align-items:center; gap:6px;">
-            <button class="edit-name-btn" data-id="${intern.id}" title="修改名字">
-              <i class="fas fa-pen"></i>
-            </button>
-            <button class="delete-intern-btn" data-id="${intern.id}" title="删除实习生">
-              <i class="fas fa-trash"></i>
-            </button>
+            <button class="edit-name-btn" data-id="${intern.id}" title="修改名字"><i class="fas fa-pen"></i></button>
+            <button class="delete-intern-btn" data-id="${intern.id}" title="删除实习生"><i class="fas fa-trash"></i></button>
             <i class="fas fa-chevron-right" style="color:#94a3b8;"></i>
           </div>
         </div>
@@ -1210,16 +1202,12 @@
       listDiv.querySelectorAll('.intern-item').forEach(item => {
         item.addEventListener('click', function(e) {
           if (e.target.closest('.edit-name-btn') || e.target.closest('.delete-intern-btn')) return;
-          const id = this.dataset.id;
-          selectIntern(id, regionId);
+          selectIntern(this.dataset.id, regionId);
         });
       });
 
       listDiv.querySelectorAll('.edit-name-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          showEditNameModal(this.dataset.id);
-        });
+        btn.addEventListener('click', function(e) { e.stopPropagation(); showEditNameModal(this.dataset.id); });
       });
 
       listDiv.querySelectorAll('.delete-intern-btn').forEach(btn => {
@@ -1229,11 +1217,11 @@
           if (confirm('确定要删除该实习生及其所有数据吗？此操作不可恢复。')) {
             interns = interns.filter(i => i.id !== internId);
             delete dailyRecords[internId];
+            delete selectedRows[internId];
+            delete currentPage[internId];
             saveInternsToStorage();
             saveDataToStorage();
-            if (selectedInternId === internId) {
-              selectedInternId = null;
-            }
+            if (selectedInternId === internId) selectedInternId = null;
             renderAllPanels();
             switchRegion(regionId);
           }
@@ -1241,9 +1229,10 @@
       });
     }
 
-    // 选择实习生
     function selectIntern(internId, regionId) {
       selectedInternId = internId;
+      if (!currentPage[internId]) currentPage[internId] = 1;
+      if (!selectedRows[internId]) selectedRows[internId] = new Set();
       document.querySelectorAll(`#internList-${regionId} .intern-item`).forEach(el => {
         el.classList.remove('selected');
         if (el.dataset.id === internId) el.classList.add('selected');
@@ -1252,27 +1241,47 @@
       renderAnalysis(regionId, internId);
     }
 
-    // 渲染数据表格
     function renderDataTable(regionId, internId) {
       const container = document.getElementById(`tableContainer-${regionId}`);
       if (!container) return;
-      const records = dailyRecords[internId] || [];
+      if (!currentPage[internId]) currentPage[internId] = 1;
+      if (!selectedRows[internId]) selectedRows[internId] = new Set();
 
-      let html = `<div class="table-wrapper"><table>
+      const paged = getPagedRecords(internId, currentPage[internId]);
+      const records = paged.records;
+      const allRecords = dailyRecords[internId] || [];
+      const selectedSet = selectedRows[internId];
+
+      // 判断当前页是否全选
+      const allCurrentPageSelected = records.length > 0 && records.every((_, idx) => selectedSet.has((paged.page - 1) * PAGE_SIZE + idx));
+
+      let html = `
+        <div class="toolbar">
+          <button class="danger" id="batchDeleteBtn-${regionId}" style="padding:8px 16px; font-size:0.85rem;" ${selectedSet.size === 0 ? 'disabled' : ''}>
+            <i class="fas fa-trash-alt"></i> 批量删除 (${selectedSet.size})
+          </button>
+          <span style="font-size:0.8rem; color:#64748b;">共 ${allRecords.length} 条记录</span>
+        </div>
+        <div class="table-wrapper"><table>
         <thead><tr>
+          <th style="width:40px;"><input type="checkbox" id="selectAll-${regionId}" ${allCurrentPageSelected ? 'checked' : ''}></th>
           <th>日期</th><th>搭讪人数</th><th>回复人数</th><th>新增主播</th><th>评论数</th><th>Story/Post</th><th>视频数</th><th>花费</th><th>操作</th>
         </tr></thead><tbody>`;
 
       records.forEach((rec, idx) => {
+        const globalIdx = (paged.page - 1) * PAGE_SIZE + idx;
+        const isChecked = selectedSet.has(globalIdx);
         html += `<tr>
+          <td><input type="checkbox" class="row-checkbox" data-idx="${globalIdx}" ${isChecked ? 'checked' : ''}></td>
           <td>${rec.date}</td>
           <td>${rec.approach}</td><td>${rec.reply}</td><td>${rec.newHost}</td>
           <td>${rec.comments}</td><td>${rec.storyPost}</td><td>${rec.video}</td><td>$${rec.cost}</td>
-          <td><button class="secondary" style="padding:4px 10px;" data-delete="${internId}" data-idx="${idx}"><i class="fas fa-trash"></i></button></td>
+          <td><button class="secondary" style="padding:4px 10px;" data-delete="${internId}" data-idx="${globalIdx}"><i class="fas fa-trash"></i></button></td>
         </tr>`;
       });
 
       html += `<tr class="batch-input-row" id="batchRow-${regionId}">
+        <td></td>
         <td><input type="date" id="batchDate-${regionId}" style="width:120px;"></td>
         <td><input class="small-input" id="batchApproach-${regionId}" placeholder="搭讪"></td>
         <td><input class="small-input" id="batchReply-${regionId}" placeholder="回复"></td>
@@ -1285,41 +1294,128 @@
       </tr>`;
 
       html += `</tbody></table></div>`;
+
+      // 分页
+      html += `<div class="pagination">
+        <button ${paged.page <= 1 ? 'disabled' : ''} id="prevPage-${regionId}">上一页</button>
+        <span class="page-info">第 ${paged.page} / ${paged.totalPages} 页</span>
+        <button ${paged.page >= paged.totalPages ? 'disabled' : ''} id="nextPage-${regionId}">下一页</button>
+      </div>`;
+
       container.innerHTML = html;
 
-      const saveBtn = document.getElementById(`saveBatchBtn-${regionId}`);
-      if (saveBtn) {
-        saveBtn.addEventListener('click', () => batchAddRecord(regionId, internId));
+      // 全选/取消全选
+      const selectAllCheckbox = document.getElementById(`selectAll-${regionId}`);
+      if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+          records.forEach((_, idx) => {
+            const globalIdx = (paged.page - 1) * PAGE_SIZE + idx;
+            if (this.checked) {
+              selectedSet.add(globalIdx);
+            } else {
+              selectedSet.delete(globalIdx);
+            }
+          });
+          renderDataTable(regionId, internId);
+        });
       }
 
+      // 行复选框
+      container.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+          const globalIdx = parseInt(this.dataset.idx);
+          if (this.checked) {
+            selectedSet.add(globalIdx);
+          } else {
+            selectedSet.delete(globalIdx);
+          }
+          renderDataTable(regionId, internId);
+        });
+      });
+
+      // 批量删除
+      const batchDeleteBtn = document.getElementById(`batchDeleteBtn-${regionId}`);
+      if (batchDeleteBtn) {
+        batchDeleteBtn.addEventListener('click', () => {
+          if (selectedSet.size === 0) return;
+          if (confirm(`确定要删除选中的 ${selectedSet.size} 条记录吗？此操作不可恢复。`)) {
+            const sortedIndices = Array.from(selectedSet).sort((a, b) => b - a);
+            sortedIndices.forEach(idx => {
+              dailyRecords[internId].splice(idx, 1);
+            });
+            selectedRows[internId] = new Set();
+            saveDataToStorage();
+            // 调整页码
+            const totalPages = Math.ceil(dailyRecords[internId].length / PAGE_SIZE) || 1;
+            if (currentPage[internId] > totalPages) currentPage[internId] = totalPages;
+            renderDataTable(regionId, internId);
+            renderAnalysis(regionId, internId);
+            renderRanking(regionId);
+          }
+        });
+      }
+
+      // 单条删除
       container.querySelectorAll('[data-delete]').forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function() {
           const delIntern = this.dataset.delete;
           const idx = parseInt(this.dataset.idx);
           if (confirm('确定要删除这条记录吗？')) {
             dailyRecords[delIntern].splice(idx, 1);
+            selectedRows[delIntern].delete(idx);
+            // 更新大于该索引的选中项
+            const newSet = new Set();
+            selectedRows[delIntern].forEach(i => {
+              if (i > idx) newSet.add(i - 1);
+              else if (i < idx) newSet.add(i);
+            });
+            selectedRows[delIntern] = newSet;
             saveDataToStorage();
+            const totalPages = Math.ceil(dailyRecords[delIntern].length / PAGE_SIZE) || 1;
+            if (currentPage[delIntern] > totalPages) currentPage[delIntern] = totalPages;
             renderDataTable(regionId, internId);
             renderAnalysis(regionId, internId);
             renderRanking(regionId);
           }
         });
       });
+
+      // 分页按钮
+      const prevBtn = document.getElementById(`prevPage-${regionId}`);
+      const nextBtn = document.getElementById(`nextPage-${regionId}`);
+      if (prevBtn) prevBtn.addEventListener('click', () => {
+        if (currentPage[internId] > 1) {
+          currentPage[internId]--;
+          renderDataTable(regionId, internId);
+        }
+      });
+      if (nextBtn) nextBtn.addEventListener('click', () => {
+        if (currentPage[internId] < paged.totalPages) {
+          currentPage[internId]++;
+          renderDataTable(regionId, internId);
+        }
+      });
+
+      // 保存按钮
+      const saveBtn = document.getElementById(`saveBatchBtn-${regionId}`);
+      if (saveBtn) saveBtn.addEventListener('click', () => batchAddRecord(regionId, internId));
     }
 
-    // 批次添加记录
     function batchAddRecord(regionId, internId) {
       const date = document.getElementById(`batchDate-${regionId}`).value;
       if (!date) { alert('请选择日期'); return; }
-      const approach = parseInt(document.getElementById(`batchApproach-${regionId}`).value) || 0;
-      const reply = parseInt(document.getElementById(`batchReply-${regionId}`).value) || 0;
-      const newHost = parseInt(document.getElementById(`batchHost-${regionId}`).value) || 0;
-      const comments = parseInt(document.getElementById(`batchComments-${regionId}`).value) || 0;
-      const storyPost = parseInt(document.getElementById(`batchStory-${regionId}`).value) || 0;
-      const video = parseInt(document.getElementById(`batchVideo-${regionId}`).value) || 0;
-      const cost = parseInt(document.getElementById(`batchCost-${regionId}`).value) || 0;
+      const record = {
+        date,
+        approach: parseInt(document.getElementById(`batchApproach-${regionId}`).value) || 0,
+        reply: parseInt(document.getElementById(`batchReply-${regionId}`).value) || 0,
+        newHost: parseInt(document.getElementById(`batchHost-${regionId}`).value) || 0,
+        comments: parseInt(document.getElementById(`batchComments-${regionId}`).value) || 0,
+        storyPost: parseInt(document.getElementById(`batchStory-${regionId}`).value) || 0,
+        video: parseInt(document.getElementById(`batchVideo-${regionId}`).value) || 0,
+        cost: parseInt(document.getElementById(`batchCost-${regionId}`).value) || 0
+      };
 
-      dailyRecords[internId].push({ date, approach, reply, newHost, comments, storyPost, video, cost });
+      dailyRecords[internId].push(record);
       dailyRecords[internId].sort((a, b) => new Date(a.date) - new Date(b.date));
       saveDataToStorage();
 
@@ -1327,12 +1423,13 @@
         const el = document.getElementById(`${id}-${regionId}`);
         if (el) el.value = '';
       });
+      // 跳转到最后一页
+      currentPage[internId] = Math.ceil(dailyRecords[internId].length / PAGE_SIZE);
       renderDataTable(regionId, internId);
       renderAnalysis(regionId, internId);
       renderRanking(regionId);
     }
 
-    // 产出分析
     function renderAnalysis(regionId, internId) {
       const card = document.getElementById(`analysisCard-${regionId}`);
       if (!card) return;
@@ -1388,15 +1485,11 @@
             <div style="padding:8px; background:white; border-radius:8px; text-align:center;">
               <div style="color:#64748b;">${c.label}</div>
               <div style="font-weight:700;">${c.value} <span style="font-size:0.75rem; color:#94a3b8;">/ ${c.std}</span></div>
-              <div class="${c.value >= c.std ? 'status-pass' : 'status-fail'}">
-                ${c.value >= c.std ? '✓ 达标' : '✗ 未达标'}
-              </div>
+              <div class="${c.value >= c.std ? 'status-pass' : 'status-fail'}">${c.value >= c.std ? '✓ 达标' : '✗ 未达标'}</div>
             </div>
           `).join('')}
         </div>
-        <div style="margin-top:10px; font-weight:600; text-align:center;">
-          达标率：${passCount}/${totalChecks} (${Math.round(passCount/totalChecks*100)}%)
-        </div>
+        <div style="margin-top:10px; font-weight:600; text-align:center;">达标率：${passCount}/${totalChecks} (${Math.round(passCount/totalChecks*100)}%)</div>
         <hr style="margin:16px 0;">
         <h4 style="margin-bottom:8px;">📊 全部历史汇总</h4>
         <div style="display:flex; gap:24px; flex-wrap:wrap;">
@@ -1411,7 +1504,6 @@
       `;
     }
 
-    // 渲染本周排名
     function renderRanking(regionId) {
       const rankingDiv = document.getElementById(`rankingList-${regionId}`);
       if (!rankingDiv) return;
@@ -1425,27 +1517,18 @@
       const rankings = regionInterns.map(intern => {
         const weekRecords = getWeekRecords(intern.id);
         const score = calculateScore(weekRecords);
-        const wApproach = weekRecords.reduce((s,r)=> s+r.approach, 0);
-        const wReply = weekRecords.reduce((s,r)=> s+r.reply, 0);
-        const wHost = weekRecords.reduce((s,r)=> s+r.newHost, 0);
         return {
-          id: intern.id,
-          name: intern.name,
-          score: score,
-          approach: wApproach,
-          reply: wReply,
-          host: wHost
+          id: intern.id, name: intern.name, score,
+          approach: weekRecords.reduce((s,r)=> s+r.approach, 0),
+          reply: weekRecords.reduce((s,r)=> s+r.reply, 0),
+          host: weekRecords.reduce((s,r)=> s+r.newHost, 0)
         };
       });
 
       rankings.sort((a, b) => b.score - a.score);
 
       rankingDiv.innerHTML = rankings.map((r, idx) => {
-        let rankClass = 'rank-other';
-        if (idx === 0) rankClass = 'rank-1';
-        else if (idx === 1) rankClass = 'rank-2';
-        else if (idx === 2) rankClass = 'rank-3';
-
+        let rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : 'rank-other';
         return `
           <div class="rank-item">
             <div style="display:flex; align-items:center; gap:10px;">
@@ -1461,7 +1544,6 @@
       }).join('');
     }
 
-    // 切换地区
     function switchRegion(regionId) {
       currentRegion = regionId;
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1472,6 +1554,8 @@
       const regionInterns = getInternsByRegion(regionId);
       if (regionInterns.length > 0) {
         selectedInternId = regionInterns[0].id;
+        if (!currentPage[selectedInternId]) currentPage[selectedInternId] = 1;
+        if (!selectedRows[selectedInternId]) selectedRows[selectedInternId] = new Set();
         renderInternList(regionId);
         renderDataTable(regionId, selectedInternId);
         renderAnalysis(regionId, selectedInternId);
@@ -1482,7 +1566,6 @@
       }
     }
 
-    // 显示编辑名字弹窗
     function showEditNameModal(internId) {
       const intern = interns.find(i => i.id === internId);
       if (!intern) return;
@@ -1506,19 +1589,12 @@
       document.body.appendChild(overlay);
 
       const inputEl = document.getElementById('newNameInput');
-      setTimeout(() => {
-        inputEl.focus();
-        inputEl.select();
-      }, 150);
+      setTimeout(() => { inputEl.focus(); inputEl.select(); }, 150);
 
       document.getElementById('cancelEditBtn').addEventListener('click', () => overlay.remove());
       document.getElementById('confirmEditBtn').addEventListener('click', () => {
         const newName = inputEl.value.trim();
-        if (!newName) {
-          alert('名字不能为空');
-          inputEl.focus();
-          return;
-        }
+        if (!newName) { alert('名字不能为空'); inputEl.focus(); return; }
         intern.name = newName;
         saveInternsToStorage();
         const nameDisplay = document.getElementById(`nameDisplay-${internId}`);
@@ -1529,40 +1605,26 @@
           const regionId = currentPanel.id.replace('panel-', '');
           renderInternList(regionId);
           renderRanking(regionId);
-          const items = document.querySelectorAll(`#internList-${regionId} .intern-item`);
-          items.forEach(el => {
-            if (el.dataset.id === internId) el.classList.add('selected');
-          });
-          if (selectedInternId === internId) {
-            renderAnalysis(regionId, internId);
-          }
+          if (selectedInternId === internId) renderAnalysis(regionId, internId);
         }
       });
 
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.remove();
-      });
-
-      inputEl.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          document.getElementById('confirmEditBtn').click();
-        }
-      });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+      inputEl.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('confirmEditBtn').click(); } });
     }
 
-    // 事件绑定
     document.getElementById('regionTabs').addEventListener('click', (e) => {
       const btn = e.target.closest('.tab-btn');
       if (!btn) return;
       switchRegion(btn.dataset.region);
     });
 
-    // 初始化
     renderAllPanels();
     const firstTw = getInternsByRegion('taiwan')[0];
     if (firstTw) {
       selectedInternId = firstTw.id;
+      currentPage[selectedInternId] = 1;
+      selectedRows[selectedInternId] = new Set();
       setTimeout(() => {
         renderInternList('taiwan');
         renderDataTable('taiwan', selectedInternId);
