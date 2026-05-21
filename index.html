@@ -8,6 +8,85 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+      /* 文件上传区域 */
+    .upload-area {
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fafbfc;
+      margin-top: 16px;
+    }
+
+    .upload-area:hover {
+      border-color: #4f46e5;
+      background: #f5f3ff;
+    }
+
+    .upload-area i {
+      font-size: 2.5rem;
+      color: #4f46e5;
+      margin-bottom: 10px;
+    }
+
+    .upload-area p {
+      color: #64748b;
+      margin: 5px 0;
+    }
+
+    .upload-area .file-types {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    /* 映射预览表 */
+    .mapping-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 16px;
+    }
+
+    .mapping-table th, .mapping-table td {
+      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      text-align: left;
+    }
+
+    .mapping-table th {
+      background: #f8fafc;
+      font-weight: 600;
+    }
+
+    .mapping-table select {
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .preview-scroll {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin: 2px;
+    }
+
+    .tag-success { background: #d1fae5; color: #065f46; }
+    .tag-warning { background: #fef3c7; color: #92400e; }
+    .tag-info { background: #dbeafe; color: #1e40af; }
   <style>
     * {
       margin: 0;
@@ -641,10 +720,15 @@
               <div id="rankingList-${region.id}"></div>
             </div>
           </div>
-          <div class="data-main" id="dataMain-${region.id}">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="data-main" id="dataMain-${region.id}">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
               <h3 style="font-weight:600;">📋 日报数据表</h3>
-              <span style="color:#64748b; font-size:0.85rem;">维度：搭讪/回复/新增主播/评论/Story·Post/视频/花费</span>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <span style="color:#64748b; font-size:0.85rem;">维度：搭讪/回复/新增主播/评论/Story·Post/视频/花费</span>
+                <button id="batchUploadBtn-${region.id}" style="background:#10b981; padding:8px 16px; font-size:0.85rem;">
+                  <i class="fas fa-file-upload"></i> 批量上传
+                </button>
+              </div>
             </div>
             <div id="tableContainer-${region.id}" style="margin-top:16px;"></div>
             <div class="analysis-card" id="analysisCard-${region.id}">
@@ -660,15 +744,19 @@
     }
 
     // 绑定地区按钮
-    function bindRegionButtons(regionId) {
+        function bindRegionButtons(regionId) {
       const addBtn = document.getElementById(`addInternBtn-${regionId}`);
       const standardBtn = document.getElementById(`standardBtn-${regionId}`);
+      const uploadBtn = document.getElementById(`batchUploadBtn-${regionId}`);
 
       if (addBtn) {
         addBtn.addEventListener('click', () => showAddInternModal(regionId));
       }
       if (standardBtn) {
         standardBtn.addEventListener('click', () => showStandardModal(regionId));
+      }
+      if (uploadBtn) {
+        uploadBtn.addEventListener('click', () => showUploadModal(regionId));
       }
     }
 
@@ -791,7 +879,352 @@
         if (e.target === overlay) overlay.remove();
       });
     }
+    // 显示批量上传弹窗
+    function showUploadModal(regionId) {
+      const regionInterns = getInternsByRegion(regionId);
+      if (regionInterns.length === 0) {
+        alert('该地区暂无实习生，请先添加实习生');
+        return;
+      }
 
+      const existing = document.querySelector('.modal-overlay');
+      if (existing) existing.remove();
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal-box" style="width:650px; max-width:95vw;">
+          <h3><i class="fas fa-file-upload"></i> 智能批量上传日报</h3>
+          <p style="color:#64748b; font-size:0.9rem; margin-bottom:12px;">
+            支持 Excel (.xlsx) 或 CSV 文件。系统会自动识别表头并匹配数据列。
+          </p>
+          
+          <div class="upload-area" id="uploadDropZone-${regionId}">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p><strong>点击选择文件</strong> 或拖拽文件到此处</p>
+            <p class="file-types">支持 .xlsx, .csv 格式</p>
+            <input type="file" id="fileInput-${regionId}" accept=".xlsx,.csv" style="display:none;">
+          </div>
+
+          <div id="uploadPreview-${regionId}" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+              <h4 style="font-size:1rem;">📋 数据预览与列映射</h4>
+              <span id="rowCount-${regionId}" style="font-size:0.85rem; color:#64748b;"></span>
+            </div>
+            <div class="preview-scroll" id="previewTable-${regionId}"></div>
+            
+            <div style="margin-top:16px;">
+              <h4 style="font-size:1rem; margin-bottom:8px;">🔗 列映射设置</h4>
+              <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">
+                系统已自动匹配，请确认或手动调整。未映射的列将被忽略。
+              </p>
+              <div id="mappingConfig-${regionId}"></div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <label style="font-weight:600; display:block; margin-bottom:6px;">📅 默认日期（如文件中无日期列）</label>
+              <input type="date" id="defaultDate-${regionId}" style="width:200px;" value="${new Date().toISOString().split('T')[0]}">
+            </div>
+
+            <div class="modal-actions" style="margin-top:16px;">
+              <button class="cancel-btn" id="cancelUploadBtn">取消</button>
+              <button class="confirm-btn" id="confirmUploadBtn"><i class="fas fa-check"></i> 确认导入</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      let parsedData = [];
+      let fileHeaders = [];
+      let columnMapping = {};
+
+      // 点击上传区域触发文件选择
+      const dropZone = document.getElementById(`uploadDropZone-${regionId}`);
+      const fileInput = document.getElementById(`fileInput-${regionId}`);
+
+      dropZone.addEventListener('click', () => fileInput.click());
+
+      // 拖拽上传
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#4f46e5';
+        dropZone.style.background = '#f5f3ff';
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = '#cbd5e1';
+        dropZone.style.background = '#fafbfc';
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#cbd5e1';
+        dropZone.style.background = '#fafbfc';
+        const file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) processFile(file);
+      });
+
+      // 处理文件
+      function processFile(file) {
+        const fileName = file.name.toLowerCase();
+        
+        if (fileName.endsWith('.csv')) {
+          // 解析CSV
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const text = e.target.result;
+            parseCSV(text);
+          };
+          reader.readAsText(file);
+        } else if (fileName.endsWith('.xlsx')) {
+          // 解析Excel (使用简单的CSV兼容方式，或提示用户)
+          alert('Excel文件请先另存为CSV格式，或使用在线转换工具。\n\n暂直接尝试读取（可能乱码）。');
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const text = e.target.result;
+            parseCSV(text);
+          };
+          reader.readAsText(file);
+        } else {
+          alert('请上传 .csv 或 .xlsx 文件');
+        }
+      }
+
+      // 解析CSV
+      function parseCSV(text) {
+        const lines = text.split('\n').filter(line => line.trim() !== '');
+        if (lines.length < 2) {
+          alert('文件内容不足，至少需要表头和一行数据');
+          return;
+        }
+
+        // 解析表头
+        fileHeaders = parseCSVLine(lines[0]);
+        
+        // 解析数据行
+        parsedData = [];
+        for (let i = 1; i < lines.length; i++) {
+          const values = parseCSVLine(lines[i]);
+          if (values.length > 0 && values.some(v => v.trim() !== '')) {
+            const row = {};
+            fileHeaders.forEach((header, idx) => {
+              row[header] = values[idx] || '';
+            });
+            parsedData.push(row);
+          }
+        }
+
+        if (parsedData.length === 0) {
+          alert('未解析到有效数据行');
+          return;
+        }
+
+        // 自动映射列
+        autoMapColumns();
+        showPreview();
+      }
+
+      // 解析CSV行（处理引号内的逗号）
+      function parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current.trim());
+        return result;
+      }
+
+      // 自动映射列
+      function autoMapColumns() {
+        const targetFields = {
+          'date': ['日期', 'date', '时间', '日报日期', 'day'],
+          'approach': ['搭讪', '搭讪人数', 'approach', '搭讪数', 'reach'],
+          'reply': ['回复', '回复人数', 'reply', '回复数', 'response'],
+          'newHost': ['新增主播', '主播', 'host', 'newHost', '新增', '主播数'],
+          'comments': ['评论', '评论数', 'comments', 'comment'],
+          'storyPost': ['story', 'post', '故事', 'story/post', 'storypost', '内容'],
+          'video': ['视频', '视频数', 'video', 'videos'],
+          'cost': ['花费', '费用', 'cost', '金额', '预算', 'spend']
+        };
+
+        columnMapping = {};
+        fileHeaders.forEach(header => {
+          const headerLower = header.toLowerCase().replace(/[\s\/\-_]/g, '');
+          
+          for (const [field, keywords] of Object.entries(targetFields)) {
+            if (columnMapping[field]) continue; // 已匹配
+            for (const keyword of keywords) {
+              const kwLower = keyword.toLowerCase().replace(/[\s\/\-_]/g, '');
+              if (headerLower.includes(kwLower) || kwLower.includes(headerLower)) {
+                columnMapping[field] = header;
+                break;
+              }
+            }
+          }
+        });
+
+        // 如果没有匹配到日期列，使用默认日期
+        if (!columnMapping['date']) {
+          columnMapping['date'] = null;
+        }
+      }
+
+      // 显示预览
+      function showPreview() {
+        const previewDiv = document.getElementById(`uploadPreview-${regionId}`);
+        const uploadArea = document.getElementById(`uploadDropZone-${regionId}`);
+        
+        uploadArea.style.display = 'none';
+        previewDiv.style.display = 'block';
+
+        // 行数统计
+        document.getElementById(`rowCount-${regionId}`).textContent = `共 ${parsedData.length} 行数据`;
+
+        // 预览表格（前5行）
+        const previewTable = document.getElementById(`previewTable-${regionId}`);
+        const previewRows = parsedData.slice(0, 5);
+        
+        let tableHTML = '<table class="mapping-table"><thead><tr>';
+        fileHeaders.forEach(h => tableHTML += `<th>${h}</th>`);
+        tableHTML += '</tr></thead><tbody>';
+        
+        previewRows.forEach(row => {
+          tableHTML += '<tr>';
+          fileHeaders.forEach(h => tableHTML += `<td>${row[h] || ''}</td>`);
+          tableHTML += '</tr>';
+        });
+        
+        if (parsedData.length > 5) {
+          tableHTML += `<tr><td colspan="${fileHeaders.length}" style="text-align:center; color:#64748b;">... 还有 ${parsedData.length - 5} 行数据</td></tr>`;
+        }
+        
+        tableHTML += '</tbody></table>';
+        previewTable.innerHTML = tableHTML;
+
+        // 映射配置
+        const mappingDiv = document.getElementById(`mappingConfig-${regionId}`);
+        const dimensions = [
+          { key: 'date', label: '📅 日期' },
+          { key: 'approach', label: '💬 搭讪人数' },
+          { key: 'reply', label: '↩️ 回复人数' },
+          { key: 'newHost', label: '🎤 新增主播' },
+          { key: 'comments', label: '💭 评论数' },
+          { key: 'storyPost', label: '📱 Story/Post数' },
+          { key: 'video', label: '🎬 视频数' },
+          { key: 'cost', label: '💰 花费' }
+        ];
+
+        mappingDiv.innerHTML = dimensions.map(dim => `
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <label style="min-width:120px; font-weight:500;">${dim.label}：</label>
+            <select id="map-${dim.key}-${regionId}" style="flex:1;">
+              <option value="">-- 不映射 --</option>
+              ${fileHeaders.map(h => `
+                <option value="${h}" ${columnMapping[dim.key] === h ? 'selected' : ''}>${h}</option>
+              `).join('')}
+            </select>
+            ${columnMapping[dim.key] ? '<span class="tag tag-success">已匹配</span>' : '<span class="tag tag-warning">待选择</span>'}
+          </div>
+        `).join('');
+      }
+
+      // 取消按钮
+      document.getElementById('cancelUploadBtn').addEventListener('click', () => overlay.remove());
+
+      // 确认导入按钮
+      document.getElementById('confirmUploadBtn').addEventListener('click', () => {
+        // 读取当前映射设置
+        const finalMapping = {};
+        const dimensions = ['date', 'approach', 'reply', 'newHost', 'comments', 'storyPost', 'video', 'cost'];
+        
+        dimensions.forEach(dim => {
+          const select = document.getElementById(`map-${dim}-${regionId}`);
+          if (select && select.value) {
+            finalMapping[dim] = select.value;
+          }
+        });
+
+        // 获取默认日期
+        const defaultDate = document.getElementById(`defaultDate-${regionId}`).value;
+
+        // 检查必要映射
+        if (!finalMapping['approach'] && !finalMapping['reply'] && !finalMapping['newHost']) {
+          alert('请至少映射一个数据维度（搭讪人数/回复人数/新增主播）');
+          return;
+        }
+
+        // 开始导入
+        let importCount = 0;
+        const regionInterns = getInternsByRegion(regionId);
+
+        parsedData.forEach(row => {
+          const date = finalMapping['date'] ? row[finalMapping['date']] : defaultDate;
+          
+          // 验证日期格式
+          let validDate = defaultDate;
+          if (finalMapping['date'] && row[finalMapping['date']]) {
+            const parsed = new Date(row[finalMapping['date']]);
+            if (!isNaN(parsed.getTime())) {
+              validDate = parsed.toISOString().split('T')[0];
+            }
+          }
+
+          const record = {
+            date: validDate,
+            approach: parseInt(row[finalMapping['approach']]) || 0,
+            reply: parseInt(row[finalMapping['reply']]) || 0,
+            newHost: parseInt(row[finalMapping['newHost']]) || 0,
+            comments: parseInt(row[finalMapping['comments']]) || 0,
+            storyPost: parseInt(row[finalMapping['storyPost']]) || 0,
+            video: parseInt(row[finalMapping['video']]) || 0,
+            cost: parseInt(row[finalMapping['cost']]) || 0
+          };
+
+          // 为当前地区的每个实习生添加记录（或仅选中的）
+          if (selectedInternId && regionInterns.find(i => i.id === selectedInternId)) {
+            dailyRecords[selectedInternId].push({...record});
+            importCount++;
+          }
+        });
+
+        // 排序并保存
+        if (selectedInternId) {
+          dailyRecords[selectedInternId].sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+        saveDataToStorage();
+        
+        overlay.remove();
+        alert(`✅ 成功导入 ${importCount} 条记录！`);
+        
+        // 刷新显示
+        if (selectedInternId) {
+          renderDataTable(regionId, selectedInternId);
+          renderAnalysis(regionId, selectedInternId);
+          renderRanking(regionId);
+        }
+      });
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
+      });
+    }
     // 渲染实习生列表
     function renderInternList(regionId) {
       const listDiv = document.getElementById(`internList-${regionId}`);
