@@ -998,7 +998,7 @@
       renderAnalysis(regionId, internId);
     }
 
-          function renderSummaryCards(regionId, internId, view) {
+      function renderSummaryCards(regionId, internId, view) {
       const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
       if (!cardsDiv) return;
 
@@ -1014,7 +1014,7 @@
       }
 
       const standardConfig = weeklyStandards[regionId];
-      const enabledDims = standardConfig.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
+      const targets = standardConfig.targets || {};
 
       let records;
       if (view === 'week') {
@@ -1038,15 +1038,12 @@
       // 标题行
       cardsDiv.innerHTML += '<div style="margin-top:8px; margin-bottom:10px;"><h4 style="font-size:0.9rem; color:#475569; margin:0;"><i class="fas fa-chart-bar"></i> ' + (view === 'week' ? '本周' : view === 'month' ? '本月' : '全部') + '数据汇总</h4></div>';
 
-      // flex容器包裹汇总卡片
+      // flex容器包裹汇总卡片 - 始终显示全部7个维度
       var cardsHTML = '<div style="display:flex; flex-wrap:wrap; gap:10px;">';
       
-      var visibleDims = ALL_DIMENSIONS.filter(function(dim) {
-        return enabledDims.includes(dim.key);
-      });
-      
-      visibleDims.forEach(function(dim) {
-        var target = (standardConfig.targets && standardConfig.targets[dim.key]) || 0;
+      // ★ 关键修改：遍历ALL_DIMENSIONS全部维度，不用filter
+      ALL_DIMENSIONS.forEach(function(dim) {
+        var target = targets[dim.key] || 0;
         var value = totals[dim.key];
         var pct = target > 0 ? Math.round(value / target * 100) : 0;
         var trendClass = 'trend-flat';
@@ -1609,9 +1606,8 @@
         weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
       }
       
-      // ★ 关键：只获取启用的维度
-      const enabledDimKeys = weeklyStandards[regionId].enabledDimensions;
-      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDimKeys.includes(d.key));
+            // 始终显示全部维度
+      const visibleDims = ALL_DIMENSIONS;
 
       let html = `
         <div class="toolbar">
@@ -1754,8 +1750,8 @@
         weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
       }
       
-      const enabledDimKeys = weeklyStandards[regionId].enabledDimensions;
-      const visibleDims = ALL_DIMENSIONS.filter(d => enabledDimKeys.includes(d.key));
+            // 始终使用全部维度
+      const visibleDims = ALL_DIMENSIONS;
       
       const record = { date };
       // 启用的维度从输入框读取，未启用的设为0
