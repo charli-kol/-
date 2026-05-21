@@ -998,7 +998,7 @@
       renderAnalysis(regionId, internId);
     }
 
-      function renderSummaryCards(regionId, internId, view) {
+          function renderSummaryCards(regionId, internId, view) {
       const cardsDiv = document.getElementById(`summaryCards-${regionId}`);
       if (!cardsDiv) return;
 
@@ -1025,9 +1025,8 @@
         records = dailyRecords[internId] || [];
       }
 
-      // ★ 修改点1：没有记录时，用追加方式显示提示，不覆盖之前的周标准展示
       if (records.length === 0) {
-        cardsDiv.innerHTML += '<p style="color:#94a3b8; padding:10px; text-align:center; grid-column:1/-1;">暂无数据记录</p>';
+        cardsDiv.innerHTML += '<p style="color:#94a3b8; padding:10px; text-align:center;">暂无数据记录</p>';
         return;
       }
 
@@ -1036,43 +1035,45 @@
         totals[dim.key] = records.reduce((s, r) => s + (r[dim.key] || 0), 0);
       });
 
-      // ★ 修改点2：用追加方式（+=）添加汇总卡片，不覆盖周标准展示
-      // 先添加标题行（去掉grid-column，因为外层已经不是grid布局了）
-      cardsDiv.innerHTML += `
-        <div style="margin-top:8px; margin-bottom:10px;">
-          <h4 style="font-size:0.9rem; color:#475569; margin:0;">
-            <i class="fas fa-chart-bar"></i> ${view === 'week' ? '本周' : view === 'month' ? '本月' : '全部'}数据汇总
-          </h4>
-        </div>
-      `;
+      // 标题行
+      cardsDiv.innerHTML += '<div style="margin-top:8px; margin-bottom:10px;"><h4 style="font-size:0.9rem; color:#475569; margin:0;"><i class="fas fa-chart-bar"></i> ' + (view === 'week' ? '本周' : view === 'month' ? '本月' : '全部') + '数据汇总</h4></div>';
 
-      // 用flex容器包裹所有汇总卡片，让它们横向排列
-      let cardsHTML = '<div style="display:flex; flex-wrap:wrap; gap:10px;">';
+      // flex容器包裹汇总卡片
+      var cardsHTML = '<div style="display:flex; flex-wrap:wrap; gap:10px;">';
       
-      ALL_DIMENSIONS
-        .filter(dim => enabledDims.includes(dim.key))
-        .forEach(dim => {
-          const target = (standardConfig.targets && standardConfig.targets[dim.key]) || 0;
-          const value = totals[dim.key];
-          const pct = target > 0 ? Math.round(value / target * 100) : 0;
-          let trendClass = 'trend-flat';
-          let trendIcon = '➡️';
-          if (pct >= 100) { trendClass = 'trend-up'; trendIcon = '✅'; }
-          else if (pct >= 70) { trendClass = 'trend-up'; trendIcon = '📈'; }
-          else if (pct < 50) { trendClass = 'trend-down'; trendIcon = '⚠️'; }
+      var visibleDims = ALL_DIMENSIONS.filter(function(dim) {
+        return enabledDims.includes(dim.key);
+      });
+      
+      visibleDims.forEach(function(dim) {
+        var target = (standardConfig.targets && standardConfig.targets[dim.key]) || 0;
+        var value = totals[dim.key];
+        var pct = target > 0 ? Math.round(value / target * 100) : 0;
+        var trendClass = 'trend-flat';
+        var trendIcon = '➡️';
+        if (pct >= 100) {
+          trendClass = 'trend-up';
+          trendIcon = '✅';
+        } else if (pct >= 70) {
+          trendClass = 'trend-up';
+          trendIcon = '📈';
+        } else if (pct < 50) {
+          trendClass = 'trend-down';
+          trendIcon = '⚠️';
+        }
 
-          // 每个卡片添加到flex容器中
-          cardsHTML += `
-            <div class="summary-card" style="flex:0 0 auto; min-width:100px;">
-              <div class="value">${dim.icon} ${value.toLocaleString()}</div>
-              <div class="label">${dim.label}</div>
-              ${target > 0 ? `<div class="trend ${trendClass}">${trendIcon} 目标${target} (${pct}%)</div>` : ''}
-            </div>
-          `;
-        });
+        cardsHTML += '<div class="summary-card" style="flex:0 0 auto; min-width:100px;">';
+        cardsHTML += '<div class="value">' + dim.icon + ' ' + value.toLocaleString() + '</div>';
+        cardsHTML += '<div class="label">' + dim.label + '</div>';
+        if (target > 0) {
+          cardsHTML += '<div class="trend ' + trendClass + '">' + trendIcon + ' 目标' + target + ' (' + pct + '%)</div>';
+        }
+        cardsHTML += '</div>';
+      });
       
-      cardsHTML += '</div>';  // 关闭flex容器
-      cardsDiv.innerHTML += cardsHTML;  // 追加到页面
+      cardsHTML += '</div>';
+      cardsDiv.innerHTML += cardsHTML;
+    }
 
     function bindRegionButtons(regionId) {
       const addBtn = document.getElementById(`addInternBtn-${regionId}`);
