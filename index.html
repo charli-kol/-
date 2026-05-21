@@ -997,12 +997,12 @@
       if (uploadBtn) uploadBtn.addEventListener('click', () => showUploadModal(regionId));
     }
 
-    // 自定义周标准弹窗（支持选择维度和设置目标）
+        // 自定义周标准弹窗（支持选择维度和设置目标）
     function showStandardModal(regionId) {
       const existing = document.querySelector('.modal-overlay');
       if (existing) existing.remove();
 
-            // 确保该地区的标准配置存在
+      // 确保该地区的标准配置存在
       if (!weeklyStandards[regionId]) {
         weeklyStandards[regionId] = {
           enabledDimensions: ALL_DIMENSIONS.map(d => d.key),
@@ -1012,8 +1012,22 @@
           weeklyStandards[regionId].targets[dim.key] = 0;
         });
       }
+      
+      // 再次确保 enabledDimensions 存在
+      if (!weeklyStandards[regionId].enabledDimensions || !Array.isArray(weeklyStandards[regionId].enabledDimensions)) {
+        weeklyStandards[regionId].enabledDimensions = ALL_DIMENSIONS.map(d => d.key);
+      }
+      if (!weeklyStandards[regionId].targets) {
+        weeklyStandards[regionId].targets = {};
+        ALL_DIMENSIONS.forEach(dim => {
+          weeklyStandards[regionId].targets[dim.key] = 0;
+        });
+      }
+
       const config = weeklyStandards[regionId];
       const regionName = getRegionName(regionId);
+      const enabledDims = config.enabledDimensions || ALL_DIMENSIONS.map(d => d.key);
+      const targets = config.targets || {};
 
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
@@ -1028,7 +1042,7 @@
             <label style="font-weight:600; margin-bottom:8px; display:block;">📌 启用维度（可多选）</label>
             <div class="dimension-tags" id="dimTags-${regionId}">
               ${ALL_DIMENSIONS.map(dim => `
-                <span class="dim-tag ${config.enabledDimensions.includes(dim.key) ? 'active' : ''}" data-dim="${dim.key}">
+                <span class="dim-tag ${enabledDims.includes(dim.key) ? 'active' : ''}" data-dim="${dim.key}">
                   ${dim.icon} ${dim.label}
                 </span>
               `).join('')}
@@ -1037,9 +1051,9 @@
 
           <div id="dimTargets-${regionId}">
             ${ALL_DIMENSIONS.map(dim => `
-              <div class="standard-row" id="targetRow-${dim.key}-${regionId}" style="display:${config.enabledDimensions.includes(dim.key) ? 'flex' : 'none'};">
+              <div class="standard-row" id="targetRow-${dim.key}-${regionId}" style="display:${enabledDims.includes(dim.key) ? 'flex' : 'none'};">
                 <label>${dim.icon} ${dim.label}：</label>
-                <input type="number" id="std-${dim.key}-${regionId}" value="${config.targets[dim.key] || 0}" min="0" style="width:120px;">
+                <input type="number" id="std-${dim.key}-${regionId}" value="${targets[dim.key] || 0}" min="0" style="width:120px;">
                 <span style="font-size:0.8rem; color:#94a3b8;">/周</span>
               </div>
             `).join('')}
@@ -1055,16 +1069,16 @@
 
       // 维度标签点击切换
       const dimTags = document.getElementById(`dimTags-${regionId}`);
-      let enabledDims = [...config.enabledDimensions];
+      let currentEnabledDims = [...enabledDims];
 
       dimTags.querySelectorAll('.dim-tag').forEach(tag => {
         tag.addEventListener('click', function() {
           const dimKey = this.dataset.dim;
           this.classList.toggle('active');
           if (this.classList.contains('active')) {
-            if (!enabledDims.includes(dimKey)) enabledDims.push(dimKey);
+            if (!currentEnabledDims.includes(dimKey)) currentEnabledDims.push(dimKey);
           } else {
-            enabledDims = enabledDims.filter(d => d !== dimKey);
+            currentEnabledDims = currentEnabledDims.filter(d => d !== dimKey);
           }
           // 显示/隐藏目标输入行
           const targetRow = document.getElementById(`targetRow-${dimKey}-${regionId}`);
@@ -1076,17 +1090,17 @@
 
       document.getElementById('cancelStdBtn').addEventListener('click', () => overlay.remove());
       document.getElementById('confirmStdBtn').addEventListener('click', () => {
-        const targets = {};
+        const newTargets = {};
         ALL_DIMENSIONS.forEach(dim => {
           const input = document.getElementById(`std-${dim.key}-${regionId}`);
-          if (input && enabledDims.includes(dim.key)) {
-            targets[dim.key] = parseInt(input.value) || 0;
+          if (input && currentEnabledDims.includes(dim.key)) {
+            newTargets[dim.key] = parseInt(input.value) || 0;
           }
         });
 
         weeklyStandards[regionId] = {
-          enabledDimensions: enabledDims,
-          targets: targets
+          enabledDimensions: currentEnabledDims,
+          targets: newTargets
         };
         saveStandardsToStorage();
         overlay.remove();
