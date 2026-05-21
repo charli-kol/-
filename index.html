@@ -103,7 +103,7 @@
     }
 
     .intern-sidebar {
-      flex: 0 0 280px;
+      flex: 0 0 300px;
       background: white;
       border-radius: 24px;
       padding: 20px;
@@ -145,20 +145,37 @@
       font-weight: 700;
     }
 
-    .add-data-btn {
-      background: #4f46e5;
+    .add-intern-btn {
+      background: #10b981;
       color: white;
       border: none;
       padding: 12px 20px;
       border-radius: 30px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 16px;
+      margin-top: 12px;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+    }
+
+    .standard-btn {
+      background: #f59e0b;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.85rem;
     }
 
     .table-wrapper {
@@ -210,12 +227,42 @@
       margin-top: 24px;
     }
 
-    .flex-row {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      flex-wrap: wrap;
+    .ranking-card {
+      background: #fefce8;
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 16px;
     }
+
+    .rank-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      background: white;
+    }
+
+    .rank-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: white;
+    }
+
+    .rank-1 { background: #f59e0b; }
+    .rank-2 { background: #94a3b8; }
+    .rank-3 { background: #b45309; }
+    .rank-other { background: #cbd5e1; color: #475569; }
+
+    .status-pass { color: #10b981; font-weight: 700; }
+    .status-fail { color: #ef4444; font-weight: 700; }
 
     button {
       background: #4f46e5;
@@ -236,6 +283,11 @@
       color: #1e293b;
     }
 
+    button.danger {
+      background: #ef4444;
+      color: white;
+    }
+
     .edit-name-btn {
       background: none;
       border: none;
@@ -249,7 +301,20 @@
       color: #4f46e5;
     }
 
-    /* 编辑名字弹窗 */
+    .delete-intern-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      padding: 4px 6px;
+      font-size: 0.85rem;
+    }
+
+    .delete-intern-btn:hover {
+      color: #dc2626;
+    }
+
+    /* 弹窗 */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -268,11 +333,13 @@
       background: white;
       border-radius: 20px;
       padding: 28px 30px;
-      width: 400px;
+      width: 450px;
       max-width: 90vw;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
       position: relative;
       animation: modalFadeIn 0.2s ease;
+      max-height: 80vh;
+      overflow-y: auto;
     }
 
     @keyframes modalFadeIn {
@@ -287,7 +354,7 @@
     }
 
     .modal-box h3 {
-      margin-bottom: 8px;
+      margin-bottom: 16px;
       font-size: 1.2rem;
       color: #1e293b;
       display: flex;
@@ -295,25 +362,26 @@
       gap: 8px;
     }
 
-    .modal-box p {
-      color: #64748b;
-      margin-bottom: 16px;
+    .modal-box label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #475569;
       font-size: 0.9rem;
     }
 
-    .modal-box input {
+    .modal-box input, .modal-box select {
       width: 100%;
-      padding: 12px 16px;
+      padding: 10px 14px;
       border: 2px solid #e2e8f0;
       border-radius: 12px;
-      font-size: 1rem;
-      margin-bottom: 20px;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
       outline: none;
-      transition: border-color 0.2s;
       box-sizing: border-box;
     }
 
-    .modal-box input:focus {
+    .modal-box input:focus, .modal-box select:focus {
       border-color: #4f46e5;
     }
 
@@ -321,6 +389,7 @@
       display: flex;
       gap: 10px;
       justify-content: flex-end;
+      margin-top: 8px;
     }
 
     .modal-actions button {
@@ -330,7 +399,6 @@
       cursor: pointer;
       border: none;
       font-size: 0.9rem;
-      transition: all 0.2s;
     }
 
     .modal-actions .cancel-btn {
@@ -338,17 +406,26 @@
       color: #475569;
     }
 
-    .modal-actions .cancel-btn:hover {
-      background: #e2e8f0;
-    }
-
     .modal-actions .confirm-btn {
       background: #4f46e5;
       color: white;
     }
 
-    .modal-actions .confirm-btn:hover {
-      background: #4338ca;
+    .standard-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .standard-row label {
+      min-width: 80px;
+      margin-bottom: 0;
+    }
+
+    .standard-row input {
+      width: 100px;
+      margin-bottom: 0;
     }
 
     @media (max-width: 850px) {
@@ -388,29 +465,63 @@
       { id: 'brazil', name: '巴西', icon: 'fa-flag' }
     ];
 
-    // 实习生基础数据
-    const interns = [
-      { id: 'tw1', name: '陈雅婷', region: 'taiwan' },
-      { id: 'tw2', name: '林俊杰', region: 'taiwan' },
-      { id: 'tr1', name: 'Elif Demir', region: 'turkey' },
-      { id: 'tr2', name: 'Mehmet Yılmaz', region: 'turkey' },
-      { id: 'es1', name: 'Sofía García', region: 'spanish' },
-      { id: 'es2', name: 'Carlos Ruiz', region: 'spanish' },
-      { id: 'br1', name: 'Ana Silva', region: 'brazil' },
-      { id: 'br2', name: 'João Costa', region: 'brazil' }
-    ];
+    // 实习生基础数据 - 从localStorage加载
+    let interns = [];
+
+    function loadInternsFromStorage() {
+      const saved = localStorage.getItem('kolInterns');
+      if (saved) {
+        try {
+          interns = JSON.parse(saved);
+        } catch (e) {
+          initDefaultInterns();
+        }
+      } else {
+        initDefaultInterns();
+        saveInternsToStorage();
+      }
+    }
+
+    function initDefaultInterns() {
+      interns = [
+        { id: 'tw1', name: '陈雅婷', region: 'taiwan' },
+        { id: 'tw2', name: '林俊杰', region: 'taiwan' },
+        { id: 'tr1', name: 'Elif Demir', region: 'turkey' },
+        { id: 'tr2', name: 'Mehmet Yılmaz', region: 'turkey' },
+        { id: 'es1', name: 'Sofía García', region: 'spanish' },
+        { id: 'es2', name: 'Carlos Ruiz', region: 'spanish' },
+        { id: 'br1', name: 'Ana Silva', region: 'brazil' },
+        { id: 'br2', name: 'João Costa', region: 'brazil' }
+      ];
+    }
+
+    function saveInternsToStorage() {
+      localStorage.setItem('kolInterns', JSON.stringify(interns));
+    }
+
+    function generateInternId(regionId) {
+      const regionInterns = interns.filter(i => i.region === regionId);
+      const prefix = regionId.substring(0, 2);
+      let maxNum = 0;
+      regionInterns.forEach(intern => {
+        const match = intern.id.match(/\d+$/);
+        if (match) {
+          const num = parseInt(match[0]);
+          if (num > maxNum) maxNum = num;
+        }
+      });
+      return `${prefix}${maxNum + 1}`;
+    }
 
     // 日报数据存储
     let dailyRecords = {};
 
-    // 从localStorage加载数据
     function loadDataFromStorage() {
       const saved = localStorage.getItem('kolDailyRecords');
       if (saved) {
         try {
           dailyRecords = JSON.parse(saved);
         } catch (e) {
-          console.warn('数据加载失败，使用默认空数据');
           initEmptyRecords();
         }
       } else {
@@ -418,51 +529,63 @@
         seedSampleData();
         saveDataToStorage();
       }
-
-      // 加载保存的实习生名字
-      const savedNames = localStorage.getItem('kolInternNames');
-      if (savedNames) {
-        try {
-          const names = JSON.parse(savedNames);
-          interns.forEach(intern => {
-            if (names[intern.id]) {
-              intern.name = names[intern.id];
-            }
-          });
-        } catch (e) {
-          console.warn('名字加载失败');
-        }
-      }
     }
 
-    // 初始化空记录结构
     function initEmptyRecords() {
-      dailyRecords = {
-        'tw1': [], 'tw2': [],
-        'tr1': [], 'tr2': [],
-        'es1': [], 'es2': [],
-        'br1': [], 'br2': []
-      };
+      dailyRecords = {};
+      interns.forEach(intern => {
+        dailyRecords[intern.id] = [];
+      });
     }
 
-    // 保存数据到localStorage
     function saveDataToStorage() {
       localStorage.setItem('kolDailyRecords', JSON.stringify(dailyRecords));
     }
 
-    // 初始化示例数据
     function seedSampleData() {
       const today = new Date().toISOString().split('T')[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      dailyRecords['tw1'].push({ date: yesterday, approach: 12, reply: 8, newHost: 2, comments: 34, storyPost: 5, video: 2, cost: 150 });
-      dailyRecords['tw1'].push({ date: today, approach: 15, reply: 10, newHost: 3, comments: 40, storyPost: 6, video: 3, cost: 200 });
-      dailyRecords['tr1'].push({ date: yesterday, approach: 20, reply: 14, newHost: 4, comments: 55, storyPost: 8, video: 4, cost: 320 });
-      dailyRecords['es1'].push({ date: today, approach: 18, reply: 12, newHost: 5, comments: 48, storyPost: 7, video: 3, cost: 280 });
-      dailyRecords['br1'].push({ date: yesterday, approach: 22, reply: 16, newHost: 6, comments: 62, storyPost: 10, video: 5, cost: 400 });
+      if (dailyRecords['tw1']) dailyRecords['tw1'].push({ date: yesterday, approach: 12, reply: 8, newHost: 2, comments: 34, storyPost: 5, video: 2, cost: 150 });
+      if (dailyRecords['tw1']) dailyRecords['tw1'].push({ date: today, approach: 15, reply: 10, newHost: 3, comments: 40, storyPost: 6, video: 3, cost: 200 });
+      if (dailyRecords['tr1']) dailyRecords['tr1'].push({ date: yesterday, approach: 20, reply: 14, newHost: 4, comments: 55, storyPost: 8, video: 4, cost: 320 });
+      if (dailyRecords['es1']) dailyRecords['es1'].push({ date: today, approach: 18, reply: 12, newHost: 5, comments: 48, storyPost: 7, video: 3, cost: 280 });
+      if (dailyRecords['br1']) dailyRecords['br1'].push({ date: yesterday, approach: 22, reply: 16, newHost: 6, comments: 62, storyPost: 10, video: 5, cost: 400 });
+    }
+
+    // 周标准存储
+    let weeklyStandards = {};
+
+    function loadStandardsFromStorage() {
+      const saved = localStorage.getItem('kolWeeklyStandards');
+      if (saved) {
+        try {
+          weeklyStandards = JSON.parse(saved);
+        } catch (e) {
+          initDefaultStandards();
+        }
+      } else {
+        initDefaultStandards();
+        saveStandardsToStorage();
+      }
+    }
+
+    function initDefaultStandards() {
+      weeklyStandards = {
+        taiwan: { approach: 50, reply: 30, newHost: 8, comments: 100, storyPost: 20, video: 8, cost: 500 },
+        turkey: { approach: 60, reply: 35, newHost: 10, comments: 120, storyPost: 25, video: 10, cost: 600 },
+        spanish: { approach: 55, reply: 32, newHost: 9, comments: 110, storyPost: 22, video: 9, cost: 550 },
+        brazil: { approach: 65, reply: 40, newHost: 12, comments: 140, storyPost: 28, video: 12, cost: 700 }
+      };
+    }
+
+    function saveStandardsToStorage() {
+      localStorage.setItem('kolWeeklyStandards', JSON.stringify(weeklyStandards));
     }
 
     // 初始化
+    loadInternsFromStorage();
     loadDataFromStorage();
+    loadStandardsFromStorage();
 
     let currentRegion = 'taiwan';
     let selectedInternId = null;
@@ -474,6 +597,29 @@
     function getRegionName(regionId) {
       const region = REGIONS.find(r => r.id === regionId);
       return region ? region.name : regionId;
+    }
+
+    // 获取当前周的开始日期（周一）
+    function getWeekStart() {
+      const now = new Date();
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(now.setDate(diff));
+      return monday.toISOString().split('T')[0];
+    }
+
+    // 获取本周数据
+    function getWeekRecords(internId) {
+      const weekStart = getWeekStart();
+      const records = dailyRecords[internId] || [];
+      return records.filter(r => r.date >= weekStart);
+    }
+
+    // 计算总分（用于排名）
+    function calculateScore(records) {
+      return records.reduce((s, r) => {
+        return s + r.approach + r.reply + r.newHost * 3 + r.comments + r.storyPost * 2 + r.video * 3;
+      }, 0);
     }
 
     // 渲染所有地区面板
@@ -488,6 +634,12 @@
           <div class="intern-sidebar">
             <h3 style="margin-bottom:16px;"><i class="fas ${region.icon}"></i> ${region.name}实习生</h3>
             <div id="internList-${region.id}"></div>
+            <button class="add-intern-btn" id="addInternBtn-${region.id}"><i class="fas fa-user-plus"></i> 新增实习生</button>
+            <button class="standard-btn" id="standardBtn-${region.id}"><i class="fas fa-bullseye"></i> 设置周标准</button>
+            <div class="ranking-card" id="rankingCard-${region.id}" style="margin-top:16px;">
+              <h4 style="margin-bottom:10px;"><i class="fas fa-trophy"></i> 本周排名</h4>
+              <div id="rankingList-${region.id}"></div>
+            </div>
           </div>
           <div class="data-main" id="dataMain-${region.id}">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -502,6 +654,141 @@
         `;
         container.appendChild(panel);
         renderInternList(region.id);
+        renderRanking(region.id);
+        bindRegionButtons(region.id);
+      });
+    }
+
+    // 绑定地区按钮
+    function bindRegionButtons(regionId) {
+      const addBtn = document.getElementById(`addInternBtn-${regionId}`);
+      const standardBtn = document.getElementById(`standardBtn-${regionId}`);
+
+      if (addBtn) {
+        addBtn.addEventListener('click', () => showAddInternModal(regionId));
+      }
+      if (standardBtn) {
+        standardBtn.addEventListener('click', () => showStandardModal(regionId));
+      }
+    }
+
+    // 显示新增实习生弹窗
+    function showAddInternModal(regionId) {
+      const existing = document.querySelector('.modal-overlay');
+      if (existing) existing.remove();
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal-box">
+          <h3><i class="fas fa-user-plus"></i> 新增实习生</h3>
+          <label>实习生名字</label>
+          <input type="text" id="newInternName" placeholder="请输入名字" autocomplete="off">
+          <label>所属地区</label>
+          <select id="newInternRegion">
+            ${REGIONS.map(r => `<option value="${r.id}" ${r.id === regionId ? 'selected' : ''}>${r.name}</option>`).join('')}
+          </select>
+          <div class="modal-actions">
+            <button class="cancel-btn" id="cancelAddBtn">取消</button>
+            <button class="confirm-btn" id="confirmAddBtn">确认添加</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.getElementById('cancelAddBtn').addEventListener('click', () => overlay.remove());
+      document.getElementById('confirmAddBtn').addEventListener('click', () => {
+        const name = document.getElementById('newInternName').value.trim();
+        const region = document.getElementById('newInternRegion').value;
+        if (!name) {
+          alert('请输入名字');
+          return;
+        }
+        const newId = generateInternId(region);
+        interns.push({ id: newId, name: name, region: region });
+        dailyRecords[newId] = [];
+        saveInternsToStorage();
+        saveDataToStorage();
+        overlay.remove();
+        renderAllPanels();
+        switchRegion(region);
+      });
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
+      });
+    }
+
+    // 显示周标准设置弹窗
+    function showStandardModal(regionId) {
+      const existing = document.querySelector('.modal-overlay');
+      if (existing) existing.remove();
+
+      const standard = weeklyStandards[regionId] || { approach: 0, reply: 0, newHost: 0, comments: 0, storyPost: 0, video: 0, cost: 0 };
+      const regionName = getRegionName(regionId);
+
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal-box">
+          <h3><i class="fas fa-bullseye"></i> ${regionName} - 周标准设置</h3>
+          <div class="standard-row">
+            <label>搭讪人数：</label>
+            <input type="number" id="stdApproach" value="${standard.approach}" min="0">
+          </div>
+          <div class="standard-row">
+            <label>回复人数：</label>
+            <input type="number" id="stdReply" value="${standard.reply}" min="0">
+          </div>
+          <div class="standard-row">
+            <label>新增主播：</label>
+            <input type="number" id="stdHost" value="${standard.newHost}" min="0">
+          </div>
+          <div class="standard-row">
+            <label>评论数：</label>
+            <input type="number" id="stdComments" value="${standard.comments}" min="0">
+          </div>
+          <div class="standard-row">
+            <label>Story/Post：</label>
+            <input type="number" id="stdStory" value="${standard.storyPost}" min="0">
+          </div>
+          <div class="standard-row">
+            <label>视频数：</label>
+            <input type="number" id="stdVideo" value="${standard.video}" min="0">
+          </div>
+          <div class="standard-row">
+            <label>花费($)：</label>
+            <input type="number" id="stdCost" value="${standard.cost}" min="0">
+          </div>
+          <div class="modal-actions">
+            <button class="cancel-btn" id="cancelStdBtn">取消</button>
+            <button class="confirm-btn" id="confirmStdBtn">保存标准</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.getElementById('cancelStdBtn').addEventListener('click', () => overlay.remove());
+      document.getElementById('confirmStdBtn').addEventListener('click', () => {
+        weeklyStandards[regionId] = {
+          approach: parseInt(document.getElementById('stdApproach').value) || 0,
+          reply: parseInt(document.getElementById('stdReply').value) || 0,
+          newHost: parseInt(document.getElementById('stdHost').value) || 0,
+          comments: parseInt(document.getElementById('stdComments').value) || 0,
+          storyPost: parseInt(document.getElementById('stdStory').value) || 0,
+          video: parseInt(document.getElementById('stdVideo').value) || 0,
+          cost: parseInt(document.getElementById('stdCost').value) || 0
+        };
+        saveStandardsToStorage();
+        overlay.remove();
+        if (selectedInternId) {
+          renderAnalysis(regionId, selectedInternId);
+        }
+        renderRanking(regionId);
+      });
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
       });
     }
 
@@ -513,9 +800,12 @@
       listDiv.innerHTML = regionInterns.map(intern => `
         <div class="intern-item ${selectedInternId === intern.id ? 'selected' : ''}" data-id="${intern.id}">
           <span class="intern-name" id="nameDisplay-${intern.id}">${intern.name}</span>
-          <div style="display:flex; align-items:center; gap:8px;">
+          <div style="display:flex; align-items:center; gap:6px;">
             <button class="edit-name-btn" data-id="${intern.id}" title="修改名字">
               <i class="fas fa-pen"></i>
+            </button>
+            <button class="delete-intern-btn" data-id="${intern.id}" title="删除实习生">
+              <i class="fas fa-trash"></i>
             </button>
             <i class="fas fa-chevron-right" style="color:#94a3b8;"></i>
           </div>
@@ -525,7 +815,7 @@
       // 绑定选择事件
       listDiv.querySelectorAll('.intern-item').forEach(item => {
         item.addEventListener('click', function(e) {
-          if (e.target.closest('.edit-name-btn')) return;
+          if (e.target.closest('.edit-name-btn') || e.target.closest('.delete-intern-btn')) return;
           const id = this.dataset.id;
           selectIntern(id, regionId);
         });
@@ -535,8 +825,26 @@
       listDiv.querySelectorAll('.edit-name-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
           e.stopPropagation();
+          showEditNameModal(this.dataset.id);
+        });
+      });
+
+      // 绑定删除实习生按钮
+      listDiv.querySelectorAll('.delete-intern-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
           const internId = this.dataset.id;
-          showEditNameModal(internId);
+          if (confirm('确定要删除该实习生及其所有数据吗？此操作不可恢复。')) {
+            interns = interns.filter(i => i.id !== internId);
+            delete dailyRecords[internId];
+            saveInternsToStorage();
+            saveDataToStorage();
+            if (selectedInternId === internId) {
+              selectedInternId = null;
+            }
+            renderAllPanels();
+            switchRegion(regionId);
+          }
         });
       });
     }
@@ -572,7 +880,6 @@
         </tr>`;
       });
 
-      // 批次录入行
       html += `<tr class="batch-input-row" id="batchRow-${regionId}">
         <td><input type="date" id="batchDate-${regionId}" style="width:120px;"></td>
         <td><input class="small-input" id="batchApproach-${regionId}" placeholder="搭讪"></td>
@@ -588,13 +895,11 @@
       html += `</tbody></table></div>`;
       container.innerHTML = html;
 
-      // 绑定保存按钮
       const saveBtn = document.getElementById(`saveBatchBtn-${regionId}`);
       if (saveBtn) {
         saveBtn.addEventListener('click', () => batchAddRecord(regionId, internId));
       }
 
-      // 绑定删除按钮
       container.querySelectorAll('[data-delete]').forEach(btn => {
         btn.addEventListener('click', function(e) {
           const delIntern = this.dataset.delete;
@@ -604,6 +909,7 @@
             saveDataToStorage();
             renderDataTable(regionId, internId);
             renderAnalysis(regionId, internId);
+            renderRanking(regionId);
           }
         });
       });
@@ -625,40 +931,86 @@
       dailyRecords[internId].sort((a, b) => new Date(a.date) - new Date(b.date));
       saveDataToStorage();
 
-      // 清空输入
       ['batchApproach','batchReply','batchHost','batchComments','batchStory','batchVideo','batchCost'].forEach(id => {
         const el = document.getElementById(`${id}-${regionId}`);
         if (el) el.value = '';
       });
       renderDataTable(regionId, internId);
       renderAnalysis(regionId, internId);
+      renderRanking(regionId);
     }
 
-    // 产出分析
+    // 产出分析（含周标准对比）
     function renderAnalysis(regionId, internId) {
       const card = document.getElementById(`analysisCard-${regionId}`);
       if (!card) return;
-      const records = dailyRecords[internId] || [];
-      if (records.length === 0) {
+      const weekRecords = getWeekRecords(internId);
+      const allRecords = dailyRecords[internId] || [];
+
+      if (allRecords.length === 0) {
         card.innerHTML = `<p style="color:#64748b;">暂无数据，请先录入日报。</p>`;
         return;
       }
-      const totalApproach = records.reduce((s,r)=> s+r.approach, 0);
-      const totalReply = records.reduce((s,r)=> s+r.reply, 0);
-      const totalHost = records.reduce((s,r)=> s+r.newHost, 0);
-      const totalComments = records.reduce((s,r)=> s+r.comments, 0);
-      const totalStory = records.reduce((s,r)=> s+r.storyPost, 0);
-      const totalVideo = records.reduce((s,r)=> s+r.video, 0);
-      const totalCost = records.reduce((s,r)=> s+r.cost, 0);
-      const days = records.length;
+
+      // 本周汇总
+      const wApproach = weekRecords.reduce((s,r)=> s+r.approach, 0);
+      const wReply = weekRecords.reduce((s,r)=> s+r.reply, 0);
+      const wHost = weekRecords.reduce((s,r)=> s+r.newHost, 0);
+      const wComments = weekRecords.reduce((s,r)=> s+r.comments, 0);
+      const wStory = weekRecords.reduce((s,r)=> s+r.storyPost, 0);
+      const wVideo = weekRecords.reduce((s,r)=> s+r.video, 0);
+      const wCost = weekRecords.reduce((s,r)=> s+r.cost, 0);
+
+      // 全部汇总
+      const totalApproach = allRecords.reduce((s,r)=> s+r.approach, 0);
+      const totalReply = allRecords.reduce((s,r)=> s+r.reply, 0);
+      const totalHost = allRecords.reduce((s,r)=> s+r.newHost, 0);
+      const totalComments = allRecords.reduce((s,r)=> s+r.comments, 0);
+      const totalStory = allRecords.reduce((s,r)=> s+r.storyPost, 0);
+      const totalVideo = allRecords.reduce((s,r)=> s+r.video, 0);
+      const totalCost = allRecords.reduce((s,r)=> s+r.cost, 0);
+
+      // 周标准
+      const standard = weeklyStandards[regionId] || { approach: 0, reply: 0, newHost: 0, comments: 0, storyPost: 0, video: 0, cost: 0 };
+
+      // 达标判断
+      const checks = [
+        { label: '搭讪人数', value: wApproach, std: standard.approach },
+        { label: '回复人数', value: wReply, std: standard.reply },
+        { label: '新增主播', value: wHost, std: standard.newHost },
+        { label: '评论数', value: wComments, std: standard.comments },
+        { label: 'Story/Post', value: wStory, std: standard.storyPost },
+        { label: '视频数', value: wVideo, std: standard.video },
+        { label: '花费', value: wCost, std: standard.cost }
+      ];
+
+      const passCount = checks.filter(c => c.value >= c.std).length;
+      const totalChecks = checks.length;
 
       let suggestion = '';
-      if (totalApproach / days > 15 && totalReply / days > 10) suggestion = '表现优秀，可尝试拓展高价值KOL。';
-      else if (totalApproach / days > 8) suggestion = '稳定增长，建议优化回复话术提高转化。';
-      else suggestion = '需增加搭讪数量，并关注内容创意。';
+      if (passCount === totalChecks) suggestion = '🎉 本周全部达标！表现优秀，继续保持！';
+      else if (passCount >= totalChecks * 0.7) suggestion = '👍 大部分指标达标，继续加油！';
+      else if (passCount >= totalChecks * 0.4) suggestion = '📈 还有提升空间，重点关注未达标项。';
+      else suggestion = '⚠️ 多项指标未达标，需要制定改进计划。';
 
       card.innerHTML = `
-        <h4 style="margin-bottom:12px;"><i class="fas fa-chart-pie"></i> 周/月度产出概览</h4>
+        <h4 style="margin-bottom:12px;"><i class="fas fa-chart-pie"></i> 本周产出 vs 周标准</h4>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; font-size:0.85rem;">
+          ${checks.map(c => `
+            <div style="padding:8px; background:white; border-radius:8px; text-align:center;">
+              <div style="color:#64748b;">${c.label}</div>
+              <div style="font-weight:700;">${c.value} <span style="font-size:0.75rem; color:#94a3b8;">/ ${c.std}</span></div>
+              <div class="${c.value >= c.std ? 'status-pass' : 'status-fail'}">
+                ${c.value >= c.std ? '✓ 达标' : '✗ 未达标'}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:10px; font-weight:600; text-align:center;">
+          达标率：${passCount}/${totalChecks} (${Math.round(passCount/totalChecks*100)}%)
+        </div>
+        <hr style="margin:16px 0;">
+        <h4 style="margin-bottom:8px;">📊 全部历史汇总</h4>
         <div style="display:flex; gap:24px; flex-wrap:wrap;">
           <div><strong>总搭讪：</strong>${totalApproach}</div><div><strong>回复：</strong>${totalReply}</div>
           <div><strong>新增主播：</strong>${totalHost}</div><div><strong>评论：</strong>${totalComments}</div>
@@ -671,6 +1023,58 @@
       `;
     }
 
+    // 渲染本周排名
+    function renderRanking(regionId) {
+      const rankingDiv = document.getElementById(`rankingList-${regionId}`);
+      if (!rankingDiv) return;
+      const regionInterns = getInternsByRegion(regionId);
+
+      if (regionInterns.length === 0) {
+        rankingDiv.innerHTML = '<p style="color:#94a3b8; font-size:0.85rem;">暂无实习生</p>';
+        return;
+      }
+
+      // 计算每个实习生本周得分
+      const rankings = regionInterns.map(intern => {
+        const weekRecords = getWeekRecords(intern.id);
+        const score = calculateScore(weekRecords);
+        const wApproach = weekRecords.reduce((s,r)=> s+r.approach, 0);
+        const wReply = weekRecords.reduce((s,r)=> s+r.reply, 0);
+        const wHost = weekRecords.reduce((s,r)=> s+r.newHost, 0);
+        return {
+          id: intern.id,
+          name: intern.name,
+          score: score,
+          approach: wApproach,
+          reply: wReply,
+          host: wHost
+        };
+      });
+
+      // 按得分降序排列
+      rankings.sort((a, b) => b.score - a.score);
+
+      rankingDiv.innerHTML = rankings.map((r, idx) => {
+        let rankClass = 'rank-other';
+        if (idx === 0) rankClass = 'rank-1';
+        else if (idx === 1) rankClass = 'rank-2';
+        else if (idx === 2) rankClass = 'rank-3';
+
+        return `
+          <div class="rank-item">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="rank-badge ${rankClass}">${idx + 1}</div>
+              <div>
+                <div style="font-weight:700;">${r.name}</div>
+                <div style="font-size:0.75rem; color:#64748b;">搭讪${r.approach} | 回复${r.reply} | 主播${r.host}</div>
+              </div>
+            </div>
+            <div style="font-weight:700; color:#4f46e5;">${r.score}分</div>
+          </div>
+        `;
+      }).join('');
+    }
+
     // 切换地区
     function switchRegion(regionId) {
       currentRegion = regionId;
@@ -678,6 +1082,7 @@
       document.querySelector(`.tab-btn[data-region="${regionId}"]`).classList.add('active');
       document.querySelectorAll('.region-panel').forEach(p => p.classList.remove('active'));
       document.getElementById(`panel-${regionId}`).classList.add('active');
+      renderRanking(regionId);
       const regionInterns = getInternsByRegion(regionId);
       if (regionInterns.length > 0) {
         selectedInternId = regionInterns[0].id;
@@ -686,8 +1091,8 @@
         renderAnalysis(regionId, selectedInternId);
       } else {
         selectedInternId = null;
-        document.getElementById(`tableContainer-${regionId}`).innerHTML = '<p>暂无实习生</p>';
-        document.getElementById(`analysisCard-${regionId}`).innerHTML = '';
+        document.getElementById(`tableContainer-${regionId}`).innerHTML = '<p>暂无实习生，请先添加</p>';
+        document.getElementById(`analysisCard-${regionId}`).innerHTML = '<p style="color:#64748b;">暂无实习生</p>';
       }
     }
 
@@ -704,7 +1109,7 @@
       overlay.innerHTML = `
         <div class="modal-box">
           <h3><i class="fas fa-user-edit"></i> 修改实习生名字</h3>
-          <p>当前名字：<strong>${intern.name}</strong></p>
+          <p style="color:#64748b; margin-bottom:12px;">当前名字：<strong>${intern.name}</strong></p>
           <input type="text" id="newNameInput" value="${intern.name}" placeholder="请输入新名字" autocomplete="off">
           <div class="modal-actions">
             <button class="cancel-btn" id="cancelEditBtn">取消</button>
@@ -720,10 +1125,7 @@
         inputEl.select();
       }, 150);
 
-      document.getElementById('cancelEditBtn').addEventListener('click', () => {
-        overlay.remove();
-      });
-
+      document.getElementById('cancelEditBtn').addEventListener('click', () => overlay.remove());
       document.getElementById('confirmEditBtn').addEventListener('click', () => {
         const newName = inputEl.value.trim();
         if (!newName) {
@@ -732,42 +1134,33 @@
           return;
         }
         intern.name = newName;
-
-        // 保存名字到localStorage
-        const internNames = JSON.parse(localStorage.getItem('kolInternNames') || '{}');
-        internNames[internId] = newName;
-        localStorage.setItem('kolInternNames', JSON.stringify(internNames));
-
+        saveInternsToStorage();
         const nameDisplay = document.getElementById(`nameDisplay-${internId}`);
         if (nameDisplay) nameDisplay.textContent = newName;
         overlay.remove();
-
         const currentPanel = document.querySelector('.region-panel.active');
         if (currentPanel) {
           const regionId = currentPanel.id.replace('panel-', '');
           renderInternList(regionId);
+          renderRanking(regionId);
           const items = document.querySelectorAll(`#internList-${regionId} .intern-item`);
           items.forEach(el => {
             if (el.dataset.id === internId) el.classList.add('selected');
           });
+          if (selectedInternId === internId) {
+            renderAnalysis(regionId, internId);
+          }
         }
       });
 
-      overlay.addEventListener('click', function(e) {
+      overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.remove();
       });
 
-      inputEl.addEventListener('keypress', function(e) {
+      inputEl.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
           document.getElementById('confirmEditBtn').click();
-        }
-      });
-
-      document.addEventListener('keydown', function escHandler(e) {
-        if (e.key === 'Escape') {
-          overlay.remove();
-          document.removeEventListener('keydown', escHandler);
         }
       });
     }
@@ -788,6 +1181,7 @@
         renderInternList('taiwan');
         renderDataTable('taiwan', selectedInternId);
         renderAnalysis('taiwan', selectedInternId);
+        renderRanking('taiwan');
       }, 20);
     }
   })();
