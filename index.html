@@ -8,31 +8,56 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  /* 编辑名字弹窗 */
+  /* 编辑名字弹窗 - 修复版 */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
 }
 
 .modal-box {
   background: white;
   border-radius: 20px;
-  padding: 28px;
-  width: 360px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  padding: 28px 30px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  position: relative;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modal-box h3 {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   font-size: 1.2rem;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-box p {
+  color: #64748b;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
 }
 
 .modal-box input {
@@ -41,13 +66,48 @@
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   font-size: 1rem;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.modal-box input:focus {
+  border-color: #4f46e5;
 }
 
 .modal-actions {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+}
+
+.modal-actions button {
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.modal-actions .cancel-btn {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.modal-actions .cancel-btn:hover {
+  background: #e2e8f0;
+}
+
+.modal-actions .confirm-btn {
+  background: #4f46e5;
+  color: white;
+}
+
+.modal-actions .confirm-btn:hover {
+  background: #4338ca;
 }
   <style>
     * {
@@ -331,19 +391,57 @@
       { id: 'br2', name: 'João Costa', region: 'brazil' }
     ];
 
-    // 日报数据存储 (按实习生id)
-    let dailyRecords = {
-      'tw1': [],
-      'tw2': [],
-      'tr1': [],
-      'tr2': [],
-      'es1': [],
-      'es2': [],
-      'br1': [],
-      'br2': []
-    };
+        // 日报数据存储 (按实习生id) - 从localStorage加载
+    let dailyRecords = {};
 
-    // 初始化示例数据 (部分日期)
+        // 从localStorage加载数据
+    function loadDataFromStorage() {
+      const saved = localStorage.getItem('kolDailyRecords');
+      if (saved) {
+        try {
+          dailyRecords = JSON.parse(saved);
+        } catch (e) {
+          console.warn('数据加载失败，使用默认空数据');
+          initEmptyRecords();
+        }
+      } else {
+        initEmptyRecords();
+        seedSampleData();
+        saveDataToStorage();
+      }
+      
+      // ★ 加载保存的实习生名字
+      const savedNames = localStorage.getItem('kolInternNames');
+      if (savedNames) {
+        try {
+          const names = JSON.parse(savedNames);
+          interns.forEach(intern => {
+            if (names[intern.id]) {
+              intern.name = names[intern.id];
+            }
+          });
+        } catch (e) {
+          console.warn('名字加载失败');
+        }
+      }
+    }
+
+    // 初始化空记录结构
+    function initEmptyRecords() {
+      dailyRecords = {
+        'tw1': [], 'tw2': [],
+        'tr1': [], 'tr2': [],
+        'es1': [], 'es2': [],
+        'br1': [], 'br2': []
+      };
+    }
+
+    // 保存数据到localStorage
+    function saveDataToStorage() {
+      localStorage.setItem('kolDailyRecords', JSON.stringify(dailyRecords));
+    }
+
+    // 初始化示例数据 (仅首次使用)
     function seedSampleData() {
       const today = new Date().toISOString().split('T')[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -353,7 +451,9 @@
       dailyRecords['es1'].push({ date: today, approach: 18, reply: 12, newHost: 5, comments: 48, storyPost: 7, video: 3, cost: 280 });
       dailyRecords['br1'].push({ date: yesterday, approach: 22, reply: 16, newHost: 6, comments: 62, storyPost: 10, video: 5, cost: 400 });
     }
-    seedSampleData();
+
+    // 初始化：加载存储数据
+    loadDataFromStorage();
 
     let currentRegion = 'taiwan';
     let selectedInternId = null;
@@ -495,7 +595,7 @@ function renderInternList(regionId) {
       });
     }
 
-    // 批次添加记录
+        // 批次添加记录
     function batchAddRecord(regionId, internId) {
       const date = document.getElementById(`batchDate-${regionId}`).value;
       if (!date) { alert('请选择日期'); return; }
@@ -508,6 +608,13 @@ function renderInternList(regionId) {
       const cost = parseInt(document.getElementById(`batchCost-${regionId}`).value) || 0;
 
       dailyRecords[internId].push({ date, approach, reply, newHost, comments, storyPost, video, cost });
+      
+      // 按日期排序
+      dailyRecords[internId].sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      // ★ 保存到localStorage
+      saveDataToStorage();
+      
       // 清空输入
       ['batchApproach','batchReply','batchHost','batchComments','batchStory','batchVideo','batchCost'].forEach(id => {
         const el = document.getElementById(`${id}-${regionId}`);
@@ -575,88 +682,110 @@ function renderInternList(regionId) {
       }
     }
 
-    // ★★★ 新增：显示编辑名字弹窗 ★★★
+        // 显示编辑名字弹窗（修复版）
     function showEditNameModal(internId) {
       const intern = interns.find(i => i.id === internId);
       if (!intern) return;
       
+      // 移除已有弹窗
       const existing = document.querySelector('.modal-overlay');
       if (existing) existing.remove();
       
+      // 创建弹窗
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
-      overlay.innerHTML = `
-        <div class="modal-box">
+      
+      const modalHTML = `
+        <div class="modal-box" onclick="event.stopPropagation()">
           <h3><i class="fas fa-user-edit"></i> 修改实习生名字</h3>
-          <p style="color:#64748b; margin-bottom:12px;">当前名字：<strong>${intern.name}</strong></p>
-          <input type="text" id="newNameInput" value="${intern.name}" placeholder="输入新名字">
+          <p>当前名字：<strong>${intern.name}</strong></p>
+          <input type="text" id="newNameInput" value="${intern.name}" placeholder="请输入新名字" autocomplete="off">
           <div class="modal-actions">
-            <button class="secondary" id="cancelEditBtn">取消</button>
-            <button id="confirmEditBtn">保存</button>
+            <button class="cancel-btn" id="cancelEditBtn">取消</button>
+            <button class="confirm-btn" id="confirmEditBtn">确认修改</button>
           </div>
         </div>
       `;
+      
+      overlay.innerHTML = modalHTML;
       document.body.appendChild(overlay);
       
+      // 获取输入框并聚焦
+      const inputEl = document.getElementById('newNameInput');
+      setTimeout(() => {
+        inputEl.focus();
+        inputEl.select();
+      }, 150);
+      
+      // 取消按钮
       document.getElementById('cancelEditBtn').addEventListener('click', () => {
         overlay.remove();
       });
       
+      // 确认修改按钮
       document.getElementById('confirmEditBtn').addEventListener('click', () => {
-        const newName = document.getElementById('newNameInput').value.trim();
+        const newName = inputEl.value.trim();
         if (!newName) {
-          alert('名字不能为空');
+          alert('名字不能为空，请输入有效名字');
+          inputEl.focus();
           return;
         }
+        
+                // 更新数据
         intern.name = newName;
+        
+        // ★ 保存实习生名字到localStorage
+        const internNames = JSON.parse(localStorage.getItem('kolInternNames') || '{}');
+        internNames[internId] = newName;
+        localStorage.setItem('kolInternNames', JSON.stringify(internNames));
+        
+        // 更新左侧列表显示
         const nameDisplay = document.getElementById(`nameDisplay-${internId}`);
-        if (nameDisplay) nameDisplay.textContent = newName;
+        if (nameDisplay) {
+          nameDisplay.textContent = newName;
+        }
+        
+        // 关闭弹窗
         overlay.remove();
-        const currentRegionPanel = document.querySelector('.region-panel.active');
-        if (currentRegionPanel) {
-          const regionId = currentRegionPanel.id.replace('panel-', '');
+        
+        // 刷新当前地区列表（保持选中状态）
+        const currentPanel = document.querySelector('.region-panel.active');
+        if (currentPanel) {
+          const regionId = currentPanel.id.replace('panel-', '');
           renderInternList(regionId);
-          if (selectedInternId === internId) {
-            document.querySelectorAll(`#internList-${regionId} .intern-item`).forEach(el => {
-              if (el.dataset.id === internId) el.classList.add('selected');
-            });
-          }
+          // 重新选中当前实习生
+          const items = document.querySelectorAll(`#internList-${regionId} .intern-item`);
+          items.forEach(el => {
+            if (el.dataset.id === internId) {
+              el.classList.add('selected');
+            }
+          });
         }
       });
       
+      // 点击遮罩层关闭
       overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) overlay.remove();
+        if (e.target === overlay) {
+          overlay.remove();
+        }
       });
       
-      document.getElementById('newNameInput').addEventListener('keypress', function(e) {
+      // 回车键确认
+      inputEl.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
+          e.preventDefault();
           document.getElementById('confirmEditBtn').click();
         }
       });
       
-      setTimeout(() => document.getElementById('newNameInput').focus(), 100);
+      // ESC键取消
+      document.addEventListener('keydown', function escHandler(e) {
+        if (e.key === 'Escape') {
+          overlay.remove();
+          document.removeEventListener('keydown', escHandler);
+        }
+      });
     }
-
-    // 事件绑定
-    document.getElementById('regionTabs').addEventListener('click', (e) => {
-      const btn = e.target.closest('.tab-btn');
-      if (!btn) return;
-      switchRegion(btn.dataset.region);
-    });
-
-    // 初始化
-    renderAllPanels();
-    // 默认选中第一个实习生
-    const firstTw = getInternsByRegion('taiwan')[0];
-    if (firstTw) {
-      selectedInternId = firstTw.id;
-      setTimeout(() => {
-        renderInternList('taiwan');
-        renderDataTable('taiwan', selectedInternId);
-        renderAnalysis('taiwan', selectedInternId);
-      }, 20);
-    }
-  })();
 </script>
 </body>
 </html>
