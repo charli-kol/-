@@ -667,52 +667,47 @@ function showUpload(rid){const ir=getByRegion(rid);if(ir.length===0){alert('请�
     document.getElementById('ppv')?.addEventListener('click',()=>{pp--;showPrev();});document.getElementById('npv')?.addEventListener('click',()=>{pp++;showPrev();});
     document.getElementById('canc4').addEventListener('click',()=>ov.remove());
     document.getElementById('conf4').addEventListener('click',()=>{
-      const fm={};['date',...DIMS.map(d=>d.k)].forEach(dk=>{const s=document.getElementById(`mp-${dk}-${rid}`);if(s&&s.value)fm[dk]=s.value;});
-      const dd=document.getElementById(`defdt-${rid}`).value;let cnt=0;
-            pdata.forEach(r=>{
+      const fm={};
+      ['date'].concat(DIMS.map(d=>d.k)).forEach(dk=>{
+        const s=document.getElementById(`mp-${dk}-${rid}`);
+        if(s&&s.value)fm[dk]=s.value;
+      });
+      const dd=document.getElementById(`defdt-${rid}`).value;
+      let cnt=0;
+      
+      pdata.forEach(r=>{
         let vd=dd;
         if(fm['date']&&r[fm['date']]){
           const rawDate=r[fm['date']].trim();
-          // ★ 修复：直接用字符串处理，避免时区问题
-          // 支持格式：2024-01-18, 01/18/2024, 2024/01/18, 18/01/2024
-          let year,month,day;
-          
-          // 尝试匹配 yyyy-mm-dd 或 yyyy/mm/dd
-          const match1=rawDate.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+          var year,month,day;
+          var match1=rawDate.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
           if(match1){
             year=parseInt(match1[1]);
             month=parseInt(match1[2]);
             day=parseInt(match1[3]);
           }else{
-            // 尝试匹配 mm/dd/yyyy
-            const match2=rawDate.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+            var match2=rawDate.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
             if(match2){
               month=parseInt(match2[1]);
               day=parseInt(match2[2]);
               year=parseInt(match2[3]);
-            }else{
-              // 尝试匹配 dd/mm/yyyy
-              const match3=rawDate.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
-              if(match3){
-                day=parseInt(match3[1]);
-                month=parseInt(match3[2]);
-                year=parseInt(match3[3]);
-              }
             }
           }
-          
           if(year&&month&&day){
-            // ★ 手动拼接日期字符串，避免时区问题
-            vd=`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            vd=year+'-'+(month<10?'0':'')+month+'-'+(day<10?'0':'')+day;
           }
         }
-        const rec={date:vd};
-        DIMS.forEach(d=>{rec[d.k]=parseInt(r[fm[d.k]])||0;});
-        if(selIntern){daily[selIntern].push({...rec});cnt++;}
+        var rec={date:vd};
+        DIMS.forEach(function(d){rec[d.k]=parseInt(r[fm[d.k]])||0;});
+        if(selIntern){daily[selIntern].push(rec);cnt++;}
       });
-  }
-  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
-}
+      
+      if(selIntern)daily[selIntern].sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+      ss('kolDaily',daily);
+      ov.remove();
+      alert('导入'+cnt+'条');
+      if(selIntern){curPage[selIntern]=1;selRows[selIntern]=new Set();refreshAll(rid,selIntern);renderRank(rid);}
+    });
 
 function switchR(rid){curRegion=rid;initFilter(rid);document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.tab-btn[data-region="${rid}"]`).classList.add('active');document.querySelectorAll('.region-panel').forEach(p=>p.classList.remove('active'));document.getElementById(`panel-${rid}`).classList.add('active');renderRank(rid);const f=filterS[rid];if(f){setTimeout(()=>{const si=document.getElementById(`fs-${rid}`);if(si)si.value=f.start||'';const ei=document.getElementById(`fe-${rid}`);if(ei)ei.value=f.end||'';updateQuickBtns(rid,f.period||'week');updateFilterInfo(rid);},50);}const ir=getByRegion(rid);if(ir.length>0){selIntern=ir[0].id;if(!curPage[selIntern])curPage[selIntern]=1;if(!selRows[selIntern])selRows[selIntern]=new Set();renderIList(rid);refreshAll(rid,selIntern);}else{selIntern=null;document.getElementById(`tbl-${rid}`).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';document.getElementById(`scards-${rid}`).innerHTML='';document.getElementById(`analysis-${rid}`).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';}}
 
