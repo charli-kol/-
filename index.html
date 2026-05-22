@@ -43,10 +43,7 @@
     .filter-bar input[type="date"]{width:130px;}
     .quick-btn{padding:4px 10px;font-size:0.7rem;border-radius:12px;border:1px solid #e2e8f0;background:white;color:#475569;cursor:pointer;font-weight:500;}
     .quick-btn.active-filter{background:#4f46e5;color:white;border-color:#4f46e5;}
-    .view-tabs{display:flex;gap:4px;background:#f1f5f9;padding:3px;border-radius:14px;margin-bottom:12px;}
-    .view-tab{padding:6px 14px;border:none;background:transparent;border-radius:12px;font-weight:600;font-size:0.8rem;cursor:pointer;color:#64748b;}
-    .view-tab.active{background:white;color:#4f46e5;}
-    .card-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+    .card-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
     .mini-card{background:white;border-radius:10px;padding:10px 14px;text-align:center;border:1px solid #e9eef3;min-width:80px;flex:0 0 auto;}
     .mini-card .val{font-size:1.1rem;font-weight:700;}
     .mini-card .lbl{font-size:0.65rem;color:#64748b;}
@@ -97,170 +94,136 @@
 
 <script>
 (function(){
-const R=[{id:'taiwan',name:'台湾',flag:'🇹🇼'},{id:'turkey',name:'土耳其',flag:'🇹🇷'},{id:'spanish',name:'西语大区',flag:'🌎'},{id:'brazil',name:'巴西',flag:'🇧🇷'}];
-const DIMS=[{k:'approach',l:'搭讪',i:'💬'},{k:'reply',l:'回复',i:'↩️'},{k:'newHost',l:'新增主播',i:'🎤'},{k:'comments',l:'评论',i:'💭'},{k:'storyPost',l:'Story/Post',i:'📱'},{k:'video',l:'视频',i:'🎬'},{k:'cost',l:'花费',i:'💰'}];
-let interns=[],daily={},standards={},curRegion='taiwan',selIntern=null,selRows={},viewMode={},filterS={},curPage={};
-const PS=10;
+var R=[{id:'taiwan',name:'台湾',flag:'🇹🇼'},{id:'turkey',name:'土耳其',flag:'🇹🇷'},{id:'spanish',name:'西语大区',flag:'🌎'},{id:'brazil',name:'巴西',flag:'🇧🇷'}];
+var DIMS=[{k:'approach',l:'搭讪',i:'💬'},{k:'reply',l:'回复',i:'↩️'},{k:'newHost',l:'新增主播',i:'🎤'},{k:'comments',l:'评论',i:'💭'},{k:'storyPost',l:'Story/Post',i:'📱'},{k:'video',l:'视频',i:'🎬'},{k:'cost',l:'花费',i:'💰'}];
+var interns=[],daily={},standards={},curRegion='taiwan',selIntern=null,selRows={},filterS={},curPage={};
+var PS=10;
 
-function ls(k,d){const s=localStorage.getItem(k);if(s)try{return JSON.parse(s)}catch(e){return d}return d}
+function ls(k,d){var s=localStorage.getItem(k);if(s){try{return JSON.parse(s)}catch(e){return d}}return d}
 function ss(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
 function loadAll(){
-  interns=ls('kolInterns',[{id:'tw1',name:'陈雅婷',region:'taiwan'},{id:'tw2',name:'林俊杰',region:'taiwan'},{id:'tr1',name:'Elif Demir',region:'turkey'},{id:'tr2',name:'Mehmet Yılmaz',region:'turkey'},{id:'es1',name:'Sofía García',region:'spanish'},{id:'es2',name:'Carlos Ruiz',region:'spanish'},{id:'br1',name:'Ana Silva',region:'brazil'},{id:'br2',name:'João Costa',region:'brazil'}]);
+  interns=ls('kolInterns',[
+    {id:'tw1',name:'陈雅婷',region:'taiwan'},{id:'tw2',name:'林俊杰',region:'taiwan'},
+    {id:'tr1',name:'Elif Demir',region:'turkey'},{id:'tr2',name:'Mehmet Yılmaz',region:'turkey'},
+    {id:'es1',name:'Sofía García',region:'spanish'},{id:'es2',name:'Carlos Ruiz',region:'spanish'},
+    {id:'br1',name:'Ana Silva',region:'brazil'},{id:'br2',name:'João Costa',region:'brazil'}
+  ]);
   daily=ls('kolDaily',{});
-  if(Object.keys(daily).length===0){interns.forEach(i=>daily[i.id]=[]);seedData();ss('kolDaily',daily);}
+  if(Object.keys(daily).length===0){
+    interns.forEach(function(i){daily[i.id]=[];});
+    var t=new Date().toISOString().split('T')[0];
+    var y=new Date(Date.now()-86400000).toISOString().split('T')[0];
+    daily['tw1'].push({date:y,approach:12,reply:8,newHost:2,comments:34,storyPost:5,video:2,cost:150});
+    daily['tw1'].push({date:t,approach:15,reply:10,newHost:3,comments:40,storyPost:6,video:3,cost:200});
+    daily['tr1'].push({date:y,approach:20,reply:14,newHost:4,comments:55,storyPost:8,video:4,cost:320});
+    daily['es1'].push({date:t,approach:18,reply:12,newHost:5,comments:48,storyPost:7,video:3,cost:280});
+    daily['br1'].push({date:y,approach:22,reply:16,newHost:6,comments:62,storyPost:10,video:5,cost:400});
+    ss('kolDaily',daily);
+  }
   standards=ls('kolStandards',{});
-  if(Object.keys(standards).length===0){R.forEach(r=>{standards[r.id]={enabled:DIMS.map(d=>d.k),targets:{}};DIMS.forEach(d=>standards[r.id].targets[d.k]=0)});ss('kolStandards',standards);}
+  if(Object.keys(standards).length===0){
+    R.forEach(function(r){
+      standards[r.id]={enabled:DIMS.map(function(d){return d.k}),targets:{}};
+      DIMS.forEach(function(d){standards[r.id].targets[d.k]=0;});
+    });
+    ss('kolStandards',standards);
+  }
 }
-function seedData(){
-  const t=new Date().toISOString().split('T')[0],y=new Date(Date.now()-86400000).toISOString().split('T')[0];
-  daily['tw1'].push({date:y,approach:12,reply:8,newHost:2,comments:34,storyPost:5,video:2,cost:150});
-  daily['tw1'].push({date:t,approach:15,reply:10,newHost:3,comments:40,storyPost:6,video:3,cost:200});
-}
-function getByRegion(rid){return interns.filter(i=>i.region===rid)}
-function getWeekStart(){const n=new Date();const d=n.getDay();const diff=n.getDate()-d+(d===0?-6:1);n.setDate(diff);return n.toISOString().split('T')[0]}
-function getMonthStart(){const n=new Date();return new Date(n.getFullYear(),n.getMonth(),1).toISOString().split('T')[0]}
-function score(r){return r.reduce((s,x)=>s+x.approach+x.reply+x.newHost*3+x.comments+x.storyPost*2+x.video*3,0)}
+
+function getByRegion(rid){return interns.filter(function(i){return i.region===rid})}
+function getWeekStart(){var n=new Date();var d=n.getDay();var diff=n.getDate()-d+(d===0?-6:1);n.setDate(diff);return n.toISOString().split('T')[0]}
+function getMonthStart(){var n=new Date();return new Date(n.getFullYear(),n.getMonth(),1).toISOString().split('T')[0]}
+function score(r){return r.reduce(function(s,x){return s+x.approach+x.reply+x.newHost*3+x.comments+x.storyPost*2+x.video*3},0)}
 
 function initFilter(rid){
-  if(!filterS[rid]){const n=new Date();const d=n.getDay();const diff=n.getDate()-d+(d===0?-6:1);const m=new Date(n.setDate(diff));const s=new Date(m);s.setDate(s.getDate()+6);filterS[rid]={start:m.toISOString().split('T')[0],end:s.toISOString().split('T')[0],period:'week'};}
+  if(!filterS[rid]){
+    var n=new Date();var d=n.getDay();var diff=n.getDate()-d+(d===0?-6:1);
+    var m=new Date(n.setDate(diff));var s=new Date(m);s.setDate(s.getDate()+6);
+    filterS[rid]={start:m.toISOString().split('T')[0],end:s.toISOString().split('T')[0],period:'week'};
+  }
 }
 function setFilterPeriod(rid,p){
-  const n=new Date();let s,e;
-  switch(p){
-    case'today':s=new Date().toISOString().split('T')[0];e=s;break;
-    case'week':{const d=n.getDay();const diff=n.getDate()-d+(d===0?-6:1);const m=new Date(n.setDate(diff));const su=new Date(m);su.setDate(su.getDate()+6);s=m.toISOString().split('T')[0];e=su.toISOString().split('T')[0];break;}
-    case'month':s=new Date(n.getFullYear(),n.getMonth(),1).toISOString().split('T')[0];e=new Date(n.getFullYear(),n.getMonth()+1,0).toISOString().split('T')[0];break;
-    case'lastMonth':s=new Date(n.getFullYear(),n.getMonth()-1,1).toISOString().split('T')[0];e=new Date(n.getFullYear(),n.getMonth(),0).toISOString().split('T')[0];break;
-    case'all':s='';e='';break;
-    default:return;
-  }
+  var n=new Date(),s,e;
+  if(p==='today'){s=new Date().toISOString().split('T')[0];e=s;}
+  else if(p==='week'){
+    var d=n.getDay();var diff=n.getDate()-d+(d===0?-6:1);
+    var m=new Date(n.setDate(diff));var su=new Date(m);su.setDate(su.getDate()+6);
+    s=m.toISOString().split('T')[0];e=su.toISOString().split('T')[0];
+  }else if(p==='month'){s=new Date(n.getFullYear(),n.getMonth(),1).toISOString().split('T')[0];e=new Date(n.getFullYear(),n.getMonth()+1,0).toISOString().split('T')[0];}
+  else if(p==='lastMonth'){s=new Date(n.getFullYear(),n.getMonth()-1,1).toISOString().split('T')[0];e=new Date(n.getFullYear(),n.getMonth(),0).toISOString().split('T')[0];}
+  else if(p==='all'){s='';e='';}
+  else{return;}
   filterS[rid]={start:s,end:e,period:p};
-  const si=document.getElementById(`fs-${rid}`);if(si)si.value=s;
-  const ei=document.getElementById(`fe-${rid}`);if(ei)ei.value=e;
+  var si=document.getElementById('fs-'+rid);if(si)si.value=s;
+  var ei=document.getElementById('fe-'+rid);if(ei)ei.value=e;
   updateQuickBtns(rid,p);updateFilterInfo(rid);
 }
-function updateQuickBtns(rid,ap){document.querySelectorAll(`#qb-${rid} .quick-btn`).forEach(b=>{b.classList.remove('active-filter');if(b.dataset.period===ap)b.classList.add('active-filter');});}
-function updateFilterInfo(rid){const el=document.getElementById(`finfo-${rid}`);if(!el)return;const st=filterS[rid];if(!st||(!st.start&&!st.end))el.textContent='全部';else if(st.start&&st.end&&st.start===st.end)el.textContent=st.start;else el.textContent=(st.start||'最早')+' ~ '+(st.end||'最晚');}
+function updateQuickBtns(rid,ap){
+  document.querySelectorAll('#qb-'+rid+' .quick-btn').forEach(function(b){b.classList.remove('active-filter');if(b.dataset.period===ap)b.classList.add('active-filter');});
+}
+function updateFilterInfo(rid){
+  var el=document.getElementById('finfo-'+rid);if(!el)return;
+  var st=filterS[rid];
+  if(!st||(!st.start&&!st.end))el.textContent='全部';
+  else if(st.start&&st.end&&st.start===st.end)el.textContent=st.start;
+  else el.textContent=(st.start||'最早')+' ~ '+(st.end||'最晚');
+}
 function getFilter(rid){if(!filterS[rid])initFilter(rid);return filterS[rid];}
 function applyCustomFilter(rid){
-  const s=document.getElementById(`fs-${rid}`).value;
-  const e=document.getElementById(`fe-${rid}`).value;
-  
-  if(!s&&!e){
-    setFilterPeriod(rid,'all');
-    return;
-  }
-  if(s&&e&&s>e){
-    alert('开始日期不能晚于结束日期');
-    return;
-  }
-  
-  // ★ 保存筛选状态
+  var s=document.getElementById('fs-'+rid).value,e=document.getElementById('fe-'+rid).value;
+  if(!s&&!e){setFilterPeriod(rid,'all');return;}
+  if(s&&e&&s>e){alert('开始日期不能晚于结束日期');return;}
   filterS[rid]={start:s,end:e,period:'custom'};
-  updateQuickBtns(rid,'custom');
-  updateFilterInfo(rid);
-  
-  // ★ 重置分页
-  if(selIntern){
-    curPage[selIntern]=1;
-    selRows[selIntern]=new Set();
-  }
+  updateQuickBtns(rid,'custom');updateFilterInfo(rid);
 }
 
 function renderAll(){
-  const c=document.getElementById('regionPanelsContainer');c.innerHTML='';
-  R.forEach(r=>{
-    const p=document.createElement('div');p.className=`region-panel ${r.id===curRegion?'active':''}`;p.id=`panel-${r.id}`;
-    p.innerHTML=`
-      <div class="intern-sidebar">
-        <h3 style="margin-bottom:10px;font-size:1rem;">${r.flag} ${r.name}</h3>
-        <div id="ilist-${r.id}"></div>
-        <button class="btn-sm btn-green btn-full" id="addBtn-${r.id}">+ 新增实习生</button>
-        <button class="btn-sm btn-orange btn-full" id="stdBtn-${r.id}">⚙️ 周标准</button>
-        <div style="background:#fefce8;border-radius:10px;padding:12px;margin-top:10px;">
-          <h4 style="font-size:0.8rem;margin-bottom:6px;">🏆 本周排名</h4><div id="rank-${r.id}"></div>
-        </div>
-        <div class="bonus-section" id="bonus-${r.id}">
-          <h4 style="font-size:0.8rem;margin-bottom:6px;">💰 奖金计算</h4>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
-            <input type="date" id="bs-${r.id}" style="width:120px;"><span>~</span><input type="date" id="be-${r.id}" style="width:120px;">
-            <button class="btn-sm btn-orange" id="calcB-${r.id}">计算</button>
-          </div>
-          <div id="bresult-${r.id}" style="font-size:0.7rem;margin-top:6px;">选择日期后计算</div>
-          <details><summary>📋 规则</summary><table class="rule-table"><tr><th>新增主播</th><th>评论/条</th><th>视频/条</th></tr><tr><td>&lt;2</td><td>$0</td><td>$0</td></tr><tr><td>3-5</td><td>$0.5</td><td>$5</td></tr><tr><td>6-8</td><td>$0.8</td><td>$8</td></tr><tr><td>9-11</td><td>$1</td><td>$10</td></tr><tr><td>12-14</td><td>$1.2</td><td>$12</td></tr><tr><td>15-20</td><td>$1.4</td><td>$14</td></tr><tr><td>21-30</td><td>$1.6</td><td>$16</td></tr><tr><td>≥31</td><td>$1.8</td><td>$18</td></tr></table></details>
-        </div>
-      </div>
-      <div class="data-main">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
-          <h3 style="font-size:1rem;">📋 日报</h3>
-          <button class="btn-sm btn-green" id="upBtn-${r.id}">📁 批量上传</button>
-        </div>
-        <div class="filter-bar" id="fbar-${r.id}">
-          <span style="font-weight:600;">📅</span>
-          <input type="date" id="fs-${r.id}"><span>~</span><input type="date" id="fe-${r.id}">
-          <div class="quick-btns" id="qb-${r.id}" style="display:flex;gap:3px;">
-            <button class="quick-btn" data-period="today">今天</button>
-            <button class="quick-btn active-filter" data-period="week">本周</button>
-            <button class="quick-btn" data-period="month">本月</button>
-            <button class="quick-btn" data-period="lastMonth">上月</button>
-            <button class="quick-btn" data-period="all">全部</button>
-          </div>
-          <button class="btn-sm btn-cyan" id="applyF-${r.id}">应用</button>
-          <button class="btn-sm btn-gray" id="clearF-${r.id}">清除</button>
-          <span id="finfo-${r.id}" style="font-size:0.7rem;color:#64748b;margin-left:auto;">本周</span>
-        </div>
-        <div id="scards-${r.id}"></div>
-        <div id="tbl-${r.id}"></div>
-        <div style="background:#f9fafb;border-radius:10px;padding:14px;margin-top:10px;" id="analysis-${r.id}">
-          <p style="color:#64748b;font-size:0.8rem;">👈 选择实习生查看分析</p>
-        </div>
-      </div>`;
+  var c=document.getElementById('regionPanelsContainer');c.innerHTML='';
+  R.forEach(function(r){
+    var p=document.createElement('div');p.className='region-panel '+(r.id===curRegion?'active':'');p.id='panel-'+r.id;
+    p.innerHTML='<div class="intern-sidebar"><h3 style="margin-bottom:10px;font-size:1rem;">'+r.flag+' '+r.name+'</h3><div id="ilist-'+r.id+'"></div><button class="btn-sm btn-green btn-full" id="addBtn-'+r.id+'">+ 新增实习生</button><button class="btn-sm btn-orange btn-full" id="stdBtn-'+r.id+'">⚙️ 周标准</button><div style="background:#fefce8;border-radius:10px;padding:12px;margin-top:10px;"><h4 style="font-size:0.8rem;margin-bottom:6px;">🏆 本周排名</h4><div id="rank-'+r.id+'"></div></div><div class="bonus-section" id="bonus-'+r.id+'"><h4 style="font-size:0.8rem;margin-bottom:6px;">💰 奖金计算</h4><div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><input type="date" id="bs-'+r.id+'" style="width:120px;"><span>~</span><input type="date" id="be-'+r.id+'" style="width:120px;"><button class="btn-sm btn-orange" id="calcB-'+r.id+'">计算</button></div><div id="bresult-'+r.id+'" style="font-size:0.7rem;margin-top:6px;">选择日期后计算</div><details><summary>📋 规则</summary><table class="rule-table"><tr><th>新增主播</th><th>评论/条</th><th>视频/条</th></tr><tr><td>&lt;2</td><td>$0</td><td>$0</td></tr><tr><td>3-5</td><td>$0.5</td><td>$5</td></tr><tr><td>6-8</td><td>$0.8</td><td>$8</td></tr><tr><td>9-11</td><td>$1</td><td>$10</td></tr><tr><td>12-14</td><td>$1.2</td><td>$12</td></tr><tr><td>15-20</td><td>$1.4</td><td>$14</td></tr><tr><td>21-30</td><td>$1.6</td><td>$16</td></tr><tr><td>≥31</td><td>$1.8</td><td>$18</td></tr></table></details></div></div><div class="data-main"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;"><h3 style="font-size:1rem;">📋 日报</h3><button class="btn-sm btn-green" id="upBtn-'+r.id+'">📁 批量上传</button></div><div class="filter-bar" id="fbar-'+r.id+'"><span style="font-weight:600;">📅</span><input type="date" id="fs-'+r.id+'"><span>~</span><input type="date" id="fe-'+r.id+'"><div class="quick-btns" id="qb-'+r.id+'" style="display:flex;gap:3px;"><button class="quick-btn" data-period="today">今天</button><button class="quick-btn active-filter" data-period="week">本周</button><button class="quick-btn" data-period="month">本月</button><button class="quick-btn" data-period="lastMonth">上月</button><button class="quick-btn" data-period="all">全部</button></div><button class="btn-sm btn-cyan" id="applyF-'+r.id+'">应用</button><button class="btn-sm btn-gray" id="clearF-'+r.id+'">清除</button><span id="finfo-'+r.id+'" style="font-size:0.7rem;color:#64748b;margin-left:auto;">本周</span></div><div id="scards-'+r.id+'"></div><div id="tbl-'+r.id+'"></div><div style="background:#f9fafb;border-radius:10px;padding:14px;margin-top:10px;" id="analysis-'+r.id+'"><p style="color:#64748b;font-size:0.8rem;">👈 选择实习生查看分析</p></div></div>';
     c.appendChild(p);
-  renderIList(r.id);renderRank(r.id);bindBtns(r.id);
+    renderIList(r.id);renderRank(r.id);bindBtns(r.id);
   });
 }
 
-
 function bindBtns(rid){
-  document.getElementById(`addBtn-${rid}`)?.addEventListener('click',()=>showAdd(rid));
-  document.getElementById(`stdBtn-${rid}`)?.addEventListener('click',()=>showStd(rid));
-  document.getElementById(`upBtn-${rid}`)?.addEventListener('click',()=>showUpload(rid));
-  document.getElementById(`calcB-${rid}`)?.addEventListener('click',()=>calcBonus(rid));
-    document.getElementById(`applyF-${rid}`)?.addEventListener('click',()=>{
+  document.getElementById('addBtn-'+rid)&&document.getElementById('addBtn-'+rid).addEventListener('click',function(){showAdd(rid);});
+  document.getElementById('stdBtn-'+rid)&&document.getElementById('stdBtn-'+rid).addEventListener('click',function(){showStd(rid);});
+  document.getElementById('upBtn-'+rid)&&document.getElementById('upBtn-'+rid).addEventListener('click',function(){showUpload(rid);});
+  document.getElementById('calcB-'+rid)&&document.getElementById('calcB-'+rid).addEventListener('click',function(){calcBonus(rid);});
+  document.getElementById('applyF-'+rid)&&document.getElementById('applyF-'+rid).addEventListener('click',function(){
     applyCustomFilter(rid);
-    if(selIntern){
-      curPage[selIntern]=1;
-      selRows[selIntern]=new Set();
-      refreshAll(rid,selIntern);
-    }
+    if(selIntern){curPage[selIntern]=1;selRows[selIntern]=new Set();refreshAll(rid,selIntern);}
   });
-  document.getElementById(`clearF-${rid}`)?.addEventListener('click',()=>{setFilterPeriod(rid,'all');if(selIntern)refreshAll(rid,selIntern);});
-  document.querySelectorAll(`#qb-${rid} .quick-btn`).forEach(b=>{
-    b.addEventListener('click',function(){setFilterPeriod(rid,this.dataset.period);if(selIntern)refreshAll(rid,selIntern);});
+  document.getElementById('clearF-'+rid)&&document.getElementById('clearF-'+rid).addEventListener('click',function(){
+    setFilterPeriod(rid,'all');
+    if(selIntern){curPage[selIntern]=1;selRows[selIntern]=new Set();refreshAll(rid,selIntern);}
+  });
+  document.querySelectorAll('#qb-'+rid+' .quick-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      setFilterPeriod(rid,this.dataset.period);
+      if(selIntern){curPage[selIntern]=1;selRows[selIntern]=new Set();refreshAll(rid,selIntern);}
+    });
   });
 }
 
 function refreshAll(rid,iid){
-  const f=getFilter(rid);
-  const cd=document.getElementById(`scards-${rid}`);
-  const tbl=document.getElementById(`tbl-${rid}`);
+  var f=getFilter(rid);
+  var cd=document.getElementById('scards-'+rid);
+  var tbl=document.getElementById('tbl-'+rid);
+  var period=f.period||'week';
   
-  // 根据筛选period判断视图模式
-  const period=f.period||'week';
-  
-  if(period==='all' || period==='custom'){
-    // 全部或自定义：显示表格，不显示汇总卡片
+  if(period==='all'||period==='custom'){
     if(cd)cd.innerHTML='';
     if(tbl)tbl.style.display='block';
     renderTable(rid,iid,f.start,f.end);
   }else{
-    // 预设周期：显示汇总卡片，隐藏表格
     if(cd)cd.innerHTML=renderStdBar(rid);
-    
-    let view='week';
+    var view='week';
     if(period==='month'||period==='lastMonth')view='month';
     if(period==='today')view='week';
-    
     renderCards(rid,iid,view,f);
     if(tbl)tbl.style.display='none';
   }
@@ -268,464 +231,446 @@ function refreshAll(rid,iid){
 }
 
 function renderStdBar(rid){
-  if(!standards[rid])standards[rid]={enabled:DIMS.map(d=>d.k),targets:{}};
-  const cfg=standards[rid];const vd=DIMS.filter(d=>cfg.enabled.includes(d.k));
+  if(!standards[rid])standards[rid]={enabled:DIMS.map(function(d){return d.k}),targets:{}};
+  var cfg=standards[rid];
+  var vd=DIMS.filter(function(d){return cfg.enabled.includes(d.k)});
   if(vd.length===0)return'';
-  return`<div class="standard-bar"><h4>🎯 周标准</h4>${vd.map(d=>`<div class="standard-item">${d.i} ${d.l}<br><strong>${(cfg.targets[d.k]||0).toLocaleString()}</strong></div>`).join('')}<button class="btn-sm btn-cyan" onclick="document.getElementById('stdBtn-${rid}').click()" style="font-size:0.6rem;">修改</button></div>`;
+  var h='<div class="standard-bar"><h4>🎯 周标准</h4>';
+  vd.forEach(function(d){h+='<div class="standard-item">'+d.i+' '+d.l+'<br><strong>'+(cfg.targets[d.k]||0).toLocaleString()+'</strong></div>';});
+  h+='<button class="btn-sm btn-cyan" onclick="document.getElementById(\'stdBtn-'+rid+'\').click()" style="font-size:0.6rem;">修改</button></div>';
+  return h;
 }
 
 function renderCards(rid,iid,v,f){
-  const cd=document.getElementById(`scards-${rid}`);if(!cd)return;
-  const tgts=(standards[rid]||{}).targets||{};
-  
-  // ★ 获取所有记录并应用筛选
-  let recs=(daily[iid]||[]).slice();
-  if(f&&f.start&&f.end){
-    recs=recs.filter(r=>r.date>=f.start&&r.date<=f.end);
-  }else if(f&&f.start){
-    recs=recs.filter(r=>r.date>=f.start);
-  }else if(f&&f.end){
-    recs=recs.filter(r=>r.date<=f.end);
-  }
-  
-  // 根据视图进一步筛选
-  if(v==='week'){
-    const ws=getWeekStart();
-    recs=recs.filter(r=>r.date>=ws);
-  }else if(v==='month'){
-    const ms=getMonthStart();
-    recs=recs.filter(r=>r.date>=ms);
-  }
-  
-  if(recs.length===0){
-    cd.innerHTML+='<p style="color:#94a3b8;font-size:0.75rem;padding:8px;">该周期暂无数据</p>';
-    return;
-  }
-  
-  // 汇总计算...
-  const totals={};
-  DIMS.forEach(d=>{totals[d.k]=recs.reduce((s,r)=>s+(r[d.k]||0),0);});
-  
-  let h=`<div style="font-size:0.8rem;color:#475569;margin:6px 0 4px;">📊 ${v==='week'?'本周':v==='month'?'本月':'筛选'}汇总 (${recs.length}条记录)</div>`;
+  var cd=document.getElementById('scards-'+rid);if(!cd)return;
+  var tgts=(standards[rid]||{}).targets||{};
+  var recs=(daily[iid]||[]).slice();
+  if(f&&f.start&&f.end)recs=recs.filter(function(r){return r.date>=f.start&&r.date<=f.end});
+  else if(f&&f.start)recs=recs.filter(function(r){return r.date>=f.start});
+  else if(f&&f.end)recs=recs.filter(function(r){return r.date<=f.end});
+  if(v==='week'){var ws=getWeekStart();recs=recs.filter(function(r){return r.date>=ws});}
+  else if(v==='month'){var ms=getMonthStart();recs=recs.filter(function(r){return r.date>=ms});}
+  if(recs.length===0){cd.innerHTML+='<p style="color:#94a3b8;font-size:0.75rem;padding:8px;">该周期暂无数据</p>';return;}
+  var totals={};
+  DIMS.forEach(function(d){totals[d.k]=recs.reduce(function(s,r){return s+(r[d.k]||0)},0);});
+  var h='<div style="font-size:0.8rem;color:#475569;margin:6px 0 4px;">📊 '+(v==='week'?'本周':v==='month'?'本月':'筛选')+'汇总 ('+recs.length+'条)</div>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
-  
-  DIMS.forEach(d=>{
-    const tv=totals[d.k],tgt=tgts[d.k]||0,pct=tgt>0?Math.round(tv/tgt*100):0;
-    h+=`<div class="mini-card" style="flex:1;min-width:90px;">`;
-    h+=`<div style="font-weight:600;font-size:0.7rem;color:#64748b;">${d.i} ${d.l}</div>`;
-    h+=`<div style="font-weight:700;font-size:1rem;margin-top:4px;">${tv.toLocaleString()}</div>`;
-    if(tgt>0)h+=`<div style="font-size:0.55rem;margin-top:2px;color:${tv>=tgt?'#10b981':'#ef4444'};">目标${tgt} (${pct}%) ${tv>=tgt?'✓':'✗'}</div>`;
-    h+=`</div>`;
+  DIMS.forEach(function(d){
+    var tv=totals[d.k],tgt=tgts[d.k]||0,pct=tgt>0?Math.round(tv/tgt*100):0;
+    h+='<div class="mini-card" style="flex:1;min-width:90px;">';
+    h+='<div style="font-weight:600;font-size:0.7rem;color:#64748b;">'+d.i+' '+d.l+'</div>';
+    h+='<div style="font-weight:700;font-size:1rem;margin-top:4px;">'+tv.toLocaleString()+'</div>';
+    if(tgt>0)h+='<div style="font-size:0.55rem;margin-top:2px;color:'+(tv>=tgt?'#10b981':'#ef4444')+';">目标'+tgt+' ('+pct+'%) '+(tv>=tgt?'✓':'✗')+'</div>';
+    h+='</div>';
   });
   h+='</div>';
   cd.innerHTML+=h;
 }
 
 function renderTable(rid,iid,fs,fe){
-  const c=document.getElementById(`tbl-${rid}`);if(!c)return;
-  
-  // ★ 关键：如果没传筛选参数，从filterState获取
-  if(fs===undefined&&fe===undefined){
-    const f=getFilter(rid);
-    fs=f.start;fe=f.end;
-  }
-  
-  if(!curPage[iid])curPage[iid]=1;
-  if(!selRows[iid])selRows[iid]=new Set();
-  
-  // 获取所有记录
-  let all=(daily[iid]||[]).slice();
-  
-  // 应用筛选
-  if(fs&&fe){
-    all=all.filter(r=>r.date>=fs&&r.date<=fe);
-  }else if(fs){
-    all=all.filter(r=>r.date>=fs);
-  }else if(fe){
-    all=all.filter(r=>r.date<=fe);
-  }
-  
-  // 计算分页
-  const tp=Math.ceil(all.length/PS)||1;
-  let pg=curPage[iid];
-  if(pg>tp)pg=tp;
-  if(pg<1)pg=1;
-  curPage[iid]=pg;
-  
-  const start=(pg-1)*PS;
-  const recs=all.slice(start,start+PS);
-  const sset=selRows[iid];
-  const allSel=recs.length>0&&recs.every((_,i)=>sset.has((pg-1)*PS+i));
+  var c=document.getElementById('tbl-'+rid);if(!c)return;
+  if(fs===undefined&&fe===undefined){var f=getFilter(rid);fs=f.start;fe=f.end;}
+  if(!curPage[iid])curPage[iid]=1;if(!selRows[iid])selRows[iid]=new Set();
+  var all=(daily[iid]||[]).slice();
+  if(fs&&fe)all=all.filter(function(r){return r.date>=fs&&r.date<=fe});
+  else if(fs)all=all.filter(function(r){return r.date>=fs});
+  else if(fe)all=all.filter(function(r){return r.date<=fe});
+  var tp=Math.ceil(all.length/PS)||1;var pg=curPage[iid];if(pg>tp)pg=tp;if(pg<1)pg=1;curPage[iid]=pg;
+  var start=(pg-1)*PS,recs=all.slice(start,start+PS),sset=selRows[iid];
+  var allSel=recs.length>0&&recs.every(function(_,i){return sset.has((pg-1)*PS+i)});
 
-  // 后面的HTML构建代码保持不变...
-
-  let h=`<div class="toolbar"><button class="btn-sm btn-red" id="bdel-${rid}" ${sset.size===0?'disabled':''}>🗑 删除(${sset.size})</button><span style="font-size:0.7rem;color:#64748b;">共${all.length}条</span></div>`;
-  h+=`<div class="table-wrapper"><table><thead><tr><th><input type="checkbox" id="sall-${rid}" ${allSel?'checked':''}></th><th>日期</th>${DIMS.map(d=>`<th>${d.i}${d.l}</th>`).join('')}<th></th></tr></thead><tbody>`;
-  recs.forEach((r,i)=>{const gi=(pg-1)*PS+i;
-    h+=`<tr><td><input type="checkbox" class="rcb" data-idx="${gi}" ${sset.has(gi)?'checked':''}></td><td>${r.date}</td>${DIMS.map(d=>`<td>${r[d.k]||0}${d.k==='cost'?'$':''}</td>`).join('')}<td><button class="btn-sm btn-gray" data-del="${iid}" data-idx="${gi}" style="padding:2px 6px;">🗑</button></td></tr>`;
+  var h='<div class="toolbar"><button class="btn-sm btn-red" id="bdel-'+rid+'" '+(sset.size===0?'disabled':'')+'>🗑 删除('+sset.size+')</button><span style="font-size:0.7rem;color:#64748b;">共'+all.length+'条</span></div>';
+  h+='<div class="table-wrapper"><table><thead><tr><th><input type="checkbox" id="sall-'+rid+'" '+(allSel?'checked':'')+'></th><th>日期</th>';
+  DIMS.forEach(function(d){h+='<th>'+d.i+d.l+'</th>';});
+  h+='<th></th></tr></thead><tbody>';
+  
+  recs.forEach(function(r,i){
+    var gi=(pg-1)*PS+i;
+    h+='<tr><td><input type="checkbox" class="rcb" data-idx="'+gi+'" '+(sset.has(gi)?'checked':'')+'></td><td>'+r.date+'</td>';
+    DIMS.forEach(function(d){h+='<td>'+(r[d.k]||0)+(d.k==='cost'?'$':'')+'</td>';});
+    h+='<td><button class="btn-sm btn-gray" data-del="'+iid+'" data-idx="'+gi+'" style="padding:2px 6px;">🗑</button></td></tr>';
   });
-  h+=`<tr style="background:#fdf4ff;"><td></td><td><input type="date" id="bd-${rid}" style="width:110px;"></td>${DIMS.map(d=>`<td><input class="small-input" id="b-${d.k}-${rid}" placeholder="${d.l}"></td>`).join('')}<td><button class="btn-sm btn-blue" id="saveB-${rid}">保存</button></td></tr>`;
-  h+=`</tbody></table></div>`;
-  h+=`<div class="pagination"><button ${pg<=1?'disabled':''} id="pp-${rid}">‹</button><span style="font-size:0.75rem;">${pg}/${tp}</span><button ${pg>=tp?'disabled':''} id="np-${rid}">›</button></div>`;
+  
+  h+='<tr style="background:#fdf4ff;"><td></td><td><input type="date" id="bd-'+rid+'" style="width:110px;"></td>';
+  DIMS.forEach(function(d){h+='<td><input class="small-input" id="b-'+d.k+'-'+rid+'" placeholder="'+d.l+'"></td>';});
+  h+='<td><button class="btn-sm btn-blue" id="saveB-'+rid+'">保存</button></td></tr>';
+  h+='</tbody></table></div>';
+  h+='<div class="pagination"><button '+(pg<=1?'disabled':'')+' id="pp-'+rid+'">‹</button><span style="font-size:0.75rem;">'+pg+'/'+tp+'</span><button '+(pg>=tp?'disabled':'')+' id="np-'+rid+'">›</button></div>';
   c.innerHTML=h;
 
-  document.getElementById(`sall-${rid}`)?.addEventListener('change',function(){
-    recs.forEach((_,i)=>{const gi=(pg-1)*PS+i;if(this.checked)sset.add(gi);else sset.delete(gi);});
+  document.getElementById('sall-'+rid)&&document.getElementById('sall-'+rid).addEventListener('change',function(){
+    recs.forEach(function(_,i){var gi=(pg-1)*PS+i;if(this.checked)sset.add(gi);else sset.delete(gi);});
     renderTable(rid,iid,fs,fe);
   });
-    // ========== 单条删除按钮 ==========
-  c.querySelectorAll('[data-del]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      // 第1步：获取要删除记录的筛选后索引
-      const filteredIndex = parseInt(this.dataset.idx);
-      
-      // 第2步：确认删除
-      if(!confirm('确定删除这条记录吗？')) return;
-      
-      // 第3步：获取当前筛选后的记录列表
-      let filteredRecords = (daily[iid] || []).slice();
-      if(fs && fe) {
-        filteredRecords = filteredRecords.filter(r => r.date >= fs && r.date <= fe);
-      } else if(fs) {
-        filteredRecords = filteredRecords.filter(r => r.date >= fs);
-      } else if(fe) {
-        filteredRecords = filteredRecords.filter(r => r.date <= fe);
-      }
-      
-      // 第4步：检查索引是否有效
-      if(filteredIndex >= filteredRecords.length) return;
-      
-      // 第5步：获取要删除的记录
-      const targetRecord = filteredRecords[filteredIndex];
-      
-      // 第6步：在原始daily数组中查找匹配的记录
-      const realIndex = daily[iid].findIndex(r =>
-        r.date === targetRecord.date &&
-        r.approach === targetRecord.approach &&
-        r.reply === targetRecord.reply &&
-        r.newHost === targetRecord.newHost
-      );
-      
-      // 第7步：如果找到了，从原始数组中删除
-      if(realIndex !== -1) {
-        daily[iid].splice(realIndex, 1);
-        
-        // 第8步：更新选中状态（删除的索引不再有效）
-        selRows[iid].delete(filteredIndex);
-        
-        // 第9步：因为删除了一条，后面的索引都要减1
-        const newSet = new Set();
-        selRows[iid].forEach(oldIndex => {
-          if(oldIndex > filteredIndex) {
-            newSet.add(oldIndex - 1);  // 后面的索引减1
-          } else if(oldIndex < filteredIndex) {
-            newSet.add(oldIndex);       // 前面的索引不变
-          }
-        });
-        selRows[iid] = newSet;
-        
-        // 第10步：保存数据
-        ss('kolDaily', daily);
-        
-        // 第11步：重新计算筛选后的记录数量
-        let newFilteredRecords = (daily[iid] || []).slice();
-        if(fs && fe) {
-          newFilteredRecords = newFilteredRecords.filter(r => r.date >= fs && r.date <= fe);
-        } else if(fs) {
-          newFilteredRecords = newFilteredRecords.filter(r => r.date >= fs);
-        } else if(fe) {
-          newFilteredRecords = newFilteredRecords.filter(r => r.date <= fe);
-        }
-        
-        // 第12步：更新分页（如果当前页没有数据了，回到上一页）
-        const totalPages = Math.ceil(newFilteredRecords.length / PS) || 1;
-        if(curPage[iid] > totalPages) {
-          curPage[iid] = totalPages;
-        }
-      }
-      
-      // 第13步：重新渲染表格（保持筛选状态）
-      renderTable(rid, iid, fs, fe);
-      
-      // 第14步：更新排名
-      renderRank(rid);
+  
+  c.querySelectorAll('.rcb').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      var gi=parseInt(this.dataset.idx);
+      if(this.checked)sset.add(gi);else sset.delete(gi);
+      renderTable(rid,iid,fs,fe);
     });
   });
 
-     // ========== 批量删除按钮 ==========
-  document.getElementById(`bdel-${rid}`)?.addEventListener('click',()=>{
-    // 第1步：检查是否有选中项
+  // 批量删除
+  document.getElementById('bdel-'+rid)&&document.getElementById('bdel-'+rid).addEventListener('click',function(){
     if(sset.size===0)return;
-    
-    // 第2步：确认删除
-    if(!confirm(`确定删除选中的 ${sset.size} 条记录吗？`))return;
-    
-    // 第3步：获取当前筛选后的记录列表
-    // 因为表格显示的是筛选后的数据，索引是筛选后的索引
-    let filteredRecords = (daily[iid] || []).slice();
-    if(fs && fe) {
-      filteredRecords = filteredRecords.filter(r => r.date >= fs && r.date <= fe);
-    } else if(fs) {
-      filteredRecords = filteredRecords.filter(r => r.date >= fs);
-    } else if(fe) {
-      filteredRecords = filteredRecords.filter(r => r.date <= fe);
-    }
-    
-    // 第4步：将选中的索引从大到小排序
-    const selectedIndices = Array.from(sset).sort((a, b) => b - a);
-    
-    // 第5步：根据筛选后的索引，找到对应的记录
-    const recordsToDelete = [];
-    selectedIndices.forEach(gi => {
-      if(gi < filteredRecords.length) {
-        recordsToDelete.push(filteredRecords[gi]);
-      }
+    if(!confirm('确定删除选中的'+sset.size+'条记录？'))return;
+    var filtered=(daily[iid]||[]).slice();
+    if(fs&&fe)filtered=filtered.filter(function(r){return r.date>=fs&&r.date<=fe});
+    else if(fs)filtered=filtered.filter(function(r){return r.date>=fs});
+    else if(fe)filtered=filtered.filter(function(r){return r.date<=fe});
+    var arr=Array.from(sset).sort(function(a,b){return b-a});
+    var toDel=[];
+    arr.forEach(function(gi){if(gi<filtered.length)toDel.push(filtered[gi]);});
+    toDel.forEach(function(target){
+      var ri=daily[iid].findIndex(function(r){return r.date===target.date&&r.approach===target.approach&&r.reply===target.reply&&r.newHost===target.newHost});
+      if(ri!==-1)daily[iid].splice(ri,1);
     });
-    
-    // 第6步：在原始数据中找到并删除这些记录
-    // 因为原始数据和筛选后数据的索引不同，需要通过匹配来找到
-    recordsToDelete.forEach(targetRecord => {
-      // 在原始daily数组中查找匹配的记录
-      const realIndex = daily[iid].findIndex(r =>
-        r.date === targetRecord.date &&
-        r.approach === targetRecord.approach &&
-        r.reply === targetRecord.reply &&
-        r.newHost === targetRecord.newHost
-      );
-      
-      // 如果找到了，就从原始数组中删除
-      if(realIndex !== -1) {
-        daily[iid].splice(realIndex, 1);
-      }
-    });
-    
-    // 第7步：清空选中状态
-    selRows[iid] = new Set();
-    
-    // 第8步：保存数据到localStorage
-    ss('kolDaily', daily);
-    
-    // 第9步：重新计算筛选后的记录数量，更新分页
-    let newFilteredRecords = (daily[iid] || []).slice();
-    if(fs && fe) {
-      newFilteredRecords = newFilteredRecords.filter(r => r.date >= fs && r.date <= fe);
-    } else if(fs) {
-      newFilteredRecords = newFilteredRecords.filter(r => r.date >= fs);
-    } else if(fe) {
-      newFilteredRecords = newFilteredRecords.filter(r => r.date <= fe);
-    }
-    
-    const totalPages = Math.ceil(newFilteredRecords.length / PS) || 1;
-    if(curPage[iid] > totalPages) {
-      curPage[iid] = totalPages;
-    }
-    
-    // 第10步：重新渲染表格（保持筛选状态）
-    renderTable(rid, iid, fs, fe);
-    
-    // 第11步：更新排名
-    renderRank(rid);
+    selRows[iid]=new Set();ss('kolDaily',daily);
+    var nf=(daily[iid]||[]).slice();
+    if(fs&&fe)nf=nf.filter(function(r){return r.date>=fs&&r.date<=fe});
+    else if(fs)nf=nf.filter(function(r){return r.date>=fs});
+    else if(fe)nf=nf.filter(function(r){return r.date<=fe});
+    var ntp=Math.ceil(nf.length/PS)||1;if(curPage[iid]>ntp)curPage[iid]=ntp;
+    renderTable(rid,iid,fs,fe);renderRank(rid);
   });
 
-  document.getElementById(`pp-${rid}`)?.addEventListener('click',()=>{if(curPage[iid]>1){curPage[iid]--;renderTable(rid,iid,fs,fe);}});
-  document.getElementById(`np-${rid}`)?.addEventListener('click',()=>{if(curPage[iid]<tp){curPage[iid]++;renderTable(rid,iid,fs,fe);}});
-  document.getElementById(`saveB-${rid}`)?.addEventListener('click',()=>batchAdd(rid,iid));
+  // 单条删除
+  c.querySelectorAll('[data-del]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var gi=parseInt(this.dataset.idx);
+      if(!confirm('确定删除这条记录？'))return;
+      var filtered=(daily[iid]||[]).slice();
+      if(fs&&fe)filtered=filtered.filter(function(r){return r.date>=fs&&r.date<=fe});
+      else if(fs)filtered=filtered.filter(function(r){return r.date>=fs});
+      else if(fe)filtered=filtered.filter(function(r){return r.date<=fe});
+      if(gi>=filtered.length)return;
+      var target=filtered[gi];
+      var ri=daily[iid].findIndex(function(r){return r.date===target.date&&r.approach===target.approach&&r.reply===target.reply&&r.newHost===target.newHost});
+      if(ri!==-1){
+        daily[iid].splice(ri,1);
+        selRows[iid].delete(gi);
+        var ns=new Set();
+        selRows[iid].forEach(function(x){if(x>gi)ns.add(x-1);else if(x<gi)ns.add(x);});
+        selRows[iid]=ns;ss('kolDaily',daily);
+        var nf=(daily[iid]||[]).slice();
+        if(fs&&fe)nf=nf.filter(function(r){return r.date>=fs&&r.date<=fe});
+        else if(fs)nf=nf.filter(function(r){return r.date>=fs});
+        else if(fe)nf=nf.filter(function(r){return r.date<=fe});
+        var ntp=Math.ceil(nf.length/PS)||1;if(curPage[iid]>ntp)curPage[iid]=ntp;
+      }
+      renderTable(rid,iid,fs,fe);renderRank(rid);
+    });
+  });
+
+  document.getElementById('pp-'+rid)&&document.getElementById('pp-'+rid).addEventListener('click',function(){if(curPage[iid]>1){curPage[iid]--;renderTable(rid,iid,fs,fe);}});
+  document.getElementById('np-'+rid)&&document.getElementById('np-'+rid).addEventListener('click',function(){if(curPage[iid]<tp){curPage[iid]++;renderTable(rid,iid,fs,fe);}});
+  document.getElementById('saveB-'+rid)&&document.getElementById('saveB-'+rid).addEventListener('click',function(){batchAdd(rid,iid);});
 }
 
 function batchAdd(rid,iid){
-  const dt=document.getElementById(`bd-${rid}`).value;if(!dt){alert('请选择日期');return;}
-  const rec={date:dt};DIMS.forEach(d=>{const el=document.getElementById(`b-${d.k}-${rid}`);rec[d.k]=el?parseInt(el.value)||0:0;});
-  daily[iid].push(rec);daily[iid].sort((a,b)=>new Date(a.date)-new Date(b.date));ss('kolDaily',daily);
-  DIMS.forEach(d=>{const el=document.getElementById(`b-${d.k}-${rid}`);if(el)el.value='';});
+  var dt=document.getElementById('bd-'+rid).value;if(!dt){alert('请选择日期');return;}
+  var rec={date:dt};
+  DIMS.forEach(function(d){var el=document.getElementById('b-'+d.k+'-'+rid);rec[d.k]=el?parseInt(el.value)||0:0;});
+  daily[iid].push(rec);daily[iid].sort(function(a,b){return new Date(a.date)-new Date(b.date)});ss('kolDaily',daily);
+  DIMS.forEach(function(d){var el=document.getElementById('b-'+d.k+'-'+rid);if(el)el.value='';});
   curPage[iid]=Math.ceil(daily[iid].length/PS);
   refreshAll(rid,iid);renderRank(rid);
 }
 
 function renderAnalysis(rid,iid){
-  const card=document.getElementById(`analysis-${rid}`);if(!card)return;
-  if(!standards[rid])standards[rid]={enabled:DIMS.map(d=>d.k),targets:{}};
-  const cfg=standards[rid];const ed=cfg.enabled||DIMS.map(d=>d.k);const tgts=cfg.targets||{};
-  const f=getFilter(rid);
-  let all=(daily[iid]||[]).slice();
-  if(f.start&&f.end)all=all.filter(r=>r.date>=f.start&&r.date<=f.end);
-  else if(f.start)all=all.filter(r=>r.date>=f.start);
-  else if(f.end)all=all.filter(r=>r.date<=f.end);
-  
+  var card=document.getElementById('analysis-'+rid);if(!card)return;
+  if(!standards[rid])standards[rid]={enabled:DIMS.map(function(d){return d.k}),targets:{}};
+  var cfg=standards[rid];var ed=cfg.enabled||DIMS.map(function(d){return d.k});var tgts=cfg.targets||{};
+  var f=getFilter(rid);
+  var all=(daily[iid]||[]).slice();
+  if(f.start&&f.end)all=all.filter(function(r){return r.date>=f.start&&r.date<=f.end});
+  else if(f.start)all=all.filter(function(r){return r.date>=f.start});
+  else if(f.end)all=all.filter(function(r){return r.date<=f.end});
   if(all.length===0){card.innerHTML='<p style="color:#64748b;font-size:0.8rem;">暂无数据</p>';return;}
-  
-  const ws=getWeekStart();
-  const thisWeek=all.filter(r=>r.date>=ws);
-  const lws=new Date(new Date(ws).getTime()-7*86400000).toISOString().split('T')[0];
-  const lwe=new Date(new Date(ws).getTime()-86400000).toISOString().split('T')[0];
-  const lastWeek=all.filter(r=>r.date>=lws&&r.date<=lwe);
-  
-  const wt={},lt={};
-  DIMS.forEach(d=>{wt[d.k]=thisWeek.reduce((s,r)=>s+(r[d.k]||0),0);lt[d.k]=lastWeek.reduce((s,r)=>s+(r[d.k]||0),0);});
-  
-  const checks=DIMS.filter(d=>ed.includes(d.k)).map(d=>({...d,wv:wt[d.k],lv:lt[d.k],tgt:tgts[d.k]||0}));
-  const pc=checks.filter(c=>c.tgt>0&&c.wv>=c.tgt).length,tc=checks.filter(c=>c.tgt>0).length;
-  let sug=tc===0?'📝 请设置周标准':pc===tc?'🎉 全部达标！':pc>=tc*0.7?'👍 大部分达标':pc>=tc*0.4?'📈 有提升空间':'⚠️ 需改进';
-  
-  let h='<h4 style="font-size:0.9rem;margin-bottom:8px;">📈 本周 vs 上周</h4><div style="display:flex;flex-wrap:wrap;gap:6px;">';
-  checks.forEach(c=>{
-    const diff=c.wv-c.lv;
-    let arrow='➡️',cl='#94a3b8';
+  var ws=getWeekStart();var thisWeek=all.filter(function(r){return r.date>=ws});
+  var lws=new Date(new Date(ws).getTime()-7*86400000).toISOString().split('T')[0];
+  var lwe=new Date(new Date(ws).getTime()-86400000).toISOString().split('T')[0];
+  var lastWeek=all.filter(function(r){return r.date>=lws&&r.date<=lwe});
+  var wt={},lt={};
+  DIMS.forEach(function(d){wt[d.k]=thisWeek.reduce(function(s,r){return s+(r[d.k]||0)},0);lt[d.k]=lastWeek.reduce(function(s,r){return s+(r[d.k]||0)},0);});
+  var checks=DIMS.filter(function(d){return ed.includes(d.k)}).map(function(d){return{k:d.k,i:d.i,l:d.l,wv:wt[d.k],lv:lt[d.k],tgt:tgts[d.k]||0}});
+  var pc=checks.filter(function(c){return c.tgt>0&&c.wv>=c.tgt}).length,tc=checks.filter(function(c){return c.tgt>0}).length;
+  var sug=tc===0?'📝 请设置周标准':pc===tc?'🎉 全部达标！':pc>=tc*0.7?'👍 大部分达标':pc>=tc*0.4?'📈 有提升空间':'⚠️ 需改进';
+  var h='<h4 style="font-size:0.9rem;margin-bottom:8px;">📈 本周 vs 上周</h4><div style="display:flex;flex-wrap:wrap;gap:6px;">';
+  checks.forEach(function(c){
+    var diff=c.wv-c.lv;var arrow='➡️',cl='#94a3b8';
     if(diff>0){arrow='📈';cl='#10b981';}else if(diff<0){arrow='📉';cl='#ef4444';}
-    h+=`<div class="mini-card" style="flex:1;min-width:110px;">`;
-    h+=`<div style="font-weight:600;font-size:0.7rem;">${c.i} ${c.l}</div>`;
-    h+=`<div style="display:flex;gap:10px;justify-content:center;margin-top:3px;">`;
-    h+=`<div><span style="font-size:0.55rem;">本周</span><br><strong>${c.wv}</strong></div>`;
-    h+=`<div><span style="font-size:0.55rem;">上周</span><br><strong style="color:#94a3b8;">${c.lv}</strong></div>`;
-    h+=`</div><div style="font-size:0.6rem;color:${cl};">${arrow} ${diff>=0?'+':''}${diff}</div>`;
-    if(c.tgt>0)h+=`<div style="font-size:0.55rem;margin-top:1px;" class="${c.wv>=c.tgt?'text-pass':'text-fail'}">目标${c.tgt} ${c.wv>=c.tgt?'✓':'✗'}</div>`;
-    h+=`</div>`;
+    h+='<div class="mini-card" style="flex:1;min-width:110px;">';
+    h+='<div style="font-weight:600;font-size:0.7rem;">'+c.i+' '+c.l+'</div>';
+    h+='<div style="display:flex;gap:10px;justify-content:center;margin-top:3px;">';
+    h+='<div><span style="font-size:0.55rem;">本周</span><br><strong>'+c.wv+'</strong></div>';
+    h+='<div><span style="font-size:0.55rem;">上周</span><br><strong style="color:#94a3b8;">'+c.lv+'</strong></div>';
+    h+='</div><div style="font-size:0.6rem;color:'+cl+';">'+arrow+' '+(diff>=0?'+':'')+diff+'</div>';
+    if(c.tgt>0)h+='<div style="font-size:0.55rem;margin-top:1px;" class="'+(c.wv>=c.tgt?'text-pass':'text-fail')+'">目标'+c.tgt+' '+(c.wv>=c.tgt?'✓':'✗')+'</div>';
+    h+='</div>';
   });
-  h+=`</div>${tc>0?`<div style="text-align:center;font-weight:600;font-size:0.8rem;margin-top:6px;">达标率：${pc}/${tc}(${Math.round(pc/tc*100)}%)</div>`:''}`;
-  h+=`<div style="background:#eef2ff;padding:8px 12px;border-radius:8px;margin-top:6px;font-size:0.75rem;">💡 ${sug}</div>`;
+  h+='</div>'+(tc>0?'<div style="text-align:center;font-weight:600;font-size:0.8rem;margin-top:6px;">达标率：'+pc+'/'+tc+'('+Math.round(pc/tc*100)+'%)</div>':'');
+  h+='<div style="background:#eef2ff;padding:8px 12px;border-radius:8px;margin-top:6px;font-size:0.75rem;">💡 '+sug+'</div>';
   card.innerHTML=h;
 }
 
 function renderRank(rid){
-  const d=document.getElementById(`rank-${rid}`);if(!d)return;
-  const internsR=getByRegion(rid);
-  if(internsR.length===0){d.innerHTML='<p style="font-size:0.7rem;">暂无</p>';return;}
-  const ranks=internsR.map(i=>{const wr=(daily[i.id]||[]).filter(r=>r.date>=getWeekStart());return{id:i.id,name:i.name,sc:score(wr),ap:wr.reduce((s,r)=>s+r.approach,0),rp:wr.reduce((s,r)=>s+r.reply,0),nh:wr.reduce((s,r)=>s+r.newHost,0)};}).sort((a,b)=>b.sc-a.sc);
-  d.innerHTML=ranks.map((r,i)=>{let rc=i===0?'#f59e0b':i===1?'#94a3b8':i===2?'#b45309':'#cbd5e1';return`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:white;border-radius:6px;margin-bottom:3px;font-size:0.75rem;"><div style="display:flex;align-items:center;gap:6px;"><span style="background:${rc};color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;">${i+1}</span><span>${r.name}</span></div><span style="font-weight:700;color:#4f46e5;">${r.sc}分</span></div>`;}).join('');
+  var d=document.getElementById('rank-'+rid);if(!d)return;
+  var ir=getByRegion(rid);
+  if(ir.length===0){d.innerHTML='<p style="font-size:0.7rem;">暂无</p>';return;}
+  var ranks=ir.map(function(i){
+    var wr=(daily[i.id]||[]).filter(function(r){return r.date>=getWeekStart()});
+    return{id:i.id,name:i.name,sc:score(wr),ap:wr.reduce(function(s,r){return s+r.approach},0),rp:wr.reduce(function(s,r){return s+r.reply},0),nh:wr.reduce(function(s,r){return s+r.newHost},0)};
+  }).sort(function(a,b){return b.sc-a.sc});
+  d.innerHTML=ranks.map(function(r,i){
+    var rc=i===0?'#f59e0b':i===1?'#94a3b8':i===2?'#b45309':'#cbd5e1';
+    return'<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:white;border-radius:6px;margin-bottom:3px;font-size:0.75rem;"><div style="display:flex;align-items:center;gap:6px;"><span style="background:'+rc+';color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.7rem;">'+(i+1)+'</span><span>'+r.name+'</span></div><span style="font-weight:700;color:#4f46e5;">'+r.sc+'分</span></div>';
+  }).join('');
 }
 
 function calcBonus(rid){
-  const s=document.getElementById(`bs-${rid}`).value,e=document.getElementById(`be-${rid}`).value,rd=document.getElementById(`bresult-${rid}`);
+  var s=document.getElementById('bs-'+rid).value,e=document.getElementById('be-'+rid).value,rd=document.getElementById('bresult-'+rid);
   if(!s||!e){rd.innerHTML='<span style="color:#ef4444;">请选择日期</span>';return;}
   if(s>e){rd.innerHTML='<span style="color:#ef4444;">日期错误</span>';return;}
-  const ir=getByRegion(rid);if(ir.length===0)return;
-  const diff=Math.ceil((new Date(e)-new Date(s))/(86400000))+1,tw=Math.max(1,Math.ceil(diff/7)),tm=Math.max(1,Math.ceil(diff/30));
-  let h=`<div style="margin-top:6px;"><span style="font-size:0.65rem;">${s}~${e} (${tw}周)</span><table style="width:100%;border-collapse:collapse;font-size:0.65rem;margin-top:4px;"><tr style="background:#fef3c7;"><th>实习生</th><th>主播</th><th>评论</th><th>视频</th><th>奖金</th></tr>`;
-  let gt=0;ir.forEach(i=>{
-    const recs=(daily[i.id]||[]).filter(r=>r.date>=s&&r.date<=e);
-    const nh=recs.reduce((s,r)=>s+(r.newHost||0),0),cm=recs.reduce((s,r)=>s+(r.comments||0),0),vd=recs.reduce((s,r)=>s+(r.video||0),0);
-    const rte=getRate(nh);const tb=cm*rte.c+vd*rte.v;gt+=tb;
-    h+=`<tr><td>${i.name}</td><td>${nh}</td><td>${cm}</td><td>${vd}</td><td><strong>$${tb.toFixed(1)}</strong></td></tr>`;
+  var ir=getByRegion(rid);if(ir.length===0)return;
+  var diff=Math.ceil((new Date(e)-new Date(s))/(86400000))+1,tw=Math.max(1,Math.ceil(diff/7)),tm=Math.max(1,Math.ceil(diff/30));
+  var h='<div style="margin-top:6px;"><span style="font-size:0.65rem;">'+s+'~'+e+' ('+tw+'周)</span><table style="width:100%;border-collapse:collapse;font-size:0.65rem;margin-top:4px;"><tr style="background:#fef3c7;"><th>实习生</th><th>主播</th><th>评论</th><th>视频</th><th>奖金</th></tr>';
+  var gt=0;
+  ir.forEach(function(i){
+    var recs=(daily[i.id]||[]).filter(function(r){return r.date>=s&&r.date<=e});
+    var nh=recs.reduce(function(s,r){return s+(r.newHost||0)},0),cm=recs.reduce(function(s,r){return s+(r.comments||0)},0),vd=recs.reduce(function(s,r){return s+(r.video||0)},0);
+    var rte=getRate(nh);var tb=cm*rte.c+vd*rte.v;gt+=tb;
+    h+='<tr><td>'+i.name+'</td><td>'+nh+'</td><td>'+cm+'</td><td>'+vd+'</td><td><strong>$'+tb.toFixed(1)+'</strong></td></tr>';
   });
-  h+=`<tr style="background:#fef9c3;"><td colspan="4"><strong>总计</strong></td><td><strong>$${gt.toFixed(1)}</strong></td></tr></table>`;
-  h+=`<div style="display:flex;gap:8px;justify-content:center;margin-top:4px;"><span style="font-size:0.65rem;">📅周均:$${(gt/tw).toFixed(1)}</span><span style="font-size:0.65rem;">📆月均:$${(gt/tm).toFixed(1)}</span></div></div>`;
+  h+='<tr style="background:#fef9c3;"><td colspan="4"><strong>总计</strong></td><td><strong>$'+gt.toFixed(1)+'</strong></td></tr></table>';
+  h+='<div style="display:flex;gap:8px;justify-content:center;margin-top:4px;"><span style="font-size:0.65rem;">📅周均:$'+(gt/tw).toFixed(1)+'</span><span style="font-size:0.65rem;">📆月均:$'+(gt/tm).toFixed(1)+'</span></div></div>';
   rd.innerHTML=h;
 }
 function getRate(n){if(n<2)return{c:0,v:0};if(n<=5)return{c:0.5,v:5};if(n<=8)return{c:0.8,v:8};if(n<=11)return{c:1,v:10};if(n<=14)return{c:1.2,v:12};if(n<=20)return{c:1.4,v:14};if(n<=30)return{c:1.6,v:16};return{c:1.8,v:18};}
 
 function renderIList(rid){
-  const d=document.getElementById(`ilist-${rid}`);if(!d)return;
-  const ir=getByRegion(rid);
-  d.innerHTML=ir.map(i=>`<div class="intern-item ${selIntern===i.id?'selected':''}" data-id="${i.id}"><span class="intern-name">${i.name}</span><div style="display:flex;gap:4px;"><button class="btn-sm btn-gray edit-btn" data-id="${i.id}" style="padding:2px 6px;font-size:0.65rem;">✏️</button><button class="btn-sm btn-red delI-btn" data-id="${i.id}" style="padding:2px 6px;font-size:0.65rem;">🗑</button></div></div>`).join('');
-  d.querySelectorAll('.intern-item').forEach(el=>{el.addEventListener('click',function(e){if(e.target.closest('button'))return;selectI(this.dataset.id,rid);});});
-  d.querySelectorAll('.edit-btn').forEach(b=>{b.addEventListener('click',function(e){e.stopPropagation();editName(this.dataset.id);});});
-  d.querySelectorAll('.delI-btn').forEach(b=>{b.addEventListener('click',function(e){e.stopPropagation();if(confirm('删除该实习生及所有数据？')){const iid=this.dataset.id;interns=interns.filter(x=>x.id!==iid);delete daily[iid];delete selRows[iid];delete curPage[iid];delete viewMode[iid];ss('kolInterns',interns);ss('kolDaily',daily);if(selIntern===iid)selIntern=null;renderAll();switchR(rid);}});});
+  var d=document.getElementById('ilist-'+rid);if(!d)return;
+  var ir=getByRegion(rid);
+  d.innerHTML=ir.map(function(i){
+    return'<div class="intern-item '+(selIntern===i.id?'selected':'')+'" data-id="'+i.id+'"><span class="intern-name">'+i.name+'</span><div style="display:flex;gap:4px;"><button class="btn-sm btn-gray edit-btn" data-id="'+i.id+'" style="padding:2px 6px;font-size:0.65rem;">✏️</button><button class="btn-sm btn-red delI-btn" data-id="'+i.id+'" style="padding:2px 6px;font-size:0.65rem;">🗑</button></div></div>';
+  }).join('');
+  d.querySelectorAll('.intern-item').forEach(function(el){
+    el.addEventListener('click',function(e){if(e.target.closest('button'))return;selectI(this.dataset.id,rid);});
+  });
+  d.querySelectorAll('.edit-btn').forEach(function(b){
+    b.addEventListener('click',function(e){e.stopPropagation();editName(this.dataset.id);});
+  });
+  d.querySelectorAll('.delI-btn').forEach(function(b){
+    b.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(confirm('删除该实习生及所有数据？')){
+        var iid=this.dataset.id;
+        interns=interns.filter(function(x){return x.id!==iid});
+        delete daily[iid];delete selRows[iid];delete curPage[iid];
+        ss('kolInterns',interns);ss('kolDaily',daily);
+        if(selIntern===iid)selIntern=null;
+        renderAll();switchR(rid);
+      }
+    });
+  });
 }
+
 function selectI(iid,rid){
   selIntern=iid;
   if(!curPage[iid])curPage[iid]=1;
   if(!selRows[iid])selRows[iid]=new Set();
-  // ★ 删除了 if(!viewMode[iid])viewMode[iid]='week'; 这行
-  
   initFilter(rid);
-  
-  // 更新实习生列表选中样式
-  document.querySelectorAll(`#ilist-${rid} .intern-item`).forEach(el=>{
-    el.classList.remove('selected');
-    if(el.dataset.id===iid)el.classList.add('selected');
-  });
-  
-  // ★ 删除了视图标签同步的代码（vtabs相关）
-  
-  // 同步筛选面板
-  const f=filterS[rid];
+  document.querySelectorAll('#ilist-'+rid+' .intern-item').forEach(function(el){el.classList.remove('selected');if(el.dataset.id===iid)el.classList.add('selected');});
+  var f=filterS[rid];
   if(f){
-    const si=document.getElementById(`fs-${rid}`);if(si)si.value=f.start||'';
-    const ei=document.getElementById(`fe-${rid}`);if(ei)ei.value=f.end||'';
-    updateQuickBtns(rid,f.period||'week');
-    updateFilterInfo(rid);
+    var si=document.getElementById('fs-'+rid);if(si)si.value=f.start||'';
+    var ei=document.getElementById('fe-'+rid);if(ei)ei.value=f.end||'';
+    updateQuickBtns(rid,f.period||'week');updateFilterInfo(rid);
   }
   refreshAll(rid,iid);
 }
-function editName(iid){const i=interns.find(x=>x.id===iid);if(!i)return;const ov=document.createElement('div');ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box"><h3>修改名字</h3><input type="text" id="nn" value="${i.name}"><div class="modal-actions"><button class="btn-sm btn-gray" id="canc">取消</button><button class="btn-sm btn-blue" id="conf">确认</button></div></div>`;document.body.appendChild(ov);document.getElementById('nn').focus();document.getElementById('canc').addEventListener('click',()=>ov.remove());document.getElementById('conf').addEventListener('click',()=>{const nm=document.getElementById('nn').value.trim();if(!nm)return;i.name=nm;ss('kolInterns',interns);ov.remove();renderAll();switchR(curRegion);});ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});}
 
-function showAdd(rid){const ov=document.createElement('div');ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box"><h3>新增实习生</h3><label>名字</label><input type="text" id="nn2"><label>地区</label><select id="nr">${R.map(r=>`<option value="${r.id}" ${r.id===rid?'selected':''}>${r.name}</option>`).join('')}</select><div class="modal-actions"><button class="btn-sm btn-gray" id="canc2">取消</button><button class="btn-sm btn-blue" id="conf2">添加</button></div></div>`;document.body.appendChild(ov);document.getElementById('canc2').addEventListener('click',()=>ov.remove());document.getElementById('conf2').addEventListener('click',()=>{const nm=document.getElementById('nn2').value.trim(),rg=document.getElementById('nr').value;if(!nm)return;const nid=rg.substring(0,2)+(interns.filter(x=>x.region===rg).length+1);interns.push({id:nid,name:nm,region:rg});daily[nid]=[];ss('kolInterns',interns);ss('kolDaily',daily);ov.remove();renderAll();switchR(rg);});ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});}
-function showStd(rid){if(!standards[rid])standards[rid]={enabled:DIMS.map(d=>d.k),targets:{}};const cfg=standards[rid];const ov=document.createElement('div');ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box" style="width:500px;"><h3>${R.find(r=>r.id===rid).name} - 周标准</h3><div class="dim-tags" id="dt-${rid}">${DIMS.map(d=>`<span class="dim-tag ${cfg.enabled.includes(d.k)?'active':''}" data-dim="${d.k}">${d.i} ${d.l}</span>`).join('')}</div><div id="dtt-${rid}">${DIMS.map(d=>`<div style="display:${cfg.enabled.includes(d.k)?'flex':'none'};gap:8px;align-items:center;margin-bottom:6px;" id="tr-${d.k}-${rid}"><label style="min-width:80px;">${d.i} ${d.l}</label><input type="number" id="st-${d.k}-${rid}" value="${cfg.targets[d.k]||0}" style="width:100px;"></div>`).join('')}</div><div class="modal-actions"><button class="btn-sm btn-gray" id="canc3">取消</button><button class="btn-sm btn-blue" id="conf3">保存</button></div></div>`;document.body.appendChild(ov);let cdims=[...cfg.enabled];document.querySelectorAll(`#dt-${rid} .dim-tag`).forEach(t=>{t.addEventListener('click',function(){const dk=this.dataset.dim;this.classList.toggle('active');if(this.classList.contains('active')){if(!cdims.includes(dk))cdims.push(dk);}else{cdims=cdims.filter(x=>x!==dk);}document.getElementById(`tr-${dk}-${rid}`).style.display=this.classList.contains('active')?'flex':'none';});});document.getElementById('canc3').addEventListener('click',()=>ov.remove());document.getElementById('conf3').addEventListener('click',()=>{const nt={};DIMS.forEach(d=>{const el=document.getElementById(`st-${d.k}-${rid}`);if(el&&cdims.includes(d.k))nt[d.k]=parseInt(el.value)||0;});standards[rid]={enabled:cdims,targets:nt};ss('kolStandards',standards);ov.remove();if(selIntern)refreshAll(rid,selIntern);renderRank(rid);});ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});}
-function showUpload(rid){const ir=getByRegion(rid);if(ir.length===0){alert('请先添加实习生');return;}const ov=document.createElement('div');ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box" style="width:650px;"><h3>批量上传</h3><div style="border:2px dashed #cbd5e1;border-radius:10px;padding:24px;text-align:center;cursor:pointer;" id="dz-${rid}"><p>点击或拖拽文件</p><p style="font-size:0.7rem;color:#94a3b8;">.csv .xlsx</p><input type="file" id="fi-${rid}" accept=".csv,.xlsx,.xls" style="display:none;"></div><div id="up-${rid}" style="display:none;"></div></div>`;document.body.appendChild(ov);
-  let pdata=[],hdrs=[],cmap={},pp=1;const PPS=8;
-  const dz=document.getElementById(`dz-${rid}`),fi=document.getElementById(`fi-${rid}`);
-  dz.addEventListener('click',()=>fi.click());dz.addEventListener('dragover',e=>{e.preventDefault();});dz.addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)proc(f);});fi.addEventListener('change',e=>{if(e.target.files[0])proc(e.target.files[0]);});
-  function proc(f){const fn=f.name.toLowerCase();if(fn.endsWith('.csv')){const r=new FileReader();r.onload=function(e){parseCSV(e.target.result);};r.readAsText(f);}else if(fn.endsWith('.xlsx')||fn.endsWith('.xls')){const r=new FileReader();r.onload=function(e){try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});parseCSV(XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]));}catch(err){alert('解析失败:'+err.message);}};r.readAsArrayBuffer(f);}}
-  function parseCSV(t){const ls=t.split('\n').filter(l=>l.trim());if(ls.length<2)return;hdrs=parseLine(ls[0]);pdata=[];for(let i=1;i<ls.length;i++){const vs=parseLine(ls[i]);if(vs.length>0&&vs.some(v=>v.trim())){const row={};hdrs.forEach((h,j)=>{row[h]=vs[j]||'';});pdata.push(row);}}if(pdata.length===0)return;autoMap();pp=1;showPrev();}
-  function parseLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c.trim());c='';}else c+=ch;}r.push(c.trim());return r;}
-  function autoMap(){const tf={date:['日期','date'],approach:['搭讪','approach'],reply:['回复','reply'],newHost:['主播','host'],comments:['评论','comments'],storyPost:['story','post'],video:['视频','video'],cost:['花费','cost']};cmap={};hdrs.forEach(h=>{const hl=h.toLowerCase().replace(/[\s\/\-_]/g,'');for(const[k,ks]of Object.entries(tf)){if(cmap[k])continue;for(const kw of ks){if(hl.includes(kw.toLowerCase())){cmap[k]=h;break;}}}});}
-  function showPrev(){document.getElementById(`dz-${rid}`).style.display='none';const pd=document.getElementById(`up-${rid}`);pd.style.display='block';const tp2=Math.ceil(pdata.length/PPS)||1;if(pp>tp2)pp=tp2;const st2=(pp-1)*PPS,pgd=pdata.slice(st2,st2+PPS);
-    let h=`<div style="margin-top:10px;"><span style="font-size:0.75rem;">共${pdata.length}行</span><div style="max-height:200px;overflow:auto;border:1px solid #e2e8f0;border-radius:8px;"><table style="font-size:0.7rem;"><tr>${hdrs.map(x=>`<th>${x}</th>`).join('')}</tr>${pgd.map(r=>`<tr>${hdrs.map(h=>`<td>${r[h]||''}</td>`).join('')}</tr>`).join('')}</table></div><div class="pagination"><button ${pp<=1?'disabled':''} id="ppv">‹</button><span>${pp}/${tp2}</span><button ${pp>=tp2?'disabled':''} id="npv">›</button></div></div>`;
-    h+=`<div style="margin-top:8px;"><h4 style="font-size:0.8rem;">列映射</h4>${[{k:'date',l:'📅日期'},...DIMS.map(d=>({k:d.k,l:d.i+d.l}))].map(d=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:0.75rem;"><label style="min-width:100px;">${d.l}</label><select id="mp-${d.k}-${rid}" style="flex:1;"><option value="">--</option>${hdrs.map(h=>`<option value="${h}" ${cmap[d.k]===h?'selected':''}>${h}</option>`).join('')}</select>${cmap[d.k]?'<span class="tag tag-success">✓</span>':'<span class="tag tag-warning">?</span>'}</div>`).join('')}</div>`;
-    h+=`<div style="margin-top:8px;"><label style="font-size:0.75rem;">默认日期</label><input type="date" id="defdt-${rid}" value="${new Date().toISOString().split('T')[0]}" style="width:140px;"></div>`;
-    h+=`<div class="modal-actions"><button class="btn-sm btn-gray" id="canc4">取消</button><button class="btn-sm btn-blue" id="conf4">导入</button></div>`;
+function editName(iid){
+  var i=interns.find(function(x){return x.id===iid});if(!i)return;
+  var ov=document.createElement('div');ov.className='modal-overlay';
+  ov.innerHTML='<div class="modal-box"><h3>修改名字</h3><input type="text" id="nn" value="'+i.name+'"><div class="modal-actions"><button class="btn-sm btn-gray" id="canc">取消</button><button class="btn-sm btn-blue" id="conf">确认</button></div></div>';
+  document.body.appendChild(ov);document.getElementById('nn').focus();
+  document.getElementById('canc').addEventListener('click',function(){ov.remove();});
+  document.getElementById('conf').addEventListener('click',function(){
+    var nm=document.getElementById('nn').value.trim();if(!nm)return;
+    i.name=nm;ss('kolInterns',interns);ov.remove();renderAll();switchR(curRegion);
+  });
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
+
+function showAdd(rid){
+  var ov=document.createElement('div');ov.className='modal-overlay';
+  ov.innerHTML='<div class="modal-box"><h3>新增实习生</h3><label>名字</label><input type="text" id="nn2"><label>地区</label><select id="nr">'+R.map(function(r){return'<option value="'+r.id+'" '+(r.id===rid?'selected':'')+'>'+r.name+'</option>'}).join('')+'</select><div class="modal-actions"><button class="btn-sm btn-gray" id="canc2">取消</button><button class="btn-sm btn-blue" id="conf2">添加</button></div></div>';
+  document.body.appendChild(ov);
+  document.getElementById('canc2').addEventListener('click',function(){ov.remove();});
+  document.getElementById('conf2').addEventListener('click',function(){
+    var nm=document.getElementById('nn2').value.trim(),rg=document.getElementById('nr').value;
+    if(!nm)return;
+    var nid=rg.substring(0,2)+(interns.filter(function(x){return x.region===rg}).length+1);
+    interns.push({id:nid,name:nm,region:rg});daily[nid]=[];
+    ss('kolInterns',interns);ss('kolDaily',daily);ov.remove();renderAll();switchR(rg);
+  });
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
+
+function showStd(rid){
+  if(!standards[rid])standards[rid]={enabled:DIMS.map(function(d){return d.k}),targets:{}};
+  var cfg=standards[rid];
+  var ov=document.createElement('div');ov.className='modal-overlay';
+  ov.innerHTML='<div class="modal-box" style="width:500px;"><h3>'+R.find(function(r){return r.id===rid}).name+' - 周标准</h3><div class="dim-tags" id="dt-'+rid+'">'+DIMS.map(function(d){return'<span class="dim-tag '+(cfg.enabled.includes(d.k)?'active':'')+'" data-dim="'+d.k+'">'+d.i+' '+d.l+'</span>'}).join('')+'</div><div id="dtt-'+rid+'">'+DIMS.map(function(d){return'<div style="display:'+(cfg.enabled.includes(d.k)?'flex':'none')+';gap:8px;align-items:center;margin-bottom:6px;" id="tr-'+d.k+'-'+rid+'"><label style="min-width:80px;">'+d.i+' '+d.l+'</label><input type="number" id="st-'+d.k+'-'+rid+'" value="'+(cfg.targets[d.k]||0)+'" style="width:100px;"></div>'}).join('')+'</div><div class="modal-actions"><button class="btn-sm btn-gray" id="canc3">取消</button><button class="btn-sm btn-blue" id="conf3">保存</button></div></div>';
+  document.body.appendChild(ov);
+  var cdims=cfg.enabled.slice();
+  document.querySelectorAll('#dt-'+rid+' .dim-tag').forEach(function(t){
+    t.addEventListener('click',function(){
+      var dk=this.dataset.dim;this.classList.toggle('active');
+      if(this.classList.contains('active')){if(!cdims.includes(dk))cdims.push(dk);}
+      else{cdims=cdims.filter(function(x){return x!==dk});}
+      document.getElementById('tr-'+dk+'-'+rid).style.display=this.classList.contains('active')?'flex':'none';
+    });
+  });
+  document.getElementById('canc3').addEventListener('click',function(){ov.remove();});
+  document.getElementById('conf3').addEventListener('click',function(){
+    var nt={};
+    DIMS.forEach(function(d){var el=document.getElementById('st-'+d.k+'-'+rid);if(el&&cdims.includes(d.k))nt[d.k]=parseInt(el.value)||0;});
+    standards[rid]={enabled:cdims,targets:nt};ss('kolStandards',standards);ov.remove();
+    if(selIntern)refreshAll(rid,selIntern);renderRank(rid);
+  });
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
+
+function showUpload(rid){
+  var ir=getByRegion(rid);if(ir.length===0){alert('请先添加实习生');return;}
+  var existing=document.querySelector('.modal-overlay');if(existing)existing.remove();
+  var ov=document.createElement('div');ov.className='modal-overlay';
+  ov.innerHTML='<div class="modal-box" style="width:650px;"><h3>批量上传</h3><div style="border:2px dashed #cbd5e1;border-radius:10px;padding:24px;text-align:center;cursor:pointer;" id="dz-'+rid+'"><p>点击或拖拽文件</p><p style="font-size:0.7rem;color:#94a3b8;">.csv .xlsx</p><input type="file" id="fi-'+rid+'" accept=".csv,.xlsx,.xls" style="display:none;"></div><div id="up-'+rid+'" style="display:none;"></div></div>';
+  document.body.appendChild(ov);
+
+  var pdata=[],hdrs=[],cmap={},pp=1,PPS=8;
+  var dz=document.getElementById('dz-'+rid),fi=document.getElementById('fi-'+rid);
+  dz.addEventListener('click',function(){fi.click();});
+  dz.addEventListener('dragover',function(e){e.preventDefault();});
+  dz.addEventListener('drop',function(e){e.preventDefault();var f=e.dataTransfer.files[0];if(f)proc(f);});
+  fi.addEventListener('change',function(e){if(e.target.files[0])proc(e.target.files[0]);});
+
+  function proc(f){
+    var fn=f.name.toLowerCase();
+    if(fn.endsWith('.csv')){var r=new FileReader();r.onload=function(e){parseCSV(e.target.result);};r.readAsText(f);}
+    else if(fn.endsWith('.xlsx')||fn.endsWith('.xls')){
+      var r=new FileReader();
+      r.onload=function(e){try{var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});parseCSV(XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]));}catch(err){alert('解析失败:'+err.message);}};
+      r.readAsArrayBuffer(f);
+    }
+  }
+
+  function parseCSV(t){
+    var ls=t.split('\n').filter(function(l){return l.trim()!==''});
+    if(ls.length<2)return;
+    hdrs=parseLine(ls[0]);pdata=[];
+    for(var i=1;i<ls.length;i++){
+      var vs=parseLine(ls[i]);
+      if(vs.length>0&&vs.some(function(v){return v.trim()!==''})){
+        var row={};hdrs.forEach(function(h,j){row[h]=vs[j]||'';});pdata.push(row);
+      }
+    }
+    if(pdata.length===0)return;
+    autoMap();pp=1;showPrev();
+  }
+
+  function parseLine(l){var r=[],c='',q=false;for(var i=0;i<l.length;i++){var ch=l[i];if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c.trim());c='';}else c+=ch;}r.push(c.trim());return r;}
+
+  function autoMap(){
+    var tf={date:['日期','date'],approach:['搭讪','approach'],reply:['回复','reply'],newHost:['主播','host'],comments:['评论','comments'],storyPost:['story','post'],video:['视频','video'],cost:['花费','cost']};
+    cmap={};
+    hdrs.forEach(function(h){
+      var hl=h.toLowerCase().replace(/[\s\/\-_]/g,'');
+      for(var k in tf){if(cmap[k])continue;var ks=tf[k];for(var i=0;i<ks.length;i++){if(hl.includes(ks[i].toLowerCase())){cmap[k]=h;break;}}}
+    });
+  }
+
+  function showPrev(){
+    document.getElementById('dz-'+rid).style.display='none';
+    var pd=document.getElementById('up-'+rid);pd.style.display='block';
+    var tp2=Math.ceil(pdata.length/PPS)||1;if(pp>tp2)pp=tp2;
+    var st2=(pp-1)*PPS,pgd=pdata.slice(st2,st2+PPS);
+    var h='<div style="margin-top:10px;"><span style="font-size:0.75rem;">共'+pdata.length+'行</span><div style="max-height:200px;overflow:auto;border:1px solid #e2e8f0;border-radius:8px;"><table style="font-size:0.7rem;"><tr>';
+    hdrs.forEach(function(x){h+='<th>'+x+'</th>';});h+='</tr>';
+    pgd.forEach(function(r){h+='<tr>';hdrs.forEach(function(hh){h+='<td>'+(r[hh]||'')+'</td>';});h+='</tr>';});
+    h+='</table></div><div class="pagination"><button '+(pp<=1?'disabled':'')+' id="ppv">‹</button><span>'+pp+'/'+tp2+'</span><button '+(pp>=tp2?'disabled':'')+' id="npv">›</button></div></div>';
+    h+='<div style="margin-top:8px;"><h4 style="font-size:0.8rem;">列映射</h4>';
+    var dims=[{k:'date',l:'日期'}];DIMS.forEach(function(d){dims.push({k:d.k,l:d.i+d.l});});
+    dims.forEach(function(d){
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:0.75rem;"><label style="min-width:100px;">'+d.l+'</label><select id="mp-'+d.k+'-'+rid+'" style="flex:1;"><option value="">--</option>';
+      hdrs.forEach(function(hh){h+='<option value="'+hh+'"'+(cmap[d.k]===hh?' selected':'')+'>'+hh+'</option>';});
+      h+='</select>'+(cmap[d.k]?'<span class="tag tag-success">✓</span>':'<span class="tag tag-warning">?</span>')+'</div>';
+    });
+    h+='</div><div style="margin-top:8px;"><label style="font-size:0.75rem;">默认日期</label><input type="date" id="defdt-'+rid+'" value="'+new Date().toISOString().split('T')[0]+'" style="width:140px;"></div>';
+    h+='<div class="modal-actions"><button class="btn-sm btn-gray" id="canc4">取消</button><button class="btn-sm btn-blue" id="conf4">导入</button></div>';
     pd.innerHTML=h;
-    document.getElementById('ppv')?.addEventListener('click',()=>{pp--;showPrev();});document.getElementById('npv')?.addEventListener('click',()=>{pp++;showPrev();});
-    document.getElementById('canc4').addEventListener('click',()=>ov.remove());
-    document.getElementById('conf4').addEventListener('click',()=>{
-      const fm={};
-      ['date'].concat(DIMS.map(d=>d.k)).forEach(dk=>{
-        const s=document.getElementById(`mp-${dk}-${rid}`);
-        if(s&&s.value)fm[dk]=s.value;
-      });
-      const dd=document.getElementById(`defdt-${rid}`).value;
-      let cnt=0;
-      
-      pdata.forEach(r=>{
-        let vd=dd;
+    document.getElementById('ppv')&&document.getElementById('ppv').addEventListener('click',function(){pp--;showPrev();});
+    document.getElementById('npv')&&document.getElementById('npv').addEventListener('click',function(){pp++;showPrev();});
+    document.getElementById('canc4').addEventListener('click',function(){ov.remove();});
+    document.getElementById('conf4').addEventListener('click',function(){
+      var fm={};var allKeys=['date'];DIMS.forEach(function(d){allKeys.push(d.k);});
+      allKeys.forEach(function(dk){var s=document.getElementById('mp-'+dk+'-'+rid);if(s&&s.value)fm[dk]=s.value;});
+      var dd=document.getElementById('defdt-'+rid).value,cnt=0;
+      pdata.forEach(function(r){
+        var vd=dd;
         if(fm['date']&&r[fm['date']]){
-          const rawDate=r[fm['date']].trim();
-          var year,month,day;
+          var rawDate=r[fm['date']].trim();
           var match1=rawDate.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
-          if(match1){
-            year=parseInt(match1[1]);
-            month=parseInt(match1[2]);
-            day=parseInt(match1[3]);
-          }else{
-            var match2=rawDate.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
-            if(match2){
-              month=parseInt(match2[1]);
-              day=parseInt(match2[2]);
-              year=parseInt(match2[3]);
-            }
-          }
-          if(year&&month&&day){
-            vd=year+'-'+(month<10?'0':'')+month+'-'+(day<10?'0':'')+day;
-          }
+          if(match1){vd=match1[1]+'-'+(match1[2].length<2?'0':'')+match1[2]+'-'+(match1[3].length<2?'0':'')+match1[3];}
         }
-        var rec={date:vd};
-        DIMS.forEach(function(d){rec[d.k]=parseInt(r[fm[d.k]])||0;});
+        var rec={date:vd};DIMS.forEach(function(d){rec[d.k]=parseInt(r[fm[d.k]])||0;});
         if(selIntern){daily[selIntern].push(rec);cnt++;}
       });
-      
-      if(selIntern)daily[selIntern].sort(function(a,b){return new Date(a.date)-new Date(b.date);});
-      ss('kolDaily',daily);
-      ov.remove();
-      alert('导入'+cnt+'条');
+      if(selIntern)daily[selIntern].sort(function(a,b){return new Date(a.date)-new Date(b.date)});
+      ss('kolDaily',daily);ov.remove();alert('导入'+cnt+'条');
       if(selIntern){curPage[selIntern]=1;selRows[selIntern]=new Set();refreshAll(rid,selIntern);renderRank(rid);}
     });
+  }
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
 
-function switchR(rid){curRegion=rid;initFilter(rid);document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.tab-btn[data-region="${rid}"]`).classList.add('active');document.querySelectorAll('.region-panel').forEach(p=>p.classList.remove('active'));document.getElementById(`panel-${rid}`).classList.add('active');renderRank(rid);const f=filterS[rid];if(f){setTimeout(()=>{const si=document.getElementById(`fs-${rid}`);if(si)si.value=f.start||'';const ei=document.getElementById(`fe-${rid}`);if(ei)ei.value=f.end||'';updateQuickBtns(rid,f.period||'week');updateFilterInfo(rid);},50);}const ir=getByRegion(rid);if(ir.length>0){selIntern=ir[0].id;if(!curPage[selIntern])curPage[selIntern]=1;if(!selRows[selIntern])selRows[selIntern]=new Set();renderIList(rid);refreshAll(rid,selIntern);}else{selIntern=null;document.getElementById(`tbl-${rid}`).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';document.getElementById(`scards-${rid}`).innerHTML='';document.getElementById(`analysis-${rid}`).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';}}
+function switchR(rid){
+  curRegion=rid;initFilter(rid);
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelector('.tab-btn[data-region="'+rid+'"]').classList.add('active');
+  document.querySelectorAll('.region-panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('panel-'+rid).classList.add('active');
+  renderRank(rid);
+  var f=filterS[rid];
+  if(f){setTimeout(function(){
+    var si=document.getElementById('fs-'+rid);if(si)si.value=f.start||'';
+    var ei=document.getElementById('fe-'+rid);if(ei)ei.value=f.end||'';
+    updateQuickBtns(rid,f.period||'week');updateFilterInfo(rid);
+  },50);}
+  var ir=getByRegion(rid);
+  if(ir.length>0){
+    selIntern=ir[0].id;
+    if(!curPage[selIntern])curPage[selIntern]=1;
+    if(!selRows[selIntern])selRows[selIntern]=new Set();
+    renderIList(rid);refreshAll(rid,selIntern);
+  }else{
+    selIntern=null;
+    document.getElementById('tbl-'+rid).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';
+    document.getElementById('scards-'+rid).innerHTML='';
+    document.getElementById('analysis-'+rid).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';
+  }
+}
 
-document.getElementById('regionTabs').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(!b)return;switchR(b.dataset.region);});
+document.getElementById('regionTabs').addEventListener('click',function(e){var b=e.target.closest('.tab-btn');if(!b)return;switchR(b.dataset.region);});
 
 loadAll();renderAll();
-const ft=getByRegion('taiwan')[0];
+var ft=getByRegion('taiwan')[0];
 if(ft){
-  selIntern=ft.id;
-  curPage[selIntern]=1;
-  selRows[selIntern]=new Set();
-  // ★ 删除了 viewMode[selIntern]='week'; 这行
-  initFilter('taiwan');
-  setTimeout(()=>{
-    renderIList('taiwan');
-    refreshAll('taiwan',selIntern);
-    renderRank('taiwan');
-  },50);
+  selIntern=ft.id;curPage[selIntern]=1;selRows[selIntern]=new Set();initFilter('taiwan');
+  setTimeout(function(){renderIList('taiwan');refreshAll('taiwan',selIntern);renderRank('taiwan');},50);
 }
 })();
 </script>
