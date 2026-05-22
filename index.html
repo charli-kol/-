@@ -282,16 +282,17 @@ function renderTable(rid,iid,fs,fe){
   var h='<div class="toolbar"><button class="btn-sm btn-red" id="bdel-'+rid+'" '+(sset.size===0?'disabled':'')+'>🗑 删除('+sset.size+')</button><span style="font-size:0.7rem;color:#64748b;">共'+all.length+'条</span></div>';
   h+='<div class="table-wrapper"><table><thead><tr><th><input type="checkbox" id="sall-'+rid+'" '+(allSel?'checked':'')+'></th><th>日期</th>';
   DIMS.forEach(function(d){h+='<th>'+d.i+d.l+'</th>';});
-  h+='<th></th></tr></thead><tbody>';
+  h+='<th>操作</th></tr></thead><tbody>';
   
   recs.forEach(function(r,i){
     var gi=(pg-1)*PS+i;
     h+='<tr><td><input type="checkbox" class="rcb" data-idx="'+gi+'" '+(sset.has(gi)?'checked':'')+'></td><td>'+r.date+'</td>';
     DIMS.forEach(function(d){h+='<td>'+(r[d.k]||0)+(d.k==='cost'?'$':'')+'</td>';});
     h+='<td>';
-h+='<button class="btn-sm btn-cyan" data-edit="'+iid+'" data-idx="'+gi+'" style="padding:2px 6px;margin-right:2px;">✏️</button>';
-h+='<button class="btn-sm btn-gray" data-del="'+iid+'" data-idx="'+gi+'" style="padding:2px 6px;">🗑</button>';
-h+='</td></tr>';
+    h+='<button class="btn-sm btn-cyan" data-edit="'+iid+'" data-idx="'+gi+'" style="padding:2px 6px;margin-right:2px;">✏️</button>';
+    h+='<button class="btn-sm btn-gray" data-del="'+iid+'" data-idx="'+gi+'" style="padding:2px 6px;">🗑</button>';
+    h+='</td></tr>';
+  });
   
   h+='<tr style="background:#fdf4ff;"><td></td><td><input type="date" id="bd-'+rid+'" style="width:110px;"></td>';
   DIMS.forEach(function(d){h+='<td><input class="small-input" id="b-'+d.k+'-'+rid+'" placeholder="'+d.l+'"></td>';});
@@ -300,7 +301,7 @@ h+='</td></tr>';
   h+='<div class="pagination"><button '+(pg<=1?'disabled':'')+' id="pp-'+rid+'">‹</button><span style="font-size:0.75rem;">'+pg+'/'+tp+'</span><button '+(pg>=tp?'disabled':'')+' id="np-'+rid+'">›</button></div>';
   c.innerHTML=h;
 
-   // 全选复选框
+  // 全选复选框
   var sallEl=document.getElementById('sall-'+rid);
   if(sallEl){
     sallEl.onchange=function(){
@@ -308,28 +309,19 @@ h+='</td></tr>';
       var startIdx=(pg-1)*PS;
       recs.forEach(function(_,i){
         var gi=startIdx+i;
-        if(isChecked){
-          sset.add(gi);
-        }else{
-          sset.delete(gi);
-        }
+        if(isChecked){sset.add(gi);}else{sset.delete(gi);}
       });
-      // 重新渲染表格
       renderTable(rid,iid,fs,fe);
     };
   }
   
-    // 行复选框
+  // 行复选框
   var rowCheckboxes=c.querySelectorAll('.rcb');
   for(var i=0;i<rowCheckboxes.length;i++){
     (function(cb){
       cb.onchange=function(){
         var gi=parseInt(this.dataset.idx);
-        if(this.checked){
-          sset.add(gi);
-        }else{
-          sset.delete(gi);
-        }
+        if(this.checked){sset.add(gi);}else{sset.delete(gi);}
         renderTable(rid,iid,fs,fe);
       };
     })(rowCheckboxes[i]);
@@ -386,30 +378,31 @@ h+='</td></tr>';
       renderTable(rid,iid,fs,fe);renderRank(rid);
     });
   });
-      // 编辑按钮
-  c.querySelectorAll('[data-edit]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var gi=parseInt(this.dataset.idx);
-      // 获取筛选后的记录列表
-      var filtered=(daily[iid]||[]).slice();
-      if(fs&&fe)filtered=filtered.filter(function(r){return r.date>=fs&&r.date<=fe});
-      else if(fs)filtered=filtered.filter(function(r){return r.date>=fs});
-      else if(fe)filtered=filtered.filter(function(r){return r.date<=fe});
-      
-      if(gi>=filtered.length)return;
-      var target=filtered[gi];
-      
-      // 在原始数据中找到真实索引
-      var realIdx=daily[iid].findIndex(function(r){
-        return r.date===target.date&&r.approach===target.approach&&r.reply===target.reply&&r.newHost===target.newHost;
-      });
-      
-      if(realIdx!==-1){
-        showEditRecordModal(rid,iid,realIdx,fs,fe);
-      }
-    });
-  });
 
+  // 编辑按钮
+  var editBtns=c.querySelectorAll('[data-edit]');
+  for(var ei=0;ei<editBtns.length;ei++){
+    (function(btn){
+      btn.onclick=function(){
+        var gi=parseInt(this.dataset.idx);
+        var filtered=(daily[iid]||[]).slice();
+        if(fs&&fe)filtered=filtered.filter(function(r){return r.date>=fs&&r.date<=fe});
+        else if(fs)filtered=filtered.filter(function(r){return r.date>=fs});
+        else if(fe)filtered=filtered.filter(function(r){return r.date<=fe});
+        
+        if(gi>=filtered.length)return;
+        var target=filtered[gi];
+        var realIdx=daily[iid].findIndex(function(r){
+          return r.date===target.date&&r.approach===target.approach&&r.reply===target.reply&&r.newHost===target.newHost;
+        });
+        if(realIdx!==-1){
+          showEditRecordModal(rid,iid,realIdx,fs,fe);
+        }
+      };
+    })(editBtns[ei]);
+  }
+
+  // 分页
   document.getElementById('pp-'+rid)&&document.getElementById('pp-'+rid).addEventListener('click',function(){if(curPage[iid]>1){curPage[iid]--;renderTable(rid,iid,fs,fe);}});
   document.getElementById('np-'+rid)&&document.getElementById('np-'+rid).addEventListener('click',function(){if(curPage[iid]<tp){curPage[iid]++;renderTable(rid,iid,fs,fe);}});
   document.getElementById('saveB-'+rid)&&document.getElementById('saveB-'+rid).addEventListener('click',function(){batchAdd(rid,iid);});
