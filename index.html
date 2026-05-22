@@ -284,7 +284,10 @@ function renderCards(rid,iid,v,f){
   h+='<div class="card-row">';
   DIMS.forEach(function(d){
     var tv=totals[d.k],tgt=tgts[d.k]||0,pct=tgt>0?Math.round(tv/tgt*100):0;
-    h+='<div class="mini-card"><div class="val">'+tv+'</div><div class="lbl">'+d.l+'</div>';
+    var displayVal=tv;
+if(d.k==='cost')displayVal=tv.toFixed(1);
+else displayVal=Number.isInteger(tv)?tv:parseFloat(tv.toFixed(2));
+h+='<div class="mini-card"><div class="val">'+displayVal+'</div><div class="lbl">'+d.l+'</div>';
     if(tgt>0)h+='<div class="tgt" style="color:'+(tv>=tgt?'#27ae60':'#e74c3c')+';">目标'+tgt+' ('+pct+'%)</div>';
     h+='</div>';
   });
@@ -313,7 +316,12 @@ function renderTable(rid,iid,fs,fe){
   recs.forEach(function(r,i){
     var gi=(pg-1)*PS+i;
     h+='<tr><td><input type="checkbox" class="rcb" data-idx="'+gi+'" '+(sset.has(gi)?'checked':'')+'></td><td>'+r.date+'</td>';
-    DIMS.forEach(function(d){h+='<td>'+(r[d.k]||0)+(d.k==='cost'?' ¥':'')+'</td>';});
+    DIMS.forEach(function(d){
+  var val=r[d.k]||0;
+  if(d.k==='cost')val=parseFloat(val).toFixed(1);
+  else if(!Number.isInteger(val))val=parseFloat(val.toFixed(2));
+  h+='<td>'+val+(d.k==='cost'?' ¥':'')+'</td>';
+});
     h+='<td><button class="btn btn-sm" data-edit="'+iid+'" data-idx="'+gi+'" style="margin-right:2px;">✎</button><button class="btn btn-sm" data-del="'+iid+'" data-idx="'+gi+'">✕</button></td></tr>';
   });
   
@@ -369,7 +377,11 @@ function renderTable(rid,iid,fs,fe){
 
 function batchAdd(rid,iid){
   var dt=document.getElementById('bd-'+rid).value;if(!dt){alert('请选择日期');return;}
-  var rec={date:dt};DIMS.forEach(function(d){var el=document.getElementById('b-'+d.k+'-'+rid);rec[d.k]=el?parseFloat(el.value)||0:0;});
+  var rec={date:dt};DIMS.forEach(function(d){
+  var el=document.getElementById('b-'+d.k+'-'+rid);
+  var val=el?parseFloat(el.value)||0:0;
+  rec[d.k]=parseFloat(val.toFixed(2));
+});
   daily[iid].push(rec);daily[iid].sort(function(a,b){return new Date(a.date)-new Date(b.date)});ss('kolDaily',daily);
   DIMS.forEach(function(d){var el=document.getElementById('b-'+d.k+'-'+rid);if(el)el.value='';});
   curPage[iid]=Math.ceil(daily[iid].length/PS);refreshAll(rid,iid);renderRank(rid);
@@ -394,7 +406,9 @@ function renderAnalysis(rid,iid){
   var h='<div class="section-title">本周 vs 上周</div><div class="card-row">';
   checks.forEach(function(c){
     var diff=c.wv-c.lv;var cl=diff>0?'#27ae60':diff<0?'#e74c3c':'#8e99a4';var ar=diff>0?'↑':diff<0?'↓':'→';
-    h+='<div class="mini-card"><div style="font-size:0.65rem;color:#8e99a4;">'+c.l+'</div><div style="display:flex;gap:8px;justify-content:center;"><span>本周<strong>'+c.wv+'</strong></span><span style="color:#8e99a4;">上周'+c.lv+'</span></div><div style="font-size:0.62rem;color:'+cl+';">'+ar+' '+(diff>=0?'+':'')+diff+'</div>';
+    var wvDisplay=c.wv,lvDisplay=c.lv,diffDisplay=diff;
+if(c.k==='cost'){wvDisplay=c.wv.toFixed(1);lvDisplay=c.lv.toFixed(1);diffDisplay=parseFloat(diff.toFixed(1));}
+h+='<div class="mini-card"><div style="font-size:0.65rem;color:#8e99a4;">'+c.l+'</div><div style="display:flex;gap:8px;justify-content:center;"><span>本周<strong>'+wvDisplay+'</strong></span><span style="color:#8e99a4;">上周'+lvDisplay+'</span></div><div style="font-size:0.62rem;color:'+cl+';">'+ar+' '+(diff>=0?'+':'')+diffDisplay+'</div>';
     if(c.tgt>0)h+='<div style="font-size:0.58rem;" class="'+(c.wv>=c.tgt?'text-pass':'text-fail')+'">目标'+c.tgt+(c.wv>=c.tgt?' ✓':' ✗')+'</div>';
     h+='</div>';
   });
@@ -456,7 +470,10 @@ function showUpload(rid){
   function parseCSV(t){var ls=t.split('\n').filter(function(l){return l.trim()!==''});if(ls.length<2)return;hdrs=parseLine(ls[0]);pdata=[];for(var i=1;i<ls.length;i++){var vs=parseLine(ls[i]);if(vs.length>0&&vs.some(function(v){return v.trim()!==''})){var row={};hdrs.forEach(function(h,j){row[h]=vs[j]||'';});pdata.push(row);}}if(pdata.length===0)return;autoMap();pp=1;showPrev();}
   function parseLine(l){var r=[],c='',q=false;for(var i=0;i<l.length;i++){var ch=l[i];if(ch=='"')q=!q;else if(ch===','&&!q){r.push(c.trim());c='';}else c+=ch;}r.push(c.trim());return r;}
   function autoMap(){var tf={date:['日期','date'],approach:['搭讪','approach'],reply:['回复','reply'],newHost:['主播','host'],comments:['评论','comments'],storyPost:['story','post'],video:['视频','video'],cost:['花费','cost']};cmap={};hdrs.forEach(function(h){var hl=h.toLowerCase().replace(/[\s\/\-_]/g,'');for(var k in tf){if(cmap[k])continue;var ks=tf[k];for(var i=0;i<ks.length;i++){if(hl.includes(ks[i].toLowerCase())){cmap[k]=h;break;}}}});}
-  function showPrev(){document.getElementById('dz-'+rid).style.display='none';var pd=document.getElementById('up-'+rid);pd.style.display='block';var tp2=Math.ceil(pdata.length/PPS)||1;if(pp>tp2)pp=tp2;var st2=(pp-1)*PPS,pgd=pdata.slice(st2,st2+PPS);var h='<div style="margin-top:8px;"><span style="font-size:0.7rem;color:#8e99a4;">共'+pdata.length+'行</span><div style="max-height:180px;overflow:auto;border:1px solid #e8ecf1;border-radius:4px;"><table style="font-size:0.68rem;"><tr>';hdrs.forEach(function(x){h+='<th>'+x+'</th>';});h+='</tr>';pgd.forEach(function(r){h+='<tr>';hdrs.forEach(function(hh){h+='<td>'+(r[hh]||'')+'</td>';});h+='</tr>';});h+='</table></div><div class="pagination"><button '+(pp<=1?'disabled':'')+' id="ppv">‹</button><span>'+pp+'/'+tp2+'</span><button '+(pp>=tp2?'disabled':'')+' id="npv">›</button></div></div>';h+='<div style="margin-top:8px;"><div style="font-weight:500;font-size:0.78rem;margin-bottom:4px;">列映射</div>';var dims=[{k:'date',l:'日期'}];DIMS.forEach(function(d){dims.push({k:d.k,l:d.l});});dims.forEach(function(d){h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:0.72rem;"><label style="min-width:80px;">'+d.l+'</label><select id="mp-'+d.k+'-'+rid+'" style="flex:1;"><option value="">--</option>';hdrs.forEach(function(hh){h+='<option value="'+hh+'"'+(cmap[d.k]===hh?' selected':'')+'>'+hh+'</option>';});h+='</select>'+(cmap[d.k]?'<span class="tag tag-success">✓</span>':'<span class="tag tag-warning">?</span>')+'</div>';});h+='</div><div style="margin-top:8px;"><label style="font-size:0.72rem;">默认日期</label><input type="date" id="defdt-'+rid+'" value="'+new Date().toISOString().split('T')[0]+'" style="width:140px;"></div><div class="modal-actions"><button class="btn" id="canc4">取消</button><button class="btn btn-primary" id="conf4">导入</button></div>';pd.innerHTML=h;document.getElementById('ppv')&&document.getElementById('ppv').addEventListener('click',function(){pp--;showPrev();});document.getElementById('npv')&&document.getElementById('npv').addEventListener('click',function(){pp++;showPrev();});document.getElementById('canc4').addEventListener('click',function(){ov.remove();});document.getElementById('conf4').addEventListener('click',function(){var fm={};var allKeys=['date'];DIMS.forEach(function(d){allKeys.push(d.k);});allKeys.forEach(function(dk){var s=document.getElementById('mp-'+dk+'-'+rid);if(s&&s.value)fm[dk]=s.value;});var dd=document.getElementById('defdt-'+rid).value,cnt=0;pdata.forEach(function(r){var vd=dd;if(fm['date']&&r[fm['date']]){var rawDate=r[fm['date']].trim();var match1=rawDate.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);if(match1){vd=match1[1]+'-'+(match1[2].length<2?'0':'')+match1[2]+'-'+(match1[3].length<2?'0':'')+match1[3];}}var rec={date:vd};DIMS.forEach(function(d){rec[d.k]=parseFloat(r[fm[d.k]])||0;});if(selIntern){daily[selIntern].push(rec);cnt++;}});if(selIntern)daily[selIntern].sort(function(a,b){return new Date(a.date)-new Date(b.date)});ss('kolDaily',daily);ov.remove();alert('导入'+cnt+'条');if(selIntern){curPage[selIntern]=1;selRows[selIntern]=new Set();refreshAll(rid,selIntern);renderRank(rid);}});}
+  function showPrev(){document.getElementById('dz-'+rid).style.display='none';var pd=document.getElementById('up-'+rid);pd.style.display='block';var tp2=Math.ceil(pdata.length/PPS)||1;if(pp>tp2)pp=tp2;var st2=(pp-1)*PPS,pgd=pdata.slice(st2,st2+PPS);var h='<div style="margin-top:8px;"><span style="font-size:0.7rem;color:#8e99a4;">共'+pdata.length+'行</span><div style="max-height:180px;overflow:auto;border:1px solid #e8ecf1;border-radius:4px;"><table style="font-size:0.68rem;"><tr>';hdrs.forEach(function(x){h+='<th>'+x+'</th>';});h+='</tr>';pgd.forEach(function(r){h+='<tr>';hdrs.forEach(function(hh){h+='<td>'+(r[hh]||'')+'</td>';});h+='</tr>';});h+='</table></div><div class="pagination"><button '+(pp<=1?'disabled':'')+' id="ppv">‹</button><span>'+pp+'/'+tp2+'</span><button '+(pp>=tp2?'disabled':'')+' id="npv">›</button></div></div>';h+='<div style="margin-top:8px;"><div style="font-weight:500;font-size:0.78rem;margin-bottom:4px;">列映射</div>';var dims=[{k:'date',l:'日期'}];DIMS.forEach(function(d){dims.push({k:d.k,l:d.l});});dims.forEach(function(d){h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:0.72rem;"><label style="min-width:80px;">'+d.l+'</label><select id="mp-'+d.k+'-'+rid+'" style="flex:1;"><option value="">--</option>';hdrs.forEach(function(hh){h+='<option value="'+hh+'"'+(cmap[d.k]===hh?' selected':'')+'>'+hh+'</option>';});h+='</select>'+(cmap[d.k]?'<span class="tag tag-success">✓</span>':'<span class="tag tag-warning">?</span>')+'</div>';});h+='</div><div style="margin-top:8px;"><label style="font-size:0.72rem;">默认日期</label><input type="date" id="defdt-'+rid+'" value="'+new Date().toISOString().split('T')[0]+'" style="width:140px;"></div><div class="modal-actions"><button class="btn" id="canc4">取消</button><button class="btn btn-primary" id="conf4">导入</button></div>';pd.innerHTML=h;document.getElementById('ppv')&&document.getElementById('ppv').addEventListener('click',function(){pp--;showPrev();});document.getElementById('npv')&&document.getElementById('npv').addEventListener('click',function(){pp++;showPrev();});document.getElementById('canc4').addEventListener('click',function(){ov.remove();});document.getElementById('conf4').addEventListener('click',function(){var fm={};var allKeys=['date'];DIMS.forEach(function(d){allKeys.push(d.k);});allKeys.forEach(function(dk){var s=document.getElementById('mp-'+dk+'-'+rid);if(s&&s.value)fm[dk]=s.value;});var dd=document.getElementById('defdt-'+rid).value,cnt=0;pdata.forEach(function(r){var vd=dd;if(fm['date']&&r[fm['date']]){var rawDate=r[fm['date']].trim();var match1=rawDate.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);if(match1){vd=match1[1]+'-'+(match1[2].length<2?'0':'')+match1[2]+'-'+(match1[3].length<2?'0':'')+match1[3];}}var rec={date:vd};DIMS.forEach(function(d){
+  var val=parseFloat(r[fm[d.k]])||0;
+  rec[d.k]=parseFloat(val.toFixed(2));
+});if(selIntern){daily[selIntern].push(rec);cnt++;}});if(selIntern)daily[selIntern].sort(function(a,b){return new Date(a.date)-new Date(b.date)});ss('kolDaily',daily);ov.remove();alert('导入'+cnt+'条');if(selIntern){curPage[selIntern]=1;selRows[selIntern]=new Set();refreshAll(rid,selIntern);renderRank(rid);}});}
   ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
 }
 
@@ -469,7 +486,13 @@ function showEditRecordModal(rid,iid,realIdx,fs,fe){
   h+='</div><div class="modal-actions"><button class="btn" id="cancelEdit">取消</button><button class="btn btn-primary" id="saveEdit">保存</button></div></div>';
   ov.innerHTML=h;document.body.appendChild(ov);
   document.getElementById('cancelEdit').addEventListener('click',function(){ov.remove();});
-  document.getElementById('saveEdit').addEventListener('click',function(){var nd=document.getElementById('editDate').value;if(!nd){alert('请选择日期');return;}daily[iid][realIdx].date=nd;DIMS.forEach(function(d){var el=document.getElementById('edit-'+d.k);if(el)daily[iid][realIdx][d.k]=parseFloat(el.value)||0;});daily[iid].sort(function(a,b){return new Date(a.date)-new Date(b.date)});ss('kolDaily',daily);ov.remove();renderTable(rid,iid,fs,fe);renderRank(rid);refreshAll(rid,iid);});
+  document.getElementById('saveEdit').addEventListener('click',function(){var nd=document.getElementById('editDate').value;if(!nd){alert('请选择日期');return;}daily[iid][realIdx].date=nd;DIMS.forEach(function(d){
+  var el=document.getElementById('edit-'+d.k);
+  if(el){
+    var val=parseFloat(el.value)||0;
+    daily[iid][realIdx][d.k]=parseFloat(val.toFixed(2));
+  }
+});daily[iid].sort(function(a,b){return new Date(a.date)-new Date(b.date)});ss('kolDaily',daily);ov.remove();renderTable(rid,iid,fs,fe);renderRank(rid);refreshAll(rid,iid);});
   ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
 }
 
