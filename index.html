@@ -288,8 +288,10 @@ function renderTable(rid,iid,fs,fe){
     var gi=(pg-1)*PS+i;
     h+='<tr><td><input type="checkbox" class="rcb" data-idx="'+gi+'" '+(sset.has(gi)?'checked':'')+'></td><td>'+r.date+'</td>';
     DIMS.forEach(function(d){h+='<td>'+(r[d.k]||0)+(d.k==='cost'?'$':'')+'</td>';});
-    h+='<td><button class="btn-sm btn-gray" data-del="'+iid+'" data-idx="'+gi+'" style="padding:2px 6px;">🗑</button></td></tr>';
-  });
+    h+='<td>';
+h+='<button class="btn-sm btn-cyan" data-edit="'+iid+'" data-idx="'+gi+'" style="padding:2px 6px;margin-right:2px;">✏️</button>';
+h+='<button class="btn-sm btn-gray" data-del="'+iid+'" data-idx="'+gi+'" style="padding:2px 6px;">🗑</button>';
+h+='</td></tr>';
   
   h+='<tr style="background:#fdf4ff;"><td></td><td><input type="date" id="bd-'+rid+'" style="width:110px;"></td>';
   DIMS.forEach(function(d){h+='<td><input class="small-input" id="b-'+d.k+'-'+rid+'" placeholder="'+d.l+'"></td>';});
@@ -382,6 +384,29 @@ function renderTable(rid,iid,fs,fe){
         var ntp=Math.ceil(nf.length/PS)||1;if(curPage[iid]>ntp)curPage[iid]=ntp;
       }
       renderTable(rid,iid,fs,fe);renderRank(rid);
+    });
+  });
+      // 编辑按钮
+  c.querySelectorAll('[data-edit]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var gi=parseInt(this.dataset.idx);
+      // 获取筛选后的记录列表
+      var filtered=(daily[iid]||[]).slice();
+      if(fs&&fe)filtered=filtered.filter(function(r){return r.date>=fs&&r.date<=fe});
+      else if(fs)filtered=filtered.filter(function(r){return r.date>=fs});
+      else if(fe)filtered=filtered.filter(function(r){return r.date<=fe});
+      
+      if(gi>=filtered.length)return;
+      var target=filtered[gi];
+      
+      // 在原始数据中找到真实索引
+      var realIdx=daily[iid].findIndex(function(r){
+        return r.date===target.date&&r.approach===target.approach&&r.reply===target.reply&&r.newHost===target.newHost;
+      });
+      
+      if(realIdx!==-1){
+        showEditRecordModal(rid,iid,realIdx,fs,fe);
+      }
     });
   });
 
@@ -580,6 +605,75 @@ function showUpload(rid){
   dz.addEventListener('drop',function(e){e.preventDefault();var f=e.dataTransfer.files[0];if(f)proc(f);});
   fi.addEventListener('change',function(e){if(e.target.files[0])proc(e.target.files[0]);});
 
+function showEditRecordModal(rid,iid,realIdx,fs,fe){
+  var record=daily[iid][realIdx];
+  if(!record)return;
+  
+  // 移除已有弹窗
+  var existing=document.querySelector('.modal-overlay');
+  if(existing)existing.remove();
+  
+  var ov=document.createElement('div');
+  ov.className='modal-overlay';
+  
+  var h='<div class="modal-box" style="width:500px;">';
+  h+='<h3>✏️ 编辑日报数据</h3>';
+  h+='<p style="font-size:0.8rem;color:#64748b;margin-bottom:12px;">修改 '+record.date+' 的数据</p>';
+  
+  // 日期
+  h+='<div style="margin-bottom:10px;"><label>日期</label><input type="date" id="editDate" value="'+record.date+'" style="width:100%;"></div>';
+  
+  // 各个维度
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+  DIMS.forEach(function(d){
+    h+='<div style="flex:1;min-width:120px;">';
+    h+='<label>'+d.i+' '+d.l+'</label>';
+    h+='<input type="number" id="edit-'+d.k+'" value="'+(record[d.k]||0)+'" step="0.1" style="width:100%;">';
+    h+='</div>';
+  });
+  h+='</div>';
+  
+  h+='<div class="modal-actions" style="margin-top:14px;">';
+  h+='<button class="btn-sm btn-gray" id="cancelEdit">取消</button>';
+  h+='<button class="btn-sm btn-blue" id="saveEdit">保存修改</button>';
+  h+='</div></div>';
+  
+  ov.innerHTML=h;
+  document.body.appendChild(ov);
+  
+  // 取消按钮
+  document.getElementById('cancelEdit').addEventListener('click',function(){ov.remove();});
+  
+  // 保存按钮
+  document.getElementById('saveEdit').addEventListener('click',function(){
+    var newDate=document.getElementById('editDate').value;
+    if(!newDate){alert('请选择日期');return;}
+    
+    // 更新记录
+    daily[iid][realIdx].date=newDate;
+    DIMS.forEach(function(d){
+      var el=document.getElementById('edit-'+d.k);
+      if(el){
+        daily[iid][realIdx][d.k]=parseFloat(el.value)||0;
+      }
+    });
+    
+    // 重新排序
+    daily[iid].sort(function(a,b){return new Date(a.date)-new Date(b.date)});
+    
+    // 保存
+    ss('kolDaily',daily);
+    ov.remove();
+    
+    // 刷新显示
+    renderTable(rid,iid,fs,fe);
+    renderRank(rid);
+    refreshAll(rid,iid);
+  });
+  
+  // 点击遮罩关闭
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
   function proc(f){
     var fn=f.name.toLowerCase();
     if(fn.endsWith('.csv')){var r=new FileReader();r.onload=function(e){parseCSV(e.target.result);};r.readAsText(f);}
