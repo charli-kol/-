@@ -669,9 +669,47 @@ function showUpload(rid){const ir=getByRegion(rid);if(ir.length===0){alert('请�
     document.getElementById('conf4').addEventListener('click',()=>{
       const fm={};['date',...DIMS.map(d=>d.k)].forEach(dk=>{const s=document.getElementById(`mp-${dk}-${rid}`);if(s&&s.value)fm[dk]=s.value;});
       const dd=document.getElementById(`defdt-${rid}`).value;let cnt=0;
-      pdata.forEach(r=>{let vd=dd;if(fm['date']&&r[fm['date']]){const p=new Date(r[fm['date']]);if(!isNaN(p.getTime()))vd=p.toISOString().split('T')[0];}const rec={date:vd};DIMS.forEach(d=>{rec[d.k]=parseInt(r[fm[d.k]])||0;});if(selIntern){daily[selIntern].push({...rec});cnt++;}});
-      if(selIntern)daily[selIntern].sort((a,b)=>new Date(a.date)-new Date(b.date));ss('kolDaily',daily);ov.remove();alert(`导入${cnt}条`);if(selIntern){curPage[selIntern]=1;selRows[selIntern]=new Set();refreshAll(rid,selIntern);renderRank(rid);}
-    });
+            pdata.forEach(r=>{
+        let vd=dd;
+        if(fm['date']&&r[fm['date']]){
+          const rawDate=r[fm['date']].trim();
+          // ★ 修复：直接用字符串处理，避免时区问题
+          // 支持格式：2024-01-18, 01/18/2024, 2024/01/18, 18/01/2024
+          let year,month,day;
+          
+          // 尝试匹配 yyyy-mm-dd 或 yyyy/mm/dd
+          const match1=rawDate.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+          if(match1){
+            year=parseInt(match1[1]);
+            month=parseInt(match1[2]);
+            day=parseInt(match1[3]);
+          }else{
+            // 尝试匹配 mm/dd/yyyy
+            const match2=rawDate.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+            if(match2){
+              month=parseInt(match2[1]);
+              day=parseInt(match2[2]);
+              year=parseInt(match2[3]);
+            }else{
+              // 尝试匹配 dd/mm/yyyy
+              const match3=rawDate.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+              if(match3){
+                day=parseInt(match3[1]);
+                month=parseInt(match3[2]);
+                year=parseInt(match3[3]);
+              }
+            }
+          }
+          
+          if(year&&month&&day){
+            // ★ 手动拼接日期字符串，避免时区问题
+            vd=`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          }
+        }
+        const rec={date:vd};
+        DIMS.forEach(d=>{rec[d.k]=parseInt(r[fm[d.k]])||0;});
+        if(selIntern){daily[selIntern].push({...rec});cnt++;}
+      });
   }
   ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
 }
