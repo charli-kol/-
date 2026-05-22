@@ -215,17 +215,25 @@ function refreshAll(rid,iid){
   var tbl=document.getElementById('tbl-'+rid);
   var period=f.period||'week';
   
-  if(period==='all'||period==='custom'){
+  if(period==='all'){
+    // 全部：只显示表格
+    if(cd)cd.innerHTML='';
+    if(tbl)tbl.style.display='block';
+    renderTable(rid,iid,f.start,f.end);
+  }else if(period==='custom'){
+    // 自定义：只显示表格
     if(cd)cd.innerHTML='';
     if(tbl)tbl.style.display='block';
     renderTable(rid,iid,f.start,f.end);
   }else{
+    // 今天/本周/本月/上月：同时显示汇总卡片和表格
     if(cd)cd.innerHTML=renderStdBar(rid);
     var view='week';
     if(period==='month'||period==='lastMonth')view='month';
     if(period==='today')view='week';
     renderCards(rid,iid,view,f);
-    if(tbl)tbl.style.display='none';
+    if(tbl)tbl.style.display='block';
+    renderTable(rid,iid,f.start,f.end);
   }
   renderAnalysis(rid,iid);
 }
