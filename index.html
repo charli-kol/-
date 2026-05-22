@@ -247,17 +247,49 @@ function renderCards(rid,iid,v,f){
   if(f.start&&f.end)recs=recs.filter(r=>r.date>=f.start&&r.date<=f.end);
   else if(f.start)recs=recs.filter(r=>r.date>=f.start);
   else if(f.end)recs=recs.filter(r=>r.date<=f.end);
-  if(v==='week'){const ws=getWeekStart();recs=recs.filter(r=>r.date>=ws);}
-  else if(v==='month'){const ms=getMonthStart();recs=recs.filter(r=>r.date>=ms);}
+  
+  // 获取本周数据
+  const ws=getWeekStart();
+  const thisWeek=recs.filter(r=>r.date>=ws);
+  
+  // 获取上周数据
+  const lastWeekStart=new Date(new Date(ws).getTime()-7*86400000).toISOString().split('T')[0];
+  const lastWeekEnd=new Date(new Date(ws).getTime()-86400000).toISOString().split('T')[0];
+  const lastWeek=recs.filter(r=>r.date>=lastWeekStart&&r.date<=lastWeekEnd);
+  
   if(recs.length===0){cd.innerHTML+='<p style="color:#94a3b8;font-size:0.75rem;padding:8px;">暂无数据</p>';return;}
-  const totals={};DIMS.forEach(d=>{totals[d.k]=recs.reduce((s,r)=>s+(r[d.k]||0),0);});
-  cd.innerHTML+=`<div style="font-size:0.8rem;color:#475569;margin:6px 0 4px;">📊 ${v==='week'?'本周':v==='month'?'本月':'筛选'}汇总</div><div class="card-row">`;
+  
+  const thisTotals={},lastTotals={};
   DIMS.forEach(d=>{
-    const val=totals[d.k],tgt=tgts[d.k]||0,pct=tgt>0?Math.round(val/tgt*100):0;
-    let ic='➡️';if(pct>=100)ic='✅';else if(pct>=70)ic='📈';else if(pct<50)ic='⚠️';
-    cd.innerHTML+=`<div class="mini-card"><div class="val">${d.i} ${val.toLocaleString()}</div><div class="lbl">${d.l}</div>${tgt>0?`<div class="tgt">${ic} 目标${tgt}(${pct}%)</div>`:''}</div>`;
+    thisTotals[d.k]=thisWeek.reduce((s,r)=>s+(r[d.k]||0),0);
+    lastTotals[d.k]=lastWeek.reduce((s,r)=>s+(r[d.k]||0),0);
   });
-  cd.innerHTML+='</div>';
+  
+  // 横向一行展示
+  let h='<div style="font-size:0.8rem;color:#475569;margin:6px 0 4px;">📊 本周 vs 上周</div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+  
+  DIMS.forEach(d=>{
+    const tv=thisTotals[d.k],lv=lastTotals[d.k];
+    const diff=tv-lv;
+    const tgt=tgts[d.k]||0;
+    const pct=tgt>0?Math.round(tv/tgt*100):0;
+    let arrow='➡️',color='#94a3b8';
+    if(diff>0){arrow='📈';color='#10b981';}
+    else if(diff<0){arrow='📉';color='#ef4444';}
+    
+    h+=`<div class="mini-card" style="flex:1;min-width:90px;">`;
+    h+=`<div style="font-weight:600;font-size:0.7rem;color:#64748b;">${d.i} ${d.l}</div>`;
+    h+=`<div style="display:flex;justify-content:center;gap:10px;margin-top:4px;">`;
+    h+=`<div><span style="font-size:0.55rem;color:#94a3b8;">本周</span><br><span style="font-weight:700;font-size:1rem;">${tv}</span></div>`;
+    h+=`<div><span style="font-size:0.55rem;color:#94a3b8;">上周</span><br><span style="font-weight:700;font-size:1rem;color:#94a3b8;">${lv}</span></div>`;
+    h+=`</div>`;
+    h+=`<div style="font-size:0.6rem;color:${color};margin-top:2px;">${arrow} ${diff>=0?'+':''}${diff}</div>`;
+    if(tgt>0)h+=`<div style="font-size:0.55rem;color:${tv>=tgt?'#10b981':'#ef4444'};margin-top:1px;">目标${tgt} (${pct}%)</div>`;
+    h+=`</div>`;
+  });
+  h+='</div>';
+  cd.innerHTML+=h;
 }
 
 function renderTable(rid,iid,fs,fe){
@@ -287,27 +319,72 @@ function renderTable(rid,iid,fs,fe){
   });
   c.querySelectorAll('.rcb').forEach(cb=>{cb.addEventListener('change',function(){const gi=parseInt(this.dataset.idx);if(this.checked)sset.add(gi);else sset.delete(gi);renderTable(rid,iid,fs,fe);});});
 
-  document.getElementById(`bdel-${rid}`)?.addEventListener('click',()=>{
+    document.getElementById(`bdel-${rid}`)?.addEventListener('click',()=>{
     if(sset.size===0)return;
     if(!confirm(`删除${sset.size}条？`))return;
     const arr=Array.from(sset).sort((a,b)=>b-a);
-    arr.forEach(x=>{daily[iid].splice(x,1);});
+    // ★ 关键：使用全局索引删除
+    const allRecords=(daily[iid]||[]).slice();
+    if(fs&&fe)allRecords=allRecords.filter(r=>r.date>=fs&&r.date<=fe);
+    else if(fs)allRecords=allRecords.filter(r=>r.date>=fs);
+    else if(fe)allRecords=allRecords.filter(r=>r.date<=fe);
+    
+    // 将筛选后的索引映射回原始数据索引
+    arr.forEach(gi=>{
+      const targetRecord=allRecords[gi];
+      const realIdx=daily[iid].findIndex(r=>r.date===targetRecord.date&&r.approach===targetRecord.approach&&r.reply===targetRecord.reply&&r.newHost===targetRecord.newHost);
+      if(realIdx!==-1)daily[iid].splice(realIdx,1);
+    });
+    
     selRows[iid]=new Set();ss('kolDaily',daily);
-    const ntp=Math.ceil((daily[iid]||[]).length/PS)||1;
+    const ntp=Math.ceil(((fs||fe)?allRecords.length-arr.length:daily[iid].length)/PS)||1;
     if(curPage[iid]>ntp)curPage[iid]=ntp;
     refreshAll(rid,iid);renderRank(rid);
   });
 
-  c.querySelectorAll('[data-del]').forEach(btn=>{
+    c.querySelectorAll('[data-del]').forEach(btn=>{
     btn.addEventListener('click',function(){
-      const iid2=this.dataset.del;const idx=parseInt(this.dataset.idx);
+      const iid2=this.dataset.del;const gi=parseInt(this.dataset.idx);
       if(!confirm('删除这条？'))return;
-      daily[iid2].splice(idx,1);
-      selRows[iid2].delete(idx);
-      const ns=new Set();selRows[iid2].forEach(x=>{if(x>idx)ns.add(x-1);else if(x<idx)ns.add(x);});
-      selRows[iid2]=ns;ss('kolDaily',daily);
-      const ntp=Math.ceil((daily[iid2]||[]).length/PS)||1;
-      if(curPage[iid2]>ntp)curPage[iid2]=ntp;
+      
+      // ★ 获取筛选后的记录列表
+      let filtered=(daily[iid2]||[]).slice();
+      const fs2=document.getElementById(`fs-${rid}`).value;
+      const fe2=document.getElementById(`fe-${rid}`).value;
+      if(fs2&&fe2)filtered=filtered.filter(r=>r.date>=fs2&&r.date<=fe2);
+      else if(fs2)filtered=filtered.filter(r=>r.date>=fs2);
+      else if(fe2)filtered=filtered.filter(r=>r.date<=fe2);
+      
+      // 找到要删除的记录
+      const targetRecord=filtered[gi];
+      if(!targetRecord)return;
+      
+      // 在原始数据中找到并删除
+      const realIdx=daily[iid2].findIndex(r=>
+        r.date===targetRecord.date&&
+        r.approach===targetRecord.approach&&
+        r.reply===targetRecord.reply&&
+        r.newHost===targetRecord.newHost
+      );
+      
+      if(realIdx!==-1){
+        daily[iid2].splice(realIdx,1);
+        selRows[iid2].delete(gi);
+        const ns=new Set();
+        selRows[iid2].forEach(x=>{if(x>gi)ns.add(x-1);else if(x<gi)ns.add(x);});
+        selRows[iid2]=ns;
+        ss('kolDaily',daily);
+        
+        const newFiltered=((daily[iid2]||[]).slice()).filter(r=>{
+          if(fs2&&fe2)return r.date>=fs2&&r.date<=fe2;
+          if(fs2)return r.date>=fs2;
+          if(fe2)return r.date<=fe2;
+          return true;
+        });
+        const ntp=Math.ceil(newFiltered.length/PS)||1;
+        if(curPage[iid2]>ntp)curPage[iid2]=ntp;
+      }
+      
       refreshAll(rid,iid2);renderRank(rid);
     });
   });
@@ -335,17 +412,39 @@ function renderAnalysis(rid,iid){
   if(f.start&&f.end)all=all.filter(r=>r.date>=f.start&&r.date<=f.end);
   else if(f.start)all=all.filter(r=>r.date>=f.start);
   else if(f.end)all=all.filter(r=>r.date<=f.end);
-  const wr=all.filter(r=>r.date>=getWeekStart());const mr=all.filter(r=>r.date>=getMonthStart());
+  
   if(all.length===0){card.innerHTML='<p style="color:#64748b;font-size:0.8rem;">暂无数据</p>';return;}
-  const wt={},mt={};DIMS.forEach(d=>{wt[d.k]=wr.reduce((s,r)=>s+(r[d.k]||0),0);mt[d.k]=mr.reduce((s,r)=>s+(r[d.k]||0),0);});
-  const checks=DIMS.filter(d=>ed.includes(d.k)).map(d=>({...d,wv:wt[d.k],mv:mt[d.k],tgt:tgts[d.k]||0}));
+  
+  const ws=getWeekStart();
+  const thisWeek=all.filter(r=>r.date>=ws);
+  const lws=new Date(new Date(ws).getTime()-7*86400000).toISOString().split('T')[0];
+  const lwe=new Date(new Date(ws).getTime()-86400000).toISOString().split('T')[0];
+  const lastWeek=all.filter(r=>r.date>=lws&&r.date<=lwe);
+  
+  const wt={},lt={};
+  DIMS.forEach(d=>{wt[d.k]=thisWeek.reduce((s,r)=>s+(r[d.k]||0),0);lt[d.k]=lastWeek.reduce((s,r)=>s+(r[d.k]||0),0);});
+  
+  const checks=DIMS.filter(d=>ed.includes(d.k)).map(d=>({...d,wv:wt[d.k],lv:lt[d.k],tgt:tgts[d.k]||0}));
   const pc=checks.filter(c=>c.tgt>0&&c.wv>=c.tgt).length,tc=checks.filter(c=>c.tgt>0).length;
   let sug=tc===0?'📝 请设置周标准':pc===tc?'🎉 全部达标！':pc>=tc*0.7?'👍 大部分达标':pc>=tc*0.4?'📈 有提升空间':'⚠️ 需改进';
-  card.innerHTML=`<h4 style="font-size:0.9rem;margin-bottom:8px;">📈 本周 vs 本月</h4><div class="card-row">`;
+  
+  let h='<h4 style="font-size:0.9rem;margin-bottom:8px;">📈 本周 vs 上周</h4><div style="display:flex;flex-wrap:wrap;gap:6px;">';
   checks.forEach(c=>{
-    card.innerHTML+=`<div class="mini-card" style="min-width:120px;"><div style="font-weight:600;">${c.i} ${c.l}</div><div style="display:flex;gap:12px;justify-content:center;margin-top:4px;"><div><span style="font-size:0.6rem;color:#94a3b8;">本周</span><br><strong>${c.wv}</strong></div><div><span style="font-size:0.6rem;color:#94a3b8;">本月</span><br><strong>${c.mv}</strong></div></div>${c.tgt>0?`<div style="font-size:0.65rem;margin-top:2px;" class="${c.wv>=c.tgt?'text-pass':'text-fail'}">目标${c.tgt} ${c.wv>=c.tgt?'✓':'✗'}</div>`:''}</div>`;
+    const diff=c.wv-c.lv;
+    let arrow='➡️',cl='#94a3b8';
+    if(diff>0){arrow='📈';cl='#10b981';}else if(diff<0){arrow='📉';cl='#ef4444';}
+    h+=`<div class="mini-card" style="flex:1;min-width:110px;">`;
+    h+=`<div style="font-weight:600;font-size:0.7rem;">${c.i} ${c.l}</div>`;
+    h+=`<div style="display:flex;gap:10px;justify-content:center;margin-top:3px;">`;
+    h+=`<div><span style="font-size:0.55rem;">本周</span><br><strong>${c.wv}</strong></div>`;
+    h+=`<div><span style="font-size:0.55rem;">上周</span><br><strong style="color:#94a3b8;">${c.lv}</strong></div>`;
+    h+=`</div><div style="font-size:0.6rem;color:${cl};">${arrow} ${diff>=0?'+':''}${diff}</div>`;
+    if(c.tgt>0)h+=`<div style="font-size:0.55rem;margin-top:1px;" class="${c.wv>=c.tgt?'text-pass':'text-fail'}">目标${c.tgt} ${c.wv>=c.tgt?'✓':'✗'}</div>`;
+    h+=`</div>`;
   });
-  card.innerHTML+=`</div>${tc>0?`<div style="text-align:center;font-weight:600;font-size:0.8rem;margin-top:4px;">达标率：${pc}/${tc}(${Math.round(pc/tc*100)}%)</div>`:''}<div style="background:#eef2ff;padding:8px 12px;border-radius:8px;margin-top:6px;font-size:0.75rem;">💡 ${sug}</div>`;
+  h+=`</div>${tc>0?`<div style="text-align:center;font-weight:600;font-size:0.8rem;margin-top:6px;">达标率：${pc}/${tc}(${Math.round(pc/tc*100)}%)</div>`:''}`;
+  h+=`<div style="background:#eef2ff;padding:8px 12px;border-radius:8px;margin-top:6px;font-size:0.75rem;">💡 ${sug}</div>`;
+  card.innerHTML=h;
 }
 
 function renderRank(rid){
