@@ -298,18 +298,40 @@ function renderTable(rid,iid,fs,fe){
   h+='<div class="pagination"><button '+(pg<=1?'disabled':'')+' id="pp-'+rid+'">‹</button><span style="font-size:0.75rem;">'+pg+'/'+tp+'</span><button '+(pg>=tp?'disabled':'')+' id="np-'+rid+'">›</button></div>';
   c.innerHTML=h;
 
-  document.getElementById('sall-'+rid)&&document.getElementById('sall-'+rid).addEventListener('change',function(){
-    recs.forEach(function(_,i){var gi=(pg-1)*PS+i;if(this.checked)sset.add(gi);else sset.delete(gi);});
-    renderTable(rid,iid,fs,fe);
-});
-  
-  c.querySelectorAll('.rcb').forEach(function(cb){
-    cb.addEventListener('change',function(){
-      var gi=parseInt(this.dataset.idx);
-      if(this.checked)sset.add(gi);else sset.delete(gi);
+   // 全选复选框
+  var sallEl=document.getElementById('sall-'+rid);
+  if(sallEl){
+    sallEl.onchange=function(){
+      var isChecked=this.checked;
+      var startIdx=(pg-1)*PS;
+      recs.forEach(function(_,i){
+        var gi=startIdx+i;
+        if(isChecked){
+          sset.add(gi);
+        }else{
+          sset.delete(gi);
+        }
+      });
+      // 重新渲染表格
       renderTable(rid,iid,fs,fe);
-    });
-  });
+    };
+  }
+  
+    // 行复选框
+  var rowCheckboxes=c.querySelectorAll('.rcb');
+  for(var i=0;i<rowCheckboxes.length;i++){
+    (function(cb){
+      cb.onchange=function(){
+        var gi=parseInt(this.dataset.idx);
+        if(this.checked){
+          sset.add(gi);
+        }else{
+          sset.delete(gi);
+        }
+        renderTable(rid,iid,fs,fe);
+      };
+    })(rowCheckboxes[i]);
+  }
 
   // 批量删除
   document.getElementById('bdel-'+rid)&&document.getElementById('bdel-'+rid).addEventListener('click',function(){
