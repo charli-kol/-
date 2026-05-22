@@ -214,19 +214,30 @@ function refreshAll(rid,iid){
   const f=getFilter(rid);
   const cd=document.getElementById(`scards-${rid}`);
   
-  // 根据筛选period判断视图
+  // 根据筛选period判断视图模式
   const period=f.period||'week';
   
   if(period==='all'){
-    // 全部：只显示表格
+    // 全部：只显示表格，不显示汇总
     if(cd)cd.innerHTML='';
     document.getElementById(`tbl-${rid}`).style.display='block';
     renderTable(rid,iid,f.start,f.end);
   }else{
-    // 其他：显示汇总卡片
+    // 其他周期：显示汇总卡片，隐藏表格
     if(cd)cd.innerHTML=renderStdBar(rid);
-    // 判断是周还是月
-    const view=(period==='month'||period==='lastMonth')?'month':'week';
+    
+    // 判断是周视图还是月视图
+    let view='week';
+    if(period==='month'||period==='lastMonth')view='month';
+    if(period==='today')view='week';
+    if(period==='custom'){
+      // 自定义日期：根据日期范围判断
+      if(f.start&&f.end){
+        const diff=Math.ceil((new Date(f.end)-new Date(f.start))/(86400000));
+        view=diff>14?'month':'week';
+      }
+    }
+    
     renderCards(rid,iid,view,f);
     document.getElementById(`tbl-${rid}`).style.display='none';
   }
@@ -294,76 +305,158 @@ function renderTable(rid,iid,fs,fe){
     recs.forEach((_,i)=>{const gi=(pg-1)*PS+i;if(this.checked)sset.add(gi);else sset.delete(gi);});
     renderTable(rid,iid,fs,fe);
   });
-  c.querySelectorAll('.rcb').forEach(cb=>{cb.addEventListener('change',function(){const gi=parseInt(this.dataset.idx);if(this.checked)sset.add(gi);else sset.delete(gi);renderTable(rid,iid,fs,fe);});});
-
-    document.getElementById(`bdel-${rid}`)?.addEventListener('click',()=>{
-    if(sset.size===0)return;
-    if(!confirm(`删除${sset.size}条？`))return;
-    const arr=Array.from(sset).sort((a,b)=>b-a);
-    // ★ 关键：使用全局索引删除
-    const allRecords=(daily[iid]||[]).slice();
-    if(fs&&fe)allRecords=allRecords.filter(r=>r.date>=fs&&r.date<=fe);
-    else if(fs)allRecords=allRecords.filter(r=>r.date>=fs);
-    else if(fe)allRecords=allRecords.filter(r=>r.date<=fe);
-    
-    // 将筛选后的索引映射回原始数据索引
-    arr.forEach(gi=>{
-      const targetRecord=allRecords[gi];
-      const realIdx=daily[iid].findIndex(r=>r.date===targetRecord.date&&r.approach===targetRecord.approach&&r.reply===targetRecord.reply&&r.newHost===targetRecord.newHost);
-      if(realIdx!==-1)daily[iid].splice(realIdx,1);
-    });
-    
-    selRows[iid]=new Set();ss('kolDaily',daily);
-    const ntp=Math.ceil(((fs||fe)?allRecords.length-arr.length:daily[iid].length)/PS)||1;
-    if(curPage[iid]>ntp)curPage[iid]=ntp;
-    refreshAll(rid,iid);renderRank(rid);
-  });
-
-    c.querySelectorAll('[data-del]').forEach(btn=>{
-    btn.addEventListener('click',function(){
-      const iid2=this.dataset.del;const gi=parseInt(this.dataset.idx);
-      if(!confirm('删除这条？'))return;
+    // ========== 单条删除按钮 ==========
+  c.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      // 第1步：获取要删除记录的筛选后索引
+      const filteredIndex = parseInt(this.dataset.idx);
       
-      // ★ 获取筛选后的记录列表
-      let filtered=(daily[iid2]||[]).slice();
-      const fs2=document.getElementById(`fs-${rid}`).value;
-      const fe2=document.getElementById(`fe-${rid}`).value;
-      if(fs2&&fe2)filtered=filtered.filter(r=>r.date>=fs2&&r.date<=fe2);
-      else if(fs2)filtered=filtered.filter(r=>r.date>=fs2);
-      else if(fe2)filtered=filtered.filter(r=>r.date<=fe2);
+      // 第2步：确认删除
+      if(!confirm('确定删除这条记录吗？')) return;
       
-      // 找到要删除的记录
-      const targetRecord=filtered[gi];
-      if(!targetRecord)return;
-      
-      // 在原始数据中找到并删除
-      const realIdx=daily[iid2].findIndex(r=>
-        r.date===targetRecord.date&&
-        r.approach===targetRecord.approach&&
-        r.reply===targetRecord.reply&&
-        r.newHost===targetRecord.newHost
-      );
-      
-      if(realIdx!==-1){
-        daily[iid2].splice(realIdx,1);
-        selRows[iid2].delete(gi);
-        const ns=new Set();
-        selRows[iid2].forEach(x=>{if(x>gi)ns.add(x-1);else if(x<gi)ns.add(x);});
-        selRows[iid2]=ns;
-        ss('kolDaily',daily);
-        
-        const newFiltered=((daily[iid2]||[]).slice()).filter(r=>{
-          if(fs2&&fe2)return r.date>=fs2&&r.date<=fe2;
-          if(fs2)return r.date>=fs2;
-          if(fe2)return r.date<=fe2;
-          return true;
-        });
-        const ntp=Math.ceil(newFiltered.length/PS)||1;
-        if(curPage[iid2]>ntp)curPage[iid2]=ntp;
+      // 第3步：获取当前筛选后的记录列表
+      let filteredRecords = (daily[iid] || []).slice();
+      if(fs && fe) {
+        filteredRecords = filteredRecords.filter(r => r.date >= fs && r.date <= fe);
+      } else if(fs) {
+        filteredRecords = filteredRecords.filter(r => r.date >= fs);
+      } else if(fe) {
+        filteredRecords = filteredRecords.filter(r => r.date <= fe);
       }
       
-      refreshAll(rid,iid2);renderRank(rid);
+      // 第4步：检查索引是否有效
+      if(filteredIndex >= filteredRecords.length) return;
+      
+      // 第5步：获取要删除的记录
+      const targetRecord = filteredRecords[filteredIndex];
+      
+      // 第6步：在原始daily数组中查找匹配的记录
+      const realIndex = daily[iid].findIndex(r =>
+        r.date === targetRecord.date &&
+        r.approach === targetRecord.approach &&
+        r.reply === targetRecord.reply &&
+        r.newHost === targetRecord.newHost
+      );
+      
+      // 第7步：如果找到了，从原始数组中删除
+      if(realIndex !== -1) {
+        daily[iid].splice(realIndex, 1);
+        
+        // 第8步：更新选中状态（删除的索引不再有效）
+        selRows[iid].delete(filteredIndex);
+        
+        // 第9步：因为删除了一条，后面的索引都要减1
+        const newSet = new Set();
+        selRows[iid].forEach(oldIndex => {
+          if(oldIndex > filteredIndex) {
+            newSet.add(oldIndex - 1);  // 后面的索引减1
+          } else if(oldIndex < filteredIndex) {
+            newSet.add(oldIndex);       // 前面的索引不变
+          }
+        });
+        selRows[iid] = newSet;
+        
+        // 第10步：保存数据
+        ss('kolDaily', daily);
+        
+        // 第11步：重新计算筛选后的记录数量
+        let newFilteredRecords = (daily[iid] || []).slice();
+        if(fs && fe) {
+          newFilteredRecords = newFilteredRecords.filter(r => r.date >= fs && r.date <= fe);
+        } else if(fs) {
+          newFilteredRecords = newFilteredRecords.filter(r => r.date >= fs);
+        } else if(fe) {
+          newFilteredRecords = newFilteredRecords.filter(r => r.date <= fe);
+        }
+        
+        // 第12步：更新分页（如果当前页没有数据了，回到上一页）
+        const totalPages = Math.ceil(newFilteredRecords.length / PS) || 1;
+        if(curPage[iid] > totalPages) {
+          curPage[iid] = totalPages;
+        }
+      }
+      
+      // 第13步：重新渲染表格（保持筛选状态）
+      renderTable(rid, iid, fs, fe);
+      
+      // 第14步：更新排名
+      renderRank(rid);
     });
+  });
+
+     // ========== 批量删除按钮 ==========
+  document.getElementById(`bdel-${rid}`)?.addEventListener('click',()=>{
+    // 第1步：检查是否有选中项
+    if(sset.size===0)return;
+    
+    // 第2步：确认删除
+    if(!confirm(`确定删除选中的 ${sset.size} 条记录吗？`))return;
+    
+    // 第3步：获取当前筛选后的记录列表
+    // 因为表格显示的是筛选后的数据，索引是筛选后的索引
+    let filteredRecords = (daily[iid] || []).slice();
+    if(fs && fe) {
+      filteredRecords = filteredRecords.filter(r => r.date >= fs && r.date <= fe);
+    } else if(fs) {
+      filteredRecords = filteredRecords.filter(r => r.date >= fs);
+    } else if(fe) {
+      filteredRecords = filteredRecords.filter(r => r.date <= fe);
+    }
+    
+    // 第4步：将选中的索引从大到小排序
+    const selectedIndices = Array.from(sset).sort((a, b) => b - a);
+    
+    // 第5步：根据筛选后的索引，找到对应的记录
+    const recordsToDelete = [];
+    selectedIndices.forEach(gi => {
+      if(gi < filteredRecords.length) {
+        recordsToDelete.push(filteredRecords[gi]);
+      }
+    });
+    
+    // 第6步：在原始数据中找到并删除这些记录
+    // 因为原始数据和筛选后数据的索引不同，需要通过匹配来找到
+    recordsToDelete.forEach(targetRecord => {
+      // 在原始daily数组中查找匹配的记录
+      const realIndex = daily[iid].findIndex(r =>
+        r.date === targetRecord.date &&
+        r.approach === targetRecord.approach &&
+        r.reply === targetRecord.reply &&
+        r.newHost === targetRecord.newHost
+      );
+      
+      // 如果找到了，就从原始数组中删除
+      if(realIndex !== -1) {
+        daily[iid].splice(realIndex, 1);
+      }
+    });
+    
+    // 第7步：清空选中状态
+    selRows[iid] = new Set();
+    
+    // 第8步：保存数据到localStorage
+    ss('kolDaily', daily);
+    
+    // 第9步：重新计算筛选后的记录数量，更新分页
+    let newFilteredRecords = (daily[iid] || []).slice();
+    if(fs && fe) {
+      newFilteredRecords = newFilteredRecords.filter(r => r.date >= fs && r.date <= fe);
+    } else if(fs) {
+      newFilteredRecords = newFilteredRecords.filter(r => r.date >= fs);
+    } else if(fe) {
+      newFilteredRecords = newFilteredRecords.filter(r => r.date <= fe);
+    }
+    
+    const totalPages = Math.ceil(newFilteredRecords.length / PS) || 1;
+    if(curPage[iid] > totalPages) {
+      curPage[iid] = totalPages;
+    }
+    
+    // 第10步：重新渲染表格（保持筛选状态）
+    renderTable(rid, iid, fs, fe);
+    
+    // 第11步：更新排名
+    renderRank(rid);
   });
 
   document.getElementById(`pp-${rid}`)?.addEventListener('click',()=>{if(curPage[iid]>1){curPage[iid]--;renderTable(rid,iid,fs,fe);}});
