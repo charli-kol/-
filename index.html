@@ -186,11 +186,6 @@ function renderAll(){
           <button class="btn-sm btn-gray" id="clearF-${r.id}">清除</button>
           <span id="finfo-${r.id}" style="font-size:0.7rem;color:#64748b;margin-left:auto;">本周</span>
         </div>
-        <div class="view-tabs" id="vtabs-${r.id}">
-          <button class="view-tab active" data-view="week">📅 本周</button>
-          <button class="view-tab" data-view="month">📆 本月</button>
-          <button class="view-tab" data-view="all">📋 全部</button>
-        </div>
         <div id="scards-${r.id}"></div>
         <div id="tbl-${r.id}"></div>
         <div style="background:#f9fafb;border-radius:10px;padding:14px;margin-top:10px;" id="analysis-${r.id}">
@@ -198,19 +193,10 @@ function renderAll(){
         </div>
       </div>`;
     c.appendChild(p);
-    renderIList(r.id);renderRank(r.id);bindBtns(r.id);bindVTabs(r.id);
+  renderIList(r.id);renderRank(r.id);bindBtns(r.id);
   });
 }
 
-function bindVTabs(rid){
-  document.querySelectorAll(`#vtabs-${rid} .view-tab`).forEach(t=>{
-    t.addEventListener('click',function(){
-      document.querySelectorAll(`#vtabs-${rid} .view-tab`).forEach(x=>x.classList.remove('active'));
-      this.classList.add('active');
-      if(selIntern){viewMode[selIntern]=this.dataset.view;refreshAll(rid,selIntern);}
-    });
-  });
-}
 
 function bindBtns(rid){
   document.getElementById(`addBtn-${rid}`)?.addEventListener('click',()=>showAdd(rid));
@@ -225,18 +211,23 @@ function bindBtns(rid){
 }
 
 function refreshAll(rid,iid){
-  const v=viewMode[iid]||'week';const f=getFilter(rid);
+  const f=getFilter(rid);
   const cd=document.getElementById(`scards-${rid}`);
   
-  if(v==='all'){
-    // 全部视图：只显示表格，隐藏汇总卡片
+  // 根据筛选period判断视图
+  const period=f.period||'week';
+  
+  if(period==='all'){
+    // 全部：只显示表格
     if(cd)cd.innerHTML='';
     document.getElementById(`tbl-${rid}`).style.display='block';
     renderTable(rid,iid,f.start,f.end);
   }else{
-    // 周/月视图：显示汇总卡片，隐藏表格
+    // 其他：显示汇总卡片
     if(cd)cd.innerHTML=renderStdBar(rid);
-    renderCards(rid,iid,v,f);
+    // 判断是周还是月
+    const view=(period==='month'||period==='lastMonth')?'month':'week';
+    renderCards(rid,iid,view,f);
     document.getElementById(`tbl-${rid}`).style.display='none';
   }
   renderAnalysis(rid,iid);
@@ -264,7 +255,6 @@ function renderCards(rid,iid,v,f){
   
   const totals={};DIMS.forEach(d=>{totals[d.k]=recs.reduce((s,r)=>s+(r[d.k]||0),0);});
   
-  // 只显示汇总数据，横向排列
   let h=`<div style="font-size:0.8rem;color:#475569;margin:6px 0 4px;">📊 ${v==='week'?'本周':v==='month'?'本月':'筛选'}汇总</div>`;
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
   DIMS.forEach(d=>{
@@ -469,7 +459,32 @@ function renderIList(rid){
   d.querySelectorAll('.edit-btn').forEach(b=>{b.addEventListener('click',function(e){e.stopPropagation();editName(this.dataset.id);});});
   d.querySelectorAll('.delI-btn').forEach(b=>{b.addEventListener('click',function(e){e.stopPropagation();if(confirm('删除该实习生及所有数据？')){const iid=this.dataset.id;interns=interns.filter(x=>x.id!==iid);delete daily[iid];delete selRows[iid];delete curPage[iid];delete viewMode[iid];ss('kolInterns',interns);ss('kolDaily',daily);if(selIntern===iid)selIntern=null;renderAll();switchR(rid);}});});
 }
-function selectI(iid,rid){selIntern=iid;if(!curPage[iid])curPage[iid]=1;if(!selRows[iid])selRows[iid]=new Set();if(!viewMode[iid])viewMode[iid]='week';initFilter(rid);document.querySelectorAll(`#ilist-${rid} .intern-item`).forEach(el=>{el.classList.remove('selected');if(el.dataset.id===iid)el.classList.add('selected');});const f=filterS[rid];if(f){const si=document.getElementById(`fs-${rid}`);if(si)si.value=f.start||'';const ei=document.getElementById(`fe-${rid}`);if(ei)ei.value=f.end||'';updateQuickBtns(rid,f.period||'week');updateFilterInfo(rid);}refreshAll(rid,iid);}
+function selectI(iid,rid){
+  selIntern=iid;
+  if(!curPage[iid])curPage[iid]=1;
+  if(!selRows[iid])selRows[iid]=new Set();
+  // ★ 删除了 if(!viewMode[iid])viewMode[iid]='week'; 这行
+  
+  initFilter(rid);
+  
+  // 更新实习生列表选中样式
+  document.querySelectorAll(`#ilist-${rid} .intern-item`).forEach(el=>{
+    el.classList.remove('selected');
+    if(el.dataset.id===iid)el.classList.add('selected');
+  });
+  
+  // ★ 删除了视图标签同步的代码（vtabs相关）
+  
+  // 同步筛选面板
+  const f=filterS[rid];
+  if(f){
+    const si=document.getElementById(`fs-${rid}`);if(si)si.value=f.start||'';
+    const ei=document.getElementById(`fe-${rid}`);if(ei)ei.value=f.end||'';
+    updateQuickBtns(rid,f.period||'week');
+    updateFilterInfo(rid);
+  }
+  refreshAll(rid,iid);
+}
 function editName(iid){const i=interns.find(x=>x.id===iid);if(!i)return;const ov=document.createElement('div');ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box"><h3>修改名字</h3><input type="text" id="nn" value="${i.name}"><div class="modal-actions"><button class="btn-sm btn-gray" id="canc">取消</button><button class="btn-sm btn-blue" id="conf">确认</button></div></div>`;document.body.appendChild(ov);document.getElementById('nn').focus();document.getElementById('canc').addEventListener('click',()=>ov.remove());document.getElementById('conf').addEventListener('click',()=>{const nm=document.getElementById('nn').value.trim();if(!nm)return;i.name=nm;ss('kolInterns',interns);ov.remove();renderAll();switchR(curRegion);});ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});}
 
 function showAdd(rid){const ov=document.createElement('div');ov.className='modal-overlay';ov.innerHTML=`<div class="modal-box"><h3>新增实习生</h3><label>名字</label><input type="text" id="nn2"><label>地区</label><select id="nr">${R.map(r=>`<option value="${r.id}" ${r.id===rid?'selected':''}>${r.name}</option>`).join('')}</select><div class="modal-actions"><button class="btn-sm btn-gray" id="canc2">取消</button><button class="btn-sm btn-blue" id="conf2">添加</button></div></div>`;document.body.appendChild(ov);document.getElementById('canc2').addEventListener('click',()=>ov.remove());document.getElementById('conf2').addEventListener('click',()=>{const nm=document.getElementById('nn2').value.trim(),rg=document.getElementById('nr').value;if(!nm)return;const nid=rg.substring(0,2)+(interns.filter(x=>x.region===rg).length+1);interns.push({id:nid,name:nm,region:rg});daily[nid]=[];ss('kolInterns',interns);ss('kolDaily',daily);ov.remove();renderAll();switchR(rg);});ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});}
@@ -500,13 +515,24 @@ function showUpload(rid){const ir=getByRegion(rid);if(ir.length===0){alert('请�
   ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
 }
 
-function switchR(rid){curRegion=rid;initFilter(rid);document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.tab-btn[data-region="${rid}"]`).classList.add('active');document.querySelectorAll('.region-panel').forEach(p=>p.classList.remove('active'));document.getElementById(`panel-${rid}`).classList.add('active');renderRank(rid);const f=filterS[rid];if(f){setTimeout(()=>{const si=document.getElementById(`fs-${rid}`);if(si)si.value=f.start||'';const ei=document.getElementById(`fe-${rid}`);if(ei)ei.value=f.end||'';updateQuickBtns(rid,f.period||'week');updateFilterInfo(rid);},50);}const ir=getByRegion(rid);if(ir.length>0){selIntern=ir[0].id;if(!curPage[selIntern])curPage[selIntern]=1;if(!selRows[selIntern])selRows[selIntern]=new Set();if(!viewMode[selIntern])viewMode[selIntern]='week';renderIList(rid);refreshAll(rid,selIntern);}else{selIntern=null;document.getElementById(`tbl-${rid}`).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';document.getElementById(`scards-${rid}`).innerHTML='';document.getElementById(`analysis-${rid}`).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';}}
+function switchR(rid){curRegion=rid;initFilter(rid);document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.tab-btn[data-region="${rid}"]`).classList.add('active');document.querySelectorAll('.region-panel').forEach(p=>p.classList.remove('active'));document.getElementById(`panel-${rid}`).classList.add('active');renderRank(rid);const f=filterS[rid];if(f){setTimeout(()=>{const si=document.getElementById(`fs-${rid}`);if(si)si.value=f.start||'';const ei=document.getElementById(`fe-${rid}`);if(ei)ei.value=f.end||'';updateQuickBtns(rid,f.period||'week');updateFilterInfo(rid);},50);}const ir=getByRegion(rid);if(ir.length>0){selIntern=ir[0].id;if(!curPage[selIntern])curPage[selIntern]=1;if(!selRows[selIntern])selRows[selIntern]=new Set();renderIList(rid);refreshAll(rid,selIntern);}else{selIntern=null;document.getElementById(`tbl-${rid}`).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';document.getElementById(`scards-${rid}`).innerHTML='';document.getElementById(`analysis-${rid}`).innerHTML='<p style="font-size:0.8rem;color:#94a3b8;">暂无实习生</p>';}}
 
 document.getElementById('regionTabs').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(!b)return;switchR(b.dataset.region);});
 
 loadAll();renderAll();
 const ft=getByRegion('taiwan')[0];
-if(ft){selIntern=ft.id;curPage[selIntern]=1;selRows[selIntern]=new Set();viewMode[selIntern]='week';initFilter('taiwan');setTimeout(()=>{renderIList('taiwan');refreshAll('taiwan',selIntern);renderRank('taiwan');},50);}
+if(ft){
+  selIntern=ft.id;
+  curPage[selIntern]=1;
+  selRows[selIntern]=new Set();
+  // ★ 删除了 viewMode[selIntern]='week'; 这行
+  initFilter('taiwan');
+  setTimeout(()=>{
+    renderIList('taiwan');
+    refreshAll('taiwan',selIntern);
+    renderRank('taiwan');
+  },50);
+}
 })();
 </script>
 </body>
