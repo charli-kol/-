@@ -142,7 +142,30 @@ function setFilterPeriod(rid,p){
 function updateQuickBtns(rid,ap){document.querySelectorAll(`#qb-${rid} .quick-btn`).forEach(b=>{b.classList.remove('active-filter');if(b.dataset.period===ap)b.classList.add('active-filter');});}
 function updateFilterInfo(rid){const el=document.getElementById(`finfo-${rid}`);if(!el)return;const st=filterS[rid];if(!st||(!st.start&&!st.end))el.textContent='全部';else if(st.start&&st.end&&st.start===st.end)el.textContent=st.start;else el.textContent=(st.start||'最早')+' ~ '+(st.end||'最晚');}
 function getFilter(rid){if(!filterS[rid])initFilter(rid);return filterS[rid];}
-function applyCustomFilter(rid){const s=document.getElementById(`fs-${rid}`).value,e=document.getElementById(`fe-${rid}`).value;if(!s&&!e){setFilterPeriod(rid,'all');return;}if(s&&e&&s>e){alert('开始日期不能晚于结束日期');return;}filterS[rid]={start:s,end:e,period:'custom'};updateQuickBtns(rid,'custom');updateFilterInfo(rid);}
+function applyCustomFilter(rid){
+  const s=document.getElementById(`fs-${rid}`).value;
+  const e=document.getElementById(`fe-${rid}`).value;
+  
+  if(!s&&!e){
+    setFilterPeriod(rid,'all');
+    return;
+  }
+  if(s&&e&&s>e){
+    alert('开始日期不能晚于结束日期');
+    return;
+  }
+  
+  // ★ 保存筛选状态
+  filterS[rid]={start:s,end:e,period:'custom'};
+  updateQuickBtns(rid,'custom');
+  updateFilterInfo(rid);
+  
+  // ★ 重置分页
+  if(selIntern){
+    curPage[selIntern]=1;
+    selRows[selIntern]=new Set();
+  }
+}
 
 function renderAll(){
   const c=document.getElementById('regionPanelsContainer');c.innerHTML='';
@@ -203,7 +226,14 @@ function bindBtns(rid){
   document.getElementById(`stdBtn-${rid}`)?.addEventListener('click',()=>showStd(rid));
   document.getElementById(`upBtn-${rid}`)?.addEventListener('click',()=>showUpload(rid));
   document.getElementById(`calcB-${rid}`)?.addEventListener('click',()=>calcBonus(rid));
-  document.getElementById(`applyF-${rid}`)?.addEventListener('click',()=>{applyCustomFilter(rid);if(selIntern)refreshAll(rid,selIntern);});
+    document.getElementById(`applyF-${rid}`)?.addEventListener('click',()=>{
+    applyCustomFilter(rid);
+    if(selIntern){
+      curPage[selIntern]=1;
+      selRows[selIntern]=new Set();
+      refreshAll(rid,selIntern);
+    }
+  });
   document.getElementById(`clearF-${rid}`)?.addEventListener('click',()=>{setFilterPeriod(rid,'all');if(selIntern)refreshAll(rid,selIntern);});
   document.querySelectorAll(`#qb-${rid} .quick-btn`).forEach(b=>{
     b.addEventListener('click',function(){setFilterPeriod(rid,this.dataset.period);if(selIntern)refreshAll(rid,selIntern);});
@@ -213,33 +243,26 @@ function bindBtns(rid){
 function refreshAll(rid,iid){
   const f=getFilter(rid);
   const cd=document.getElementById(`scards-${rid}`);
+  const tbl=document.getElementById(`tbl-${rid}`);
   
   // 根据筛选period判断视图模式
   const period=f.period||'week';
   
-  if(period==='all'){
-    // 全部：只显示表格，不显示汇总
+  if(period==='all' || period==='custom'){
+    // 全部或自定义：显示表格，不显示汇总卡片
     if(cd)cd.innerHTML='';
-    document.getElementById(`tbl-${rid}`).style.display='block';
+    if(tbl)tbl.style.display='block';
     renderTable(rid,iid,f.start,f.end);
   }else{
-    // 其他周期：显示汇总卡片，隐藏表格
+    // 预设周期：显示汇总卡片，隐藏表格
     if(cd)cd.innerHTML=renderStdBar(rid);
     
-    // 判断是周视图还是月视图
     let view='week';
     if(period==='month'||period==='lastMonth')view='month';
     if(period==='today')view='week';
-    if(period==='custom'){
-      // 自定义日期：根据日期范围判断
-      if(f.start&&f.end){
-        const diff=Math.ceil((new Date(f.end)-new Date(f.start))/(86400000));
-        view=diff>14?'month':'week';
-      }
-    }
     
     renderCards(rid,iid,view,f);
-    document.getElementById(`tbl-${rid}`).style.display='none';
+    if(tbl)tbl.style.display='none';
   }
   renderAnalysis(rid,iid);
 }
@@ -254,20 +277,38 @@ function renderStdBar(rid){
 function renderCards(rid,iid,v,f){
   const cd=document.getElementById(`scards-${rid}`);if(!cd)return;
   const tgts=(standards[rid]||{}).targets||{};
+  
+  // ★ 获取所有记录并应用筛选
   let recs=(daily[iid]||[]).slice();
-  if(f.start&&f.end)recs=recs.filter(r=>r.date>=f.start&&r.date<=f.end);
-  else if(f.start)recs=recs.filter(r=>r.date>=f.start);
-  else if(f.end)recs=recs.filter(r=>r.date<=f.end);
+  if(f&&f.start&&f.end){
+    recs=recs.filter(r=>r.date>=f.start&&r.date<=f.end);
+  }else if(f&&f.start){
+    recs=recs.filter(r=>r.date>=f.start);
+  }else if(f&&f.end){
+    recs=recs.filter(r=>r.date<=f.end);
+  }
   
-  if(v==='week'){const ws=getWeekStart();recs=recs.filter(r=>r.date>=ws);}
-  else if(v==='month'){const ms=getMonthStart();recs=recs.filter(r=>r.date>=ms);}
+  // 根据视图进一步筛选
+  if(v==='week'){
+    const ws=getWeekStart();
+    recs=recs.filter(r=>r.date>=ws);
+  }else if(v==='month'){
+    const ms=getMonthStart();
+    recs=recs.filter(r=>r.date>=ms);
+  }
   
-  if(recs.length===0){cd.innerHTML+='<p style="color:#94a3b8;font-size:0.75rem;padding:8px;">暂无数据</p>';return;}
+  if(recs.length===0){
+    cd.innerHTML+='<p style="color:#94a3b8;font-size:0.75rem;padding:8px;">该周期暂无数据</p>';
+    return;
+  }
   
-  const totals={};DIMS.forEach(d=>{totals[d.k]=recs.reduce((s,r)=>s+(r[d.k]||0),0);});
+  // 汇总计算...
+  const totals={};
+  DIMS.forEach(d=>{totals[d.k]=recs.reduce((s,r)=>s+(r[d.k]||0),0);});
   
-  let h=`<div style="font-size:0.8rem;color:#475569;margin:6px 0 4px;">📊 ${v==='week'?'本周':v==='month'?'本月':'筛选'}汇总</div>`;
+  let h=`<div style="font-size:0.8rem;color:#475569;margin:6px 0 4px;">📊 ${v==='week'?'本周':v==='month'?'本月':'筛选'}汇总 (${recs.length}条记录)</div>`;
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+  
   DIMS.forEach(d=>{
     const tv=totals[d.k],tgt=tgts[d.k]||0,pct=tgt>0?Math.round(tv/tgt*100):0;
     h+=`<div class="mini-card" style="flex:1;min-width:90px;">`;
@@ -282,14 +323,41 @@ function renderCards(rid,iid,v,f){
 
 function renderTable(rid,iid,fs,fe){
   const c=document.getElementById(`tbl-${rid}`);if(!c)return;
-  if(!curPage[iid])curPage[iid]=1;if(!selRows[iid])selRows[iid]=new Set();
+  
+  // ★ 关键：如果没传筛选参数，从filterState获取
+  if(fs===undefined&&fe===undefined){
+    const f=getFilter(rid);
+    fs=f.start;fe=f.end;
+  }
+  
+  if(!curPage[iid])curPage[iid]=1;
+  if(!selRows[iid])selRows[iid]=new Set();
+  
+  // 获取所有记录
   let all=(daily[iid]||[]).slice();
-  if(fs&&fe)all=all.filter(r=>r.date>=fs&&r.date<=fe);
-  else if(fs)all=all.filter(r=>r.date>=fs);
-  else if(fe)all=all.filter(r=>r.date<=fe);
-  const tp=Math.ceil(all.length/PS)||1;let pg=curPage[iid];if(pg>tp)pg=tp;if(pg<1)pg=1;curPage[iid]=pg;
-  const start=(pg-1)*PS,recs=all.slice(start,start+PS),sset=selRows[iid];
+  
+  // 应用筛选
+  if(fs&&fe){
+    all=all.filter(r=>r.date>=fs&&r.date<=fe);
+  }else if(fs){
+    all=all.filter(r=>r.date>=fs);
+  }else if(fe){
+    all=all.filter(r=>r.date<=fe);
+  }
+  
+  // 计算分页
+  const tp=Math.ceil(all.length/PS)||1;
+  let pg=curPage[iid];
+  if(pg>tp)pg=tp;
+  if(pg<1)pg=1;
+  curPage[iid]=pg;
+  
+  const start=(pg-1)*PS;
+  const recs=all.slice(start,start+PS);
+  const sset=selRows[iid];
   const allSel=recs.length>0&&recs.every((_,i)=>sset.has((pg-1)*PS+i));
+
+  // 后面的HTML构建代码保持不变...
 
   let h=`<div class="toolbar"><button class="btn-sm btn-red" id="bdel-${rid}" ${sset.size===0?'disabled':''}>🗑 删除(${sset.size})</button><span style="font-size:0.7rem;color:#64748b;">共${all.length}条</span></div>`;
   h+=`<div class="table-wrapper"><table><thead><tr><th><input type="checkbox" id="sall-${rid}" ${allSel?'checked':''}></th><th>日期</th>${DIMS.map(d=>`<th>${d.i}${d.l}</th>`).join('')}<th></th></tr></thead><tbody>`;
