@@ -182,7 +182,7 @@ function renderAll(){
   var c=document.getElementById('regionPanelsContainer');c.innerHTML='';
   R.forEach(function(r){
     var p=document.createElement('div');p.className='region-panel '+(r.id===curRegion?'active':'');p.id='panel-'+r.id;
-    p.innerHTML='<div class="intern-sidebar"><h3 style="margin-bottom:10px;font-size:1rem;">'+r.flag+' '+r.name+'</h3><div id="ilist-'+r.id+'"></div><button class="btn-sm btn-green btn-full" id="addBtn-'+r.id+'">+ 新增实习生</button><button class="btn-sm btn-orange btn-full" id="stdBtn-'+r.id+'">⚙️ 周标准</button><div style="background:#fefce8;border-radius:10px;padding:12px;margin-top:10px;"><h4 style="font-size:0.8rem;margin-bottom:6px;">🏆 本周排名</h4><div id="rank-'+r.id+'"></div></div><div class="bonus-section" id="bonus-'+r.id+'"><h4 style="font-size:0.8rem;margin-bottom:6px;">💰 奖金计算</h4><div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><input type="date" id="bs-'+r.id+'" style="width:120px;"><span>~</span><input type="date" id="be-'+r.id+'" style="width:120px;"><button class="btn-sm btn-orange" id="calcB-'+r.id+'">计算</button></div><div id="bresult-'+r.id+'" style="font-size:0.7rem;margin-top:6px;">选择日期后计算</div><details><summary>📋 规则</summary><table class="rule-table"><tr><th>新增主播</th><th>评论/条</th><th>视频/条</th></tr><tr><td>&lt;2</td><td>$0</td><td>$0</td></tr><tr><td>3-5</td><td>$0.5</td><td>$5</td></tr><tr><td>6-8</td><td>$0.8</td><td>$8</td></tr><tr><td>9-11</td><td>$1</td><td>$10</td></tr><tr><td>12-14</td><td>$1.2</td><td>$12</td></tr><tr><td>15-20</td><td>$1.4</td><td>$14</td></tr><tr><td>21-30</td><td>$1.6</td><td>$16</td></tr><tr><td>≥31</td><td>$1.8</td><td>$18</td></tr></table></details></div></div><div class="data-main"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;"><h3 style="font-size:1rem;">📋 日报</h3><button class="btn-sm btn-green" id="upBtn-'+r.id+'">📁 批量上传</button></div><div class="filter-bar" id="fbar-'+r.id+'"><span style="font-weight:600;">📅</span><input type="date" id="fs-'+r.id+'"><span>~</span><input type="date" id="fe-'+r.id+'"><div class="quick-btns" id="qb-'+r.id+'" style="display:flex;gap:3px;"><button class="quick-btn" data-period="today">今天</button><button class="quick-btn active-filter" data-period="week">本周</button><button class="quick-btn" data-period="month">本月</button><button class="quick-btn" data-period="lastMonth">上月</button><button class="quick-btn" data-period="all">全部</button></div><button class="btn-sm btn-cyan" id="applyF-'+r.id+'">应用</button><button class="btn-sm btn-gray" id="clearF-'+r.id+'">清除</button><span id="finfo-'+r.id+'" style="font-size:0.7rem;color:#64748b;margin-left:auto;">本周</span></div><div id="scards-'+r.id+'"></div><div id="tbl-'+r.id+'"></div><div style="background:#f9fafb;border-radius:10px;padding:14px;margin-top:10px;" id="analysis-'+r.id+'"><p style="color:#64748b;font-size:0.8rem;">👈 选择实习生查看分析</p></div></div>';
+    p.innerHTML='<div class="intern-sidebar"><h3 style="margin-bottom:10px;font-size:1rem;">'+r.flag+' '+r.name+'</h3><div id="ilist-'+r.id+'"></div><button class="btn-sm btn-green btn-full" id="addBtn-'+r.id+'">+ 新增实习生</button><button class="btn-sm btn-orange btn-full" id="stdBtn-'+r.id+'">⚙️ 周标准</button><div style="background:#fefce8;border-radius:10px;padding:12px;margin-top:10px;"><h4 style="font-size:0.8rem;margin-bottom:6px;">🏆 本周排名</h4><div id="rank-'+r.id+'"></div></div><div class="bonus-section" id="bonus-'+r.id+'"><h4 style="font-size:0.8rem;margin-bottom:6px;">💰 奖金计算</h4><div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;"><input type="date" id="bs-'+r.id+'" style="width:120px;"><span>~</span><input type="date" id="be-'+r.id+'" style="width:120px;"><button class="btn-sm btn-orange" id="calcB-'+r.id+'">计算</button></div><div id="bresult-'+r.id+'" style="font-size:0.7rem;margin-top:6px;">选择日期后计算</div><details><summary>📋 规则</summary><table class="rule-table"><tr><th>新增主播</th><th>评论/条</th><th>视频/条</th></tr><tr><td>&lt;2</td><td>¥0</td><td>¥0</td></tr><tr><td>3-5</td><td>¥0.5</td><td>¥5</td></tr><tr><td>6-8</td><td>¥0.8</td><td>¥8</td></tr><tr><td>9-11</td><td>¥1</td><td>¥10</td></tr><tr><td>12-14</td><td>¥1.2</td><td>¥12</td></tr><tr><td>15-20</td><td>¥1.4</td><td>¥14</td></tr><tr><td>21-30</td><td>¥1.6</td><td>¥16</td></tr><tr><td>≥31</td><td>¥1.8</td><td>¥18</td></tr></table></details></div></div><div class="data-main"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;"><h3 style="font-size:1rem;">📋 日报</h3><button class="btn-sm btn-green" id="upBtn-'+r.id+'">📁 批量上传</button></div><div class="filter-bar" id="fbar-'+r.id+'"><span style="font-weight:600;">📅</span><input type="date" id="fs-'+r.id+'"><span>~</span><input type="date" id="fe-'+r.id+'"><div class="quick-btns" id="qb-'+r.id+'" style="display:flex;gap:3px;"><button class="quick-btn" data-period="today">今天</button><button class="quick-btn active-filter" data-period="week">本周</button><button class="quick-btn" data-period="month">本月</button><button class="quick-btn" data-period="lastMonth">上月</button><button class="quick-btn" data-period="all">全部</button></div><button class="btn-sm btn-cyan" id="applyF-'+r.id+'">应用</button><button class="btn-sm btn-gray" id="clearF-'+r.id+'">清除</button><span id="finfo-'+r.id+'" style="font-size:0.7rem;color:#64748b;margin-left:auto;">本周</span></div><div id="scards-'+r.id+'"></div><div id="tbl-'+r.id+'"></div><div style="background:#f9fafb;border-radius:10px;padding:14px;margin-top:10px;" id="analysis-'+r.id+'"><p style="color:#64748b;font-size:0.8rem;">👈 选择实习生查看分析</p></div></div>';
     c.appendChild(p);
     renderIList(r.id);renderRank(r.id);bindBtns(r.id);
   });
@@ -301,7 +301,7 @@ function renderTable(rid,iid,fs,fe){
   document.getElementById('sall-'+rid)&&document.getElementById('sall-'+rid).addEventListener('change',function(){
     recs.forEach(function(_,i){var gi=(pg-1)*PS+i;if(this.checked)sset.add(gi);else sset.delete(gi);});
     renderTable(rid,iid,fs,fe);
-  });
+});
   
   c.querySelectorAll('.rcb').forEach(function(cb){
     cb.addEventListener('change',function(){
@@ -371,7 +371,7 @@ function renderTable(rid,iid,fs,fe){
 function batchAdd(rid,iid){
   var dt=document.getElementById('bd-'+rid).value;if(!dt){alert('请选择日期');return;}
   var rec={date:dt};
-  DIMS.forEach(function(d){var el=document.getElementById('b-'+d.k+'-'+rid);rec[d.k]=el?parseInt(el.value)||0:0;});
+  DIMS.forEach(function(d){var el=document.getElementById('b-'+d.k+'-'+rid);rec[d.k]=el?parseFloat(el.value)||0:0;});  // ← 改为parseFloat
   daily[iid].push(rec);daily[iid].sort(function(a,b){return new Date(a.date)-new Date(b.date)});ss('kolDaily',daily);
   DIMS.forEach(function(d){var el=document.getElementById('b-'+d.k+'-'+rid);if(el)el.value='';});
   curPage[iid]=Math.ceil(daily[iid].length/PS);
@@ -441,10 +441,10 @@ function calcBonus(rid){
     var recs=(daily[i.id]||[]).filter(function(r){return r.date>=s&&r.date<=e});
     var nh=recs.reduce(function(s,r){return s+(r.newHost||0)},0),cm=recs.reduce(function(s,r){return s+(r.comments||0)},0),vd=recs.reduce(function(s,r){return s+(r.video||0)},0);
     var rte=getRate(nh);var tb=cm*rte.c+vd*rte.v;gt+=tb;
-    h+='<tr><td>'+i.name+'</td><td>'+nh+'</td><td>'+cm+'</td><td>'+vd+'</td><td><strong>$'+tb.toFixed(1)+'</strong></td></tr>';
+    h+='<tr><td>'+i.name+'</td><td>'+nh+'</td><td>'+cm+'</td><td>'+vd+'</td><td><strong>¥'+tb.toFixed(1)+'</strong></td></tr>';
   });
-  h+='<tr style="background:#fef9c3;"><td colspan="4"><strong>总计</strong></td><td><strong>$'+gt.toFixed(1)+'</strong></td></tr></table>';
-  h+='<div style="display:flex;gap:8px;justify-content:center;margin-top:4px;"><span style="font-size:0.65rem;">📅周均:$'+(gt/tw).toFixed(1)+'</span><span style="font-size:0.65rem;">📆月均:$'+(gt/tm).toFixed(1)+'</span></div></div>';
+  h+='<tr style="background:#fef9c3;"><td colspan="4"><strong>总计</strong></td><td><strong>¥'+gt.toFixed(1)+'</strong></td></tr></table>';
+  h+='<div style="display:flex;gap:8px;justify-content:center;margin-top:4px;"><span style="font-size:0.65rem;">📅周均:¥'+(gt/tw).toFixed(1)+'</span><span style="font-size:0.65rem;">📆月均:¥'+(gt/tm).toFixed(1)+'</span></div></div>';
   rd.innerHTML=h;
 }
 function getRate(n){if(n<2)return{c:0,v:0};if(n<=5)return{c:0.5,v:5};if(n<=8)return{c:0.8,v:8};if(n<=11)return{c:1,v:10};if(n<=14)return{c:1.2,v:12};if(n<=20)return{c:1.4,v:14};if(n<=30)return{c:1.6,v:16};return{c:1.8,v:18};}
@@ -619,14 +619,15 @@ function showUpload(rid){
       var fm={};var allKeys=['date'];DIMS.forEach(function(d){allKeys.push(d.k);});
       allKeys.forEach(function(dk){var s=document.getElementById('mp-'+dk+'-'+rid);if(s&&s.value)fm[dk]=s.value;});
       var dd=document.getElementById('defdt-'+rid).value,cnt=0;
-      pdata.forEach(function(r){
+          pdata.forEach(function(r){
         var vd=dd;
         if(fm['date']&&r[fm['date']]){
           var rawDate=r[fm['date']].trim();
           var match1=rawDate.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
           if(match1){vd=match1[1]+'-'+(match1[2].length<2?'0':'')+match1[2]+'-'+(match1[3].length<2?'0':'')+match1[3];}
         }
-        var rec={date:vd};DIMS.forEach(function(d){rec[d.k]=parseInt(r[fm[d.k]])||0;});
+        var rec={date:vd};
+        DIMS.forEach(function(d){rec[d.k]=parseFloat(r[fm[d.k]])||0;});  // ← 改为parseFloat
         if(selIntern){daily[selIntern].push(rec);cnt++;}
       });
       if(selIntern)daily[selIntern].sort(function(a,b){return new Date(a.date)-new Date(b.date)});
